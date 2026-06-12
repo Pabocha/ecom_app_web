@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
-import { categories, categoryProducts, featuredProducts, formatPrice } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
+import { categories, categoryProducts, featuredProducts, formatPrice } from '@/data/data.js';
+import Icon from '@/components/shared/Icon.jsx';
 
 const normalizeProduct = product => ({
   ...product,
@@ -16,10 +18,17 @@ function fallbackProducts(category) {
   }));
 }
 
-export default function CategoryProductsPage({ category, onClose, onAddToCart, onOpenProduct, onOpenCategory }) {
+export default function CategoryProductsPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [activeSubcat, setActiveSubcat] = useState('Tous');
   const [sort, setSort] = useState('popular');
-  const currentCategory = category || categories[0];
+  const currentCategory = categories.find(c => c.name === id) || categories[0];
+
+  const handleClose = () => navigate('/');
+  const handleOpenCategory = (category) => navigate(`/category/${category?.name || category}`);
+  const handleOpenProduct = (product) => navigate(`/product/${product.id}`);
 
   const products = useMemo(() => {
     const base = categoryProducts[currentCategory.name] || fallbackProducts(currentCategory);
@@ -47,7 +56,7 @@ export default function CategoryProductsPage({ category, onClose, onAddToCart, o
               <h1 className="font-['Barlow_Condensed'] text-[34px] font-black text-[#0d1b2a] leading-none">{currentCategory.name}</h1>
             </div>
           </div>
-          <button onClick={onClose} className="bg-[#0d1b2a] hover:bg-orange-500 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={handleClose} className="bg-[#0d1b2a] hover:bg-orange-500 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Accueil
           </button>
         </div>
@@ -68,7 +77,7 @@ export default function CategoryProductsPage({ category, onClose, onAddToCart, o
             <div className="text-[12px] font-black text-[#0d1b2a] mb-2 uppercase">Autres catégories</div>
             <div className="grid gap-1">
               {categories.filter(c => c.name !== currentCategory.name).slice(0, 5).map(c => (
-                <button key={c.name} onClick={() => onOpenCategory(c)} className="flex items-center gap-2 px-2 py-2 rounded text-[12px] font-bold text-gray-500 hover:bg-gray-50 hover:text-orange-500">
+                <button key={c.name} onClick={() => handleOpenCategory(c)} className="flex items-center gap-2 px-2 py-2 rounded text-[12px] font-bold text-gray-500 hover:bg-gray-50 hover:text-orange-500">
                   <Icon name={c.icon} size={14} style={{ color: c.color }} /> {c.name}
                 </button>
               ))}
@@ -99,7 +108,7 @@ export default function CategoryProductsPage({ category, onClose, onAddToCart, o
 
           <div className="grid grid-cols-3 gap-4">
             {products.map(product => (
-              <article key={product.id} onClick={() => onOpenProduct(product)} className="group cursor-pointer rounded-lg bg-white p-3 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+              <article key={product.id} onClick={() => handleOpenProduct(product)} className="group cursor-pointer rounded-lg bg-white p-3 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative overflow-hidden rounded bg-gray-50" style={{ aspectRatio: '4 / 3' }}>
                   <img src={product.img} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   {product.discount && <span className="absolute left-2 top-2 rounded bg-orange-500 px-2 py-0.5 text-[11px] font-black text-white">{product.discount}</span>}
@@ -118,7 +127,7 @@ export default function CategoryProductsPage({ category, onClose, onAddToCart, o
                       <div className="font-['Barlow_Condensed'] text-[24px] font-black text-orange-500">{formatPrice(product.price)}</div>
                       {product.oldPrice && <div className="text-[12px] text-gray-400 line-through">{formatPrice(product.oldPrice)}</div>}
                     </div>
-                    <button onClick={e => { e.stopPropagation(); onAddToCart(product); }} className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-[#0d1b2a]">
+                    <button onClick={e => { e.stopPropagation(); addToCart(product); }} className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-[#0d1b2a]">
                       Ajouter
                     </button>
                   </div>

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { featuredProducts, formatPrice } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
-import ProductCard from '../components/product/ProductCard.jsx';
+import { useCart } from '@/hooks/useCart';
+import { featuredProducts, formatPrice } from '@/data/data.js';
+import Icon from '@/components/shared/Icon.jsx';
+import ProductCard from '@/components/product/ProductCard.jsx';
 
-export default function B2BPage({ onAddToCart, onOpenProduct, onOpenFlashDeals }) {
+export default function B2BPage() {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [selectedQuantity, setSelectedQuantity] = useState({});
   const [quoteModal, setQuoteModal] = useState(false);
   const [quoteData, setQuoteData] = useState({ email: '', company: '', phone: '', product: null });
@@ -30,6 +32,10 @@ export default function B2BPage({ onAddToCart, onOpenProduct, onOpenFlashDeals }
     setQuoteData({ ...quoteData, product });
     setQuoteModal(true);
   };
+
+  const handleOpenProduct = (product) => navigate(`/product/${product.id}`);
+  const handleOpenFlashDeals = () => navigate('/flash-deals');
+  const handleOpenCategory = (category) => navigate(`/category/${category?.name || category}`);
 
   const submitQuote = () => {
     if (quoteData.email && quoteData.company && quoteData.phone) {
@@ -56,7 +62,7 @@ export default function B2BPage({ onAddToCart, onOpenProduct, onOpenFlashDeals }
                 <button className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors flex items-center gap-2">
                   <Icon name="fileInvoice" size={18} /> Demander un devis
                 </button>
-                <button className="px-6 py-3 bg-white hover:bg-gray-100 text-gray-800 font-bold rounded-lg transition-colors">
+                <button onClick={handleOpenFlashDeals} className="px-6 py-3 bg-white hover:bg-gray-100 text-gray-800 font-bold rounded-lg transition-colors">
                   En savoir plus
                 </button>
               </div>
@@ -102,7 +108,7 @@ export default function B2BPage({ onAddToCart, onOpenProduct, onOpenFlashDeals }
               {/* Image */}
               <div
                 className="relative h-48 bg-gray-100 overflow-hidden cursor-pointer group"
-                onClick={() => onOpenProduct(product)}
+                onClick={() => handleOpenProduct(product)}
               >
                 <img
                   src={product.img}
@@ -123,7 +129,7 @@ export default function B2BPage({ onAddToCart, onOpenProduct, onOpenFlashDeals }
               <div className="p-4">
                 <h3
                   className="font-bold text-gray-800 text-sm mb-2 line-clamp-2 cursor-pointer hover:text-blue-600"
-                  onClick={() => onOpenProduct(product)}
+                  onClick={() => handleOpenProduct(product)}
                 >
                   {product.name}
                 </h3>
@@ -171,7 +177,7 @@ export default function B2BPage({ onAddToCart, onOpenProduct, onOpenFlashDeals }
                 {/* Buttons */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => onAddToCart(product)}
+                    onClick={() => addToCart(product)}
                     className="flex-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm flex items-center justify-center gap-1"
                   >
                     <Icon name="cartAdd" size={14} /> Ajouter

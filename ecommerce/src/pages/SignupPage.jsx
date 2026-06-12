@@ -1,139 +1,45 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Icon from '../components/shared/Icon.jsx';
+import { useForm } from 'react-hook-form';
+import { useSignup } from '@/hooks/useAuth';
+import Icon from '@/components/shared/Icon.jsx';
+import Button from '@/components/ui/Button.jsx';
+import Input from '@/components/ui/Input.jsx';
 
-export default function SignupPage({ onLogin }) {
+export default function SignupPage() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    passwordConfirm: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    street: '',
-    city: '',
-    postalCode: '',
-    country: '',
-    gender: '',
-    dateOfBirth: '',
+  const { signUp, isPending, error, resetError } = useSignup();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    mode: 'onBlur',
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
 
   const countries = ['France', 'Belgique', 'Suisse', 'Canada', 'Autres'];
+  const passwordValue = watch('password', '');
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email invalide';
+  const onSubmit = (data) => {
+    console.log('Form data to submit:', data);
+    if (error) {
+      resetError?.();
     }
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'Le prénom est requis';
-    }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Le nom est requis';
-    }
-    if (!formData.phone || !/^\d{10,}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Numéro invalide (min 10 chiffres)';
-    }
-    if (!formData.street.trim()) {
-      newErrors.street = 'L\'adresse est requise';
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = 'La ville est requise';
-    }
-    if (!formData.postalCode || formData.postalCode.length < 3) {
-      newErrors.postalCode = 'Code postal invalide';
-    }
-    if (!formData.country) {
-      newErrors.country = 'Le pays est requis';
-    }
-    if (!formData.gender) {
-      newErrors.gender = 'Le genre est requis';
-    }
-    if (!formData.dateOfBirth) {
-      newErrors.dateOfBirth = 'La date de naissance est requise';
-    }
-    if (formData.password.length < 6) {
-      newErrors.password = 'Min 6 caractères';
-    }
-    if (formData.password !== formData.passwordConfirm) {
-      newErrors.passwordConfirm = 'Les mots de passe ne correspondent pas';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
-
-    const user = {
-      email: formData.email,
-      phone: formData.phone,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      street: formData.street,
-      city: formData.city,
-      postalCode: formData.postalCode,
-      country: formData.country,
-      gender: formData.gender,
-      dateOfBirth: formData.dateOfBirth,
-      createdAt: new Date().toISOString(),
-    };
-
-    localStorage.setItem('user', JSON.stringify(user));
-    onLogin(user);
-    navigate('/');
-    setLoading(false);
+    signUp(data);
   };
 
   const handleOAuth = (provider) => {
-    console.log(`OAuth ${provider} - Mock handler`);
-    alert(`Inscription ${provider} - À implémenter avec backend`);
+    alert(`Inscription ${provider} à implémenter`);
   };
-
-  const FormField = ({ label, name, type = 'text', placeholder, required = true, error }) => (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={formData[name]}
-        onChange={handleChange}
-        placeholder={placeholder}
-        className={`w-full px-3 py-2.5 border-2 rounded-lg focus:outline-none transition-colors text-sm ${
-          error ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-orange-500'
-        }`}
-      />
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0d1b2a] to-[#1a2a3a] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-2xl overflow-hidden">
-        {/* Header */}
         <div className="bg-gradient-to-r from-[#0d1b2a] to-[#1a2a3a] px-6 py-8 text-center">
           <h1 className="text-3xl font-black text-white font-['Barlow_Condensed']">
             Trade<span className="text-orange-500">Hub</span>
@@ -141,208 +47,227 @@ export default function SignupPage({ onLogin }) {
           <p className="text-gray-300 text-sm mt-2">Créer votre compte</p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Email & Password Row */}
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
+            <Input
               label="Email"
-              name="email"
               type="email"
               placeholder="votre@email.com"
-              error={errors.email}
+              required
+              error={errors.email?.message}
+              {...register('email', {
+                required: 'Email requis',
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: 'Email invalide',
+                },
+              })}
             />
-            <FormField
+            <Input
               label="Téléphone"
-              name="phone"
               type="tel"
               placeholder="+33 6 12 34 56 78"
-              error={errors.phone}
+              required
+              error={errors.phone_number?.message}
+              {...register('phone_number', {
+                required: 'Téléphone requis',
+                pattern: {
+                  value: /^\+?\d{10,}$/,
+                  message: 'Numéro invalide (min 10 chiffres)',
+                },
+              })}
             />
           </div>
 
-          {/* Names Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
+            <Input
               label="Prénom"
-              name="firstName"
               placeholder="Jean"
-              error={errors.firstName}
+              required
+              error={errors.first_name?.message}
+              {...register('first_name', {
+                required: 'Le prénom est requis',
+              })}
             />
-            <FormField
+            <Input
               label="Nom"
-              name="lastName"
               placeholder="Dupont"
-              error={errors.lastName}
+              required
+              error={errors.last_name?.message}
+              {...register('last_name', {
+                required: 'Le nom est requis',
+              })}
             />
           </div>
 
-          {/* Address */}
-          <FormField
+          <Input
             label="Adresse"
-            name="street"
             placeholder="123 Rue de la Paix"
-            error={errors.street}
+            required
+            error={errors.full_address?.message}
+            {...register('full_address', {
+              required: "L'adresse est requise",
+            })}
           />
 
-          {/* City, Postal, Country Row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
+            <Input
               label="Ville"
-              name="city"
               placeholder="Paris"
-              error={errors.city}
+              required
+              error={errors.city?.message}
+              {...register('city', {
+                required: 'La ville est requise',
+              })}
             />
-            <FormField
+            <Input
               label="Code postal"
-              name="postalCode"
               placeholder="75001"
-              error={errors.postalCode}
+              type="number"
+              required
+              error={errors.postal_code?.message}
+              {...register('postal_code', {
+                required: 'Code postal requis',
+                minLength: {
+                  value: 3,
+                  message: 'Code postal invalide',
+                },
+              })}
             />
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Pays <span className="text-red-500">*</span>
               </label>
               <select
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                className={`w-full px-3 py-2.5 border-2 rounded-lg focus:outline-none transition-colors text-sm ${
-                  errors.country ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-orange-500'
-                }`}
+                {...register('country', {
+                  required: 'Le pays est requis',
+                })}
+                className={`w-full rounded-lg border-2 px-4 py-3 text-sm transition-colors focus:border-orange-500 focus:outline-none ${errors.country ? 'border-red-500' : 'border-gray-200'}`}
               >
                 <option value="">Sélectionner</option>
-                {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                {countries.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </select>
-              {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
+              {errors.country && <p className="mt-2 text-sm text-red-600">{errors.country.message}</p>}
             </div>
           </div>
 
-          {/* Gender & Date of Birth */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Genre <span className="text-red-500">*</span>
               </label>
-              <div className="flex gap-3">
-                {['Homme', 'Femme', 'Autre'].map(g => (
+              <div className="flex flex-wrap gap-3">
+                {['Homme', 'Femme', 'Autre'].map((g) => (
                   <label key={g} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
-                      name="gender"
+                      className="h-4 w-4"
                       value={g}
-                      checked={formData.gender === g}
-                      onChange={handleChange}
-                      className="w-4 h-4"
+                      {...register('gender', {
+                        required: 'Le genre est requis',
+                      })}
                     />
                     <span className="text-sm text-gray-700">{g}</span>
                   </label>
                 ))}
               </div>
-              {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+              {errors.gender && <p className="mt-2 text-sm text-red-600">{errors.gender.message}</p>}
             </div>
-            <FormField
+            <Input
               label="Date de naissance"
-              name="dateOfBirth"
               type="date"
-              error={errors.dateOfBirth}
+              required
+              error={errors.date_of_birth?.message}
+              {...register('date_of_birth', {
+                required: 'La date de naissance est requise',
+              })}
             />
           </div>
 
-          {/* Passwords Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Mot de passe <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className={`w-full px-3 py-2.5 border-2 rounded-lg focus:outline-none transition-colors text-sm pr-10 ${
-                    errors.password ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'
-                  }`}
-                />
+            <Input
+              label="Mot de passe"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              required
+              error={errors.password?.message}
+              suffix={
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   {showPassword ? <Icon name="eyeOff" size={16} /> : <Icon name="eye" size={16} />}
                 </button>
-              </div>
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Confirmer le mot de passe <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showPasswordConfirm ? 'text' : 'password'}
-                  name="passwordConfirm"
-                  value={formData.passwordConfirm}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className={`w-full px-3 py-2.5 border-2 rounded-lg focus:outline-none transition-colors text-sm pr-10 ${
-                    errors.passwordConfirm ? 'border-red-500' : 'border-gray-200 focus:border-orange-500'
-                  }`}
-                />
+              }
+              {...register('password', {
+                required: 'Le mot de passe est requis',
+                minLength: {
+                  value: 6,
+                  message: 'Min 6 caractères',
+                },
+              })}
+            />
+            <Input
+              label="Confirmer le mot de passe"
+              type={showPasswordConfirm ? 'text' : 'password'}
+              placeholder="••••••••"
+              required
+              error={errors.passwordConfirm?.message}
+              suffix={
                 <button
                   type="button"
                   onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
-                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   {showPasswordConfirm ? <Icon name="eyeOff" size={16} /> : <Icon name="eye" size={16} />}
                 </button>
-              </div>
-              {errors.passwordConfirm && <p className="text-red-500 text-xs mt-1">{errors.passwordConfirm}</p>}
-            </div>
+              }
+              {...register('passwordConfirm', {
+                required: 'Confirmation requise',
+                validate: (value) => value === passwordValue || 'Les mots de passe ne correspondent pas',
+              })}
+            />
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-          >
-            {loading ? 'Création...' : 'Créer mon compte'}
-          </button>
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              ❌ {error}
+            </div>
+          )}
 
-          {/* Divider */}
+          <Button type="submit" variant="primary" size="lg" fullWidth loading={isPending}>
+            {isPending ? 'Création...' : 'Créer mon compte'}
+          </Button>
+
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-white text-gray-500">Ou s'inscrire avec</span>
             </div>
           </div>
 
-          {/* OAuth Buttons */}
           <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleOAuth('Google')}
-              className="flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <span className="text-xl">🔍</span>
-              <span className="font-semibold text-gray-700 text-sm">Google</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOAuth('Facebook')}
-              className="flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <span className="text-xl">f</span>
-              <span className="font-semibold text-gray-700 text-sm">Facebook</span>
-            </button>
+            <Button type="button" variant="secondary" size="md" fullWidth onClick={() => handleOAuth('Google')}>
+              <span className="flex items-center gap-2">
+                <span className="text-xl">🔍</span>
+                <span className="font-semibold text-gray-700 text-sm">Google</span>
+              </span>
+            </Button>
+            <Button type="button" variant="secondary" size="md" fullWidth onClick={() => handleOAuth('Facebook')}>
+              <span className="flex items-center gap-2">
+                <span className="text-xl">f</span>
+                <span className="font-semibold text-gray-700 text-sm">Facebook</span>
+              </span>
+            </Button>
           </div>
 
-          {/* Login Link */}
           <div className="text-center mt-6 pt-6 border-t border-gray-200">
             <p className="text-gray-600 text-sm">
               Vous avez déjà un compte ?{' '}

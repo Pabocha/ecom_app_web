@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { categories, trendingSubcats, b2bCategories } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate } from 'react-router-dom';
+import { categories, trendingSubcats, b2bCategories } from '@/data/data.js';
+import Icon from '@/components/shared/Icon.jsx';
 
-export default function AllCategoriesPage({ onClose, onOpenCategory }) {
+export default function AllCategoriesPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('Tous');
 
@@ -22,7 +24,7 @@ export default function AllCategoriesPage({ onClose, onOpenCategory }) {
           Trade<span className="text-orange-500">Hub</span>
         </div>
         <button
-          onClick={onClose}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-gray-300 hover:text-white text-[13px] px-3.5 py-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors"
         >
           <Icon name="arrowLeft" /> Retour à l'accueil
@@ -99,7 +101,7 @@ export default function AllCategoriesPage({ onClose, onOpenCategory }) {
           {filtered.map((cat, i) => (
             <div
               key={cat.name}
-              onClick={() => onOpenCategory?.(cat)}
+              onClick={() => navigate(`/category/${cat.name}`)}
               className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group"
               style={{ animationDelay: `${i * 60}ms` }}
             >

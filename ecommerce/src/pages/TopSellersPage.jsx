@@ -1,7 +1,9 @@
-import { suppliers, formatPrice } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate } from 'react-router-dom';
+import { suppliers, formatPrice } from '@/data/data.js';
+import Icon from '@/components/shared/Icon.jsx';
 
-export default function TopSellersPage({ onClose, onOpenSeller }) {
+export default function TopSellersPage() {
+  const navigate = useNavigate();
   const topSellers = [
     { id: 1, name: 'TechStore Dakar', rating: 4.8, sales: '12,400+', category: 'Électronique', img: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&q=80', description: 'Leader en électronique grand public', badge: 'Certifié' },
     { id: 2, name: 'Mode Dakar', rating: 4.7, sales: '8,900+', category: 'Mode & Vêtements', img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=100&q=80', description: 'Spécialiste de la mode africaine', badge: 'Top Vendeur' },
@@ -17,7 +19,7 @@ export default function TopSellersPage({ onClose, onOpenSeller }) {
             <div className="text-[11px] uppercase tracking-[2px] text-amber-300 font-black">Partenaires</div>
             <h1 className="font-['Barlow_Condensed'] text-[34px] font-black leading-none">Top Vendeurs</h1>
           </div>
-          <button onClick={onClose} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Retour
           </button>
         </div>

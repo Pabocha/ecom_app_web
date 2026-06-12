@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { cartRecommendations, formatPrice } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
+import { cartRecommendations, formatPrice } from '@/data/data.js';
+import { useAuth } from '@/hooks/useAuth.js';
+import Icon from '@/components/shared/Icon.jsx';
 
 const paymentMethods = [
   {
@@ -89,10 +92,13 @@ function variantLabel(selection) {
   return Object.entries(selection).map(([key, value]) => `${key}: ${value}`).join(' · ');
 }
 
-export default function CartPage({ items, onClose, onQty, onRemove, onOpenProduct, onAddToCart }) {
+export default function CartPage() {
+  const navigate = useNavigate();
+  const { cartItems, changeQty, removeItem, addToCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState('wave');
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantSelection, setVariantSelection] = useState({});
+  const items = cartItems;
   const subtotal = items.reduce((s, item) => s + item.price * item.qty, 0);
   const totalQty = items.reduce((s, item) => s + item.qty, 0);
   const shipping = subtotal >= 50000 || subtotal === 0 ? 0 : 2500;
@@ -107,17 +113,17 @@ export default function CartPage({ items, onClose, onQty, onRemove, onOpenProduc
       return;
     }
 
-    onAddToCart(product);
+    addToCart(product, false);
   };
 
   const confirmVariant = () => {
     const label = variantLabel(variantSelection);
-    onAddToCart({
+    addToCart({
       ...variantProduct,
       cartKey: `${variantProduct.id}-${Object.values(variantSelection).join('-')}`,
       name: `${variantProduct.name} (${label})`,
       selectedVariants: variantSelection,
-    });
+    }, false);
     setVariantProduct(null);
     setVariantSelection({});
   };
@@ -130,7 +136,7 @@ export default function CartPage({ items, onClose, onQty, onRemove, onOpenProduc
             <div className="text-[11px] uppercase tracking-[2px] text-orange-300 font-black">Checkout</div>
             <h1 className="font-['Barlow_Condensed'] text-[34px] font-black leading-none">Mon panier</h1>
           </div>
-          <button onClick={onClose} className="bg-white/10 hover:bg-white/15 px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="bg-white/10 hover:bg-white/15 px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Continuer mes achats
           </button>
         </div>
@@ -157,11 +163,11 @@ export default function CartPage({ items, onClose, onQty, onRemove, onOpenProduc
               <div className="divide-y divide-gray-100">
                 {items.map(item => (
                   <article key={item.cartKey || item.id} className="p-4 grid grid-cols-[96px_1fr_auto] gap-4">
-                    <button onClick={() => onOpenProduct?.(item)} className="overflow-hidden rounded bg-gray-50">
+                    <button onClick={() => navigate(`/product/${item.id}`)} className="overflow-hidden rounded bg-gray-50">
                       <img src={item.img} alt={item.name} className="h-24 w-24 object-cover transition-transform hover:scale-105" />
                     </button>
                     <div>
-                      <button onClick={() => onOpenProduct?.(item)} className="text-left text-[15px] font-black text-[#0d1b2a] hover:text-orange-500">
+                      <button onClick={() => navigate(`/product/${item.id}`)} className="text-left text-[15px] font-black text-[#0d1b2a] hover:text-orange-500">
                         {item.name}
                       </button>
                       <div className="mt-1 text-[12px] text-gray-400">{item.supplier || 'TradeHub Seller'}</div>
@@ -169,10 +175,10 @@ export default function CartPage({ items, onClose, onQty, onRemove, onOpenProduc
                         <div className="mt-1 text-[11px] font-bold text-orange-500">{variantLabel(item.selectedVariants)}</div>
                       )}
                       <div className="mt-3 flex items-center gap-2">
-                        <button onClick={() => onQty(item.cartKey || item.id, -1)} className="h-8 w-8 rounded border border-gray-200 font-black hover:border-orange-400 hover:text-orange-500">−</button>
+                        <button onClick={() => changeQty(item.cartKey || item.id, -1)} className="h-8 w-8 rounded border border-gray-200 font-black hover:border-orange-400 hover:text-orange-500">−</button>
                         <span className="h-8 min-w-10 rounded bg-gray-50 px-3 text-center text-[14px] font-black leading-8">{item.qty}</span>
-                        <button onClick={() => onQty(item.cartKey || item.id, 1)} className="h-8 w-8 rounded border border-gray-200 font-black hover:border-orange-400 hover:text-orange-500">+</button>
-                        <button onClick={() => onRemove(item.cartKey || item.id)} className="ml-2 flex items-center gap-1 text-[12px] font-bold text-gray-400 hover:text-red-500">
+                        <button onClick={() => changeQty(item.cartKey || item.id, 1)} className="h-8 w-8 rounded border border-gray-200 font-black hover:border-orange-400 hover:text-orange-500">+</button>
+                        <button onClick={() => removeItem(item.cartKey || item.id)} className="ml-2 flex items-center gap-1 text-[12px] font-bold text-gray-400 hover:text-red-500">
                           <Icon name="trash" size={13} /> Retirer
                         </button>
                       </div>
@@ -233,7 +239,7 @@ export default function CartPage({ items, onClose, onQty, onRemove, onOpenProduc
             <div className="grid grid-cols-3 gap-3">
               {cartRecommendations.map(product => (
                 <article key={product.id} className="group rounded-lg border border-gray-100 bg-white p-3 transition-all hover:-translate-y-0.5 hover:shadow-lg">
-                  <button onClick={() => onOpenProduct?.(product)} className="relative block w-full overflow-hidden rounded bg-gray-50" style={{ aspectRatio: '4 / 3' }}>
+                  <button onClick={() => navigate(`/product/${product.id}`)} className="relative block w-full overflow-hidden rounded bg-gray-50" style={{ aspectRatio: '4 / 3' }}>
                     <img src={product.img} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                     {product.discount && <span className="absolute left-2 top-2 rounded bg-orange-500 px-2 py-0.5 text-[11px] font-black text-white">{product.discount}</span>}
                     {hasVariants(product) && <span className="absolute right-2 top-2 rounded bg-[#0d1b2a] px-2 py-0.5 text-[10px] font-black text-white">Variantes</span>}

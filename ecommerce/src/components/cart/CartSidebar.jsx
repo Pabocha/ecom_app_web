@@ -1,9 +1,32 @@
+import { memo, useMemo } from 'react';
 import { formatPrice } from '../../data/data.js';
 import Icon from '../shared/Icon.jsx';
 
-export default function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage }) {
-  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
-  const totalQty = items.reduce((s, i) => s + i.qty, 0);
+const CartSidebarItem = memo(function CartSidebarItem({ item, onQty, onRemove }) {
+  const itemId = item.cartKey || item.id;
+
+  return (
+    <div key={itemId} className="flex gap-3 py-3 border-b border-gray-100">
+      <img src={item.img} alt={item.name} className="w-16 h-16 rounded object-cover shrink-0" />
+      <div className="flex-1 min-w-0">
+        <div className="text-[13px] font-semibold text-[#0d1b2a] leading-tight mb-1 line-clamp-2">{item.name}</div>
+        <div className="font-['Barlow_Condensed'] text-[16px] font-black text-orange-500">{formatPrice(item.price)}</div>
+        <div className="flex items-center gap-2 mt-1.5">
+          <button onClick={() => onQty(itemId, -1)} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white flex items-center justify-center text-[14px] font-bold transition-colors">−</button>
+          <span className="text-[14px] font-bold w-5 text-center">{item.qty}</span>
+          <button onClick={() => onQty(itemId, 1)} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white flex items-center justify-center text-[14px] font-bold transition-colors">+</button>
+        </div>
+      </div>
+      <button onClick={() => onRemove(itemId)} className="text-gray-300 hover:text-red-500 transition-colors self-start text-[14px]">
+        <Icon name="trash" size={14} />
+      </button>
+    </div>
+  );
+});
+
+function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage }) {
+  const total = useMemo(() => items.reduce((s, i) => s + i.price * i.qty, 0), [items]);
+  const totalQty = useMemo(() => items.reduce((s, i) => s + i.qty, 0), [items]);
 
   return (
     <>
@@ -33,22 +56,8 @@ export default function CartSidebar({ open, onClose, items, onQty, onRemove, onO
               <p className="text-[12px] mt-1">Ajoutez des articles pour commencer</p>
             </div>
           ) : (
-            items.map(it => (
-              <div key={it.id} className="flex gap-3 py-3 border-b border-gray-100">
-                <img src={it.img} alt={it.name} className="w-16 h-16 rounded object-cover shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-semibold text-[#0d1b2a] leading-tight mb-1 line-clamp-2">{it.name}</div>
-                  <div className="font-['Barlow_Condensed'] text-[16px] font-black text-orange-500">{formatPrice(it.price)}</div>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <button onClick={() => onQty(it.id, -1)} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white flex items-center justify-center text-[14px] font-bold transition-colors">−</button>
-                    <span className="text-[14px] font-bold w-5 text-center">{it.qty}</span>
-                    <button onClick={() => onQty(it.id, 1)} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white flex items-center justify-center text-[14px] font-bold transition-colors">+</button>
-                  </div>
-                </div>
-                <button onClick={() => onRemove(it.id)} className="text-gray-300 hover:text-red-500 transition-colors self-start text-[14px]">
-                  <Icon name="trash" size={14} />
-                </button>
-              </div>
+            items.map((item) => (
+              <CartSidebarItem key={item.cartKey || item.id} item={item} onQty={onQty} onRemove={onRemove} />
             ))
           )}
         </div>
@@ -75,3 +84,5 @@ export default function CartSidebar({ open, onClose, items, onQty, onRemove, onO
     </>
   );
 }
+
+export default memo(CartSidebar);

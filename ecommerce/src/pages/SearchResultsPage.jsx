@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { featuredProducts, categoryProducts } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
-import ProductCard from '../components/product/ProductCard.jsx';
+import { useCart } from '@/hooks/useCart';
+import { featuredProducts, categoryProducts } from '@/data/data.js';
+import Icon from '@/components/shared/Icon.jsx';
+import ProductCard from '@/components/product/ProductCard.jsx';
 
-export default function SearchResultsPage({ onAddToCart, onOpenProduct }) {
+export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const query = searchParams.get('q') || '';
   const searchType = searchParams.get('type') || 'Produits';
 
@@ -68,8 +70,8 @@ export default function SearchResultsPage({ onAddToCart, onOpenProduct }) {
             <ProductCard
               key={`${p.id}-${p.cartKey || 'default'}`}
               product={p}
-              onAddToCart={() => onAddToCart(p)}
-              onOpenProduct={() => onOpenProduct(p)}
+              onAddToCart={() => addToCart(p)}
+              onOpenProduct={() => navigate(`/product/${p.id}`)}
               showDiscount={true}
             />
           ))}

@@ -1,6 +1,8 @@
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate } from 'react-router-dom';
+import Icon from '@/components/shared/Icon.jsx';
 
-export default function HelpPage({ onClose }) {
+export default function HelpPage() {
+  const navigate = useNavigate();
   const faqs = [
     {
       category: 'Achat & Panier',
@@ -40,7 +42,7 @@ export default function HelpPage({ onClose }) {
             <div className="text-[11px] uppercase tracking-[2px] text-cyan-300 font-black">Support</div>
             <h1 className="font-['Barlow_Condensed'] text-[34px] font-black leading-none">Aide & Support</h1>
           </div>
-          <button onClick={onClose} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Retour
           </button>
         </div>

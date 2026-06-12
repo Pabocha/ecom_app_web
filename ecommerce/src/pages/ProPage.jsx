@@ -1,6 +1,8 @@
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate } from 'react-router-dom';
+import Icon from '@/components/shared/Icon.jsx';
 
-export default function ProPage({ onClose }) {
+export default function ProPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-[#111827] pb-12 text-white">
       <div className="sticky top-0 z-20 border-b border-white/10 bg-[#111827]/95 backdrop-blur">
@@ -9,7 +11,7 @@ export default function ProPage({ onClose }) {
             <div className="text-[11px] uppercase tracking-[2px] text-indigo-300 font-black">Partenariats</div>
             <h1 className="font-['Barlow_Condensed'] text-[34px] font-black leading-none">Programme Pro</h1>
           </div>
-          <button onClick={onClose} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Retour
           </button>
         </div>

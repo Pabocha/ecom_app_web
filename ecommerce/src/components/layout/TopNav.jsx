@@ -112,9 +112,9 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
                         </span>
                         <div>
                           <div className="text-[14px] font-black">
-                            {user.firstName} {user.lastName}
+                            {user.first_name} {user.last_name}
                           </div>
-                          <div className="text-[11px] text-gray-400">{user.email || user.phone}</div>
+                          <div className="text-[11px] text-gray-400">{user.email || user.phone_number}</div>
                         </div>
                       </div>
                     </div>

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
 import { allFlashDeals, flashDealCategories, formatPrice } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
+import Icon from '@/components/shared/Icon.jsx';
 
 const normalizeDeal = deal => ({
   ...deal,
@@ -10,7 +12,9 @@ const normalizeDeal = deal => ({
   badges: ['sale', 'hot'],
 });
 
-export default function FlashDealsPage({ onClose, onAddToCart, onOpenProduct }) {
+export default function FlashDealsPage() {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('urgent');
 
@@ -30,7 +34,7 @@ export default function FlashDealsPage({ onClose, onAddToCart, onOpenProduct }) 
             <div className="text-[11px] uppercase tracking-[2px] text-red-300 font-black">Offres limitées</div>
             <h1 className="font-['Barlow_Condensed'] text-[34px] font-black leading-none">Ventes Flash</h1>
           </div>
-          <button onClick={onClose} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Retour
           </button>
         </div>
@@ -77,7 +81,7 @@ export default function FlashDealsPage({ onClose, onAddToCart, onOpenProduct }) 
           {filtered.map(deal => {
             const product = normalizeDeal(deal);
             return (
-              <div key={deal.id} onClick={() => onOpenProduct(product)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
+              <div key={deal.id} onClick={() => navigate(`/product/${product.id}`)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
                 <div className="relative h-52 overflow-hidden bg-gray-100">
                   <img src={deal.img} alt={deal.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <span className="absolute left-3 top-3 rounded bg-red-600 px-2.5 py-1 text-[13px] font-black text-white">{deal.discount}</span>
@@ -94,7 +98,7 @@ export default function FlashDealsPage({ onClose, onAddToCart, onOpenProduct }) 
                       <div className="font-['Barlow_Condensed'] text-[26px] font-black text-red-600">{formatPrice(deal.price)}</div>
                       <div className="text-[12px] text-gray-400 line-through">{formatPrice(deal.oldPrice)}</div>
                     </div>
-                    <button onClick={e => { e.stopPropagation(); onAddToCart(product); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-red-600">
+                    <button onClick={e => { e.stopPropagation(); addToCart(product); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-red-600">
                       Ajouter
                     </button>
                   </div>

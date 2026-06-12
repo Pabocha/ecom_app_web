@@ -1,7 +1,12 @@
-import { allFlashDeals, formatPrice } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
+import { allFlashDeals, formatPrice } from '@/data/data.js';
+import Icon from '@/components/shared/Icon.jsx';
 
-export default function DealsPage({ onClose, onAddToCart, onOpenProduct }) {
+export default function DealsPage() {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+
   return (
     <div className="min-h-screen bg-[#111827] pb-12 text-white">
       <div className="sticky top-0 z-20 border-b border-white/10 bg-[#111827]/95 backdrop-blur">
@@ -10,7 +15,7 @@ export default function DealsPage({ onClose, onAddToCart, onOpenProduct }) {
             <div className="text-[11px] uppercase tracking-[2px] text-blue-300 font-black">Offres spéciales</div>
             <h1 className="font-['Barlow_Condensed'] text-[34px] font-black leading-none">Deals du Jour</h1>
           </div>
-          <button onClick={onClose} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Retour
           </button>
         </div>
@@ -30,7 +35,7 @@ export default function DealsPage({ onClose, onAddToCart, onOpenProduct }) {
 
         <div className="grid grid-cols-3 gap-4">
           {allFlashDeals.slice(0, 9).map(deal => (
-            <div key={deal.id} onClick={() => onOpenProduct({ ...deal, badges: ['sale'], supplier: 'TradeHub' })} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
+            <div key={deal.id} onClick={() => navigate(`/product/${deal.id}`)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
               <div className="relative h-52 overflow-hidden bg-gray-100">
                 <img src={deal.img} alt={deal.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <span className="absolute left-3 top-3 rounded bg-blue-600 px-2.5 py-1 text-[13px] font-black text-white">{deal.discount}</span>
@@ -42,7 +47,7 @@ export default function DealsPage({ onClose, onAddToCart, onOpenProduct }) {
                     <div className="font-['Barlow_Condensed'] text-[26px] font-black text-blue-600">{formatPrice(deal.price)}</div>
                     <div className="text-[12px] text-gray-400 line-through">{formatPrice(deal.oldPrice || deal.price * 1.45)}</div>
                   </div>
-                  <button onClick={e => { e.stopPropagation(); onAddToCart({ ...deal, badges: ['sale'] }); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-blue-600">
+                  <button onClick={e => { e.stopPropagation(); addToCart({ ...deal, badges: ['sale'] }); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-blue-600">
                     Ajouter
                   </button>
                 </div>

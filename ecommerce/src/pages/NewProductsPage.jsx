@@ -1,7 +1,11 @@
-import { featuredProducts, formatPrice } from '../data/data.js';
-import Icon from '../components/shared/Icon.jsx';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
+import { featuredProducts, formatPrice } from '@/data/data.js';
+import Icon from '@/components/shared/Icon.jsx';
 
-export default function NewProductsPage({ onClose, onAddToCart, onOpenProduct }) {
+export default function NewProductsPage() {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const newProducts = featuredProducts.filter(p => p.badges?.includes('new'));
 
   return (
@@ -12,7 +16,7 @@ export default function NewProductsPage({ onClose, onAddToCart, onOpenProduct })
             <div className="text-[11px] uppercase tracking-[2px] text-green-300 font-black">Découvertes</div>
             <h1 className="font-['Barlow_Condensed'] text-[34px] font-black leading-none">Nouveautés</h1>
           </div>
-          <button onClick={onClose} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="bg-white/10 hover:bg-white/15 text-white px-3.5 py-2 rounded text-[13px] font-bold flex items-center gap-2">
             <Icon name="arrowLeft" /> Retour
           </button>
         </div>
@@ -32,7 +36,7 @@ export default function NewProductsPage({ onClose, onAddToCart, onOpenProduct })
 
         <div className="grid grid-cols-4 gap-4">
           {featuredProducts.map(product => (
-            <div key={product.id} onClick={() => onOpenProduct(product)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
+            <div key={product.id} onClick={() => navigate(`/product/${product.id}`)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
               <div className="relative h-48 overflow-hidden bg-gray-100">
                 <img src={product.img} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 {product.badges?.includes('new') && (
@@ -54,7 +58,7 @@ export default function NewProductsPage({ onClose, onAddToCart, onOpenProduct })
                     <div className="font-['Barlow_Condensed'] text-[22px] font-black text-green-600">{formatPrice(product.price)}</div>
                     {product.oldPrice && <div className="text-[11px] text-gray-400 line-through">{formatPrice(product.oldPrice)}</div>}
                   </div>
-                  <button onClick={e => { e.stopPropagation(); onAddToCart(product); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[11px] font-bold text-white hover:bg-green-600">
+                  <button onClick={e => { e.stopPropagation(); addToCart(product); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[11px] font-bold text-white hover:bg-green-600">
                     Ajouter
                   </button>
                 </div>

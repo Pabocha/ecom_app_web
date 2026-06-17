@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { useSignup } from '@/hooks/useAuth';
-import Icon from '@/components/shared/Icon.jsx';
-import Button from '@/components/ui/Button.jsx';
-import Input from '@/components/ui/Input.jsx';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useSignup } from "@/hooks/useAuth";
+import Icon from "@/components/shared/Icon.jsx";
+import Button from "@/components/ui/Button.jsx";
+import Input from "@/components/ui/Input.jsx";
+import { InputCountry } from "@/components/ui/InputCountry.jsx";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -13,24 +14,34 @@ export default function SignupPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     watch,
+    trigger,
     formState: { errors },
   } = useForm({
-    mode: 'onBlur',
+    mode: "onBlur",
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-  const countries = ['France', 'Belgique', 'Suisse', 'Canada', 'Autres'];
-  const passwordValue = watch('password', '');
+  const countries = ["France", "Belgique", "Suisse", "Canada", "Autres"];
+  const passwordValue = watch("password", "");
+  const passwordConfirmValue = watch("passwordConfirm", "");
+
+  useEffect(() => {
+    if (passwordConfirmValue) {
+      trigger("passwordConfirm");
+    }
+  }, [passwordValue, passwordConfirmValue, trigger]);
 
   const onSubmit = (data) => {
-    console.log('Form data to submit:', data);
+    const { passwordConfirm, ...dataToSend } = data;
+    console.log("Form data to submit:", dataToSend);
     if (error) {
       resetError?.();
     }
-    signUp(data);
+    signUp(dataToSend);
   };
 
   const handleOAuth = (provider) => {
@@ -55,11 +66,11 @@ export default function SignupPage() {
               placeholder="votre@email.com"
               required
               error={errors.email?.message}
-              {...register('email', {
-                required: 'Email requis',
+              {...register("email", {
+                required: "Email requis",
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Email invalide',
+                  message: "Email invalide",
                 },
               })}
             />
@@ -69,11 +80,11 @@ export default function SignupPage() {
               placeholder="+33 6 12 34 56 78"
               required
               error={errors.phone_number?.message}
-              {...register('phone_number', {
-                required: 'Téléphone requis',
+              {...register("phone_number", {
+                required: "Téléphone requis",
                 pattern: {
                   value: /^\+?\d{10,}$/,
-                  message: 'Numéro invalide (min 10 chiffres)',
+                  message: "Numéro invalide (min 10 chiffres)",
                 },
               })}
             />
@@ -85,8 +96,8 @@ export default function SignupPage() {
               placeholder="Jean"
               required
               error={errors.first_name?.message}
-              {...register('first_name', {
-                required: 'Le prénom est requis',
+              {...register("first_name", {
+                required: "Le prénom est requis",
               })}
             />
             <Input
@@ -94,8 +105,8 @@ export default function SignupPage() {
               placeholder="Dupont"
               required
               error={errors.last_name?.message}
-              {...register('last_name', {
-                required: 'Le nom est requis',
+              {...register("last_name", {
+                required: "Le nom est requis",
               })}
             />
           </div>
@@ -105,7 +116,7 @@ export default function SignupPage() {
             placeholder="123 Rue de la Paix"
             required
             error={errors.full_address?.message}
-            {...register('full_address', {
+            {...register("full_address", {
               required: "L'adresse est requise",
             })}
           />
@@ -116,8 +127,8 @@ export default function SignupPage() {
               placeholder="Paris"
               required
               error={errors.city?.message}
-              {...register('city', {
-                required: 'La ville est requise',
+              {...register("city", {
+                required: "La ville est requise",
               })}
             />
             <Input
@@ -126,64 +137,62 @@ export default function SignupPage() {
               type="number"
               required
               error={errors.postal_code?.message}
-              {...register('postal_code', {
-                required: 'Code postal requis',
+              {...register("postal_code", {
+                required: "Code postal requis",
                 minLength: {
                   value: 3,
-                  message: 'Code postal invalide',
+                  message: "Code postal invalide",
                 },
               })}
             />
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Pays <span className="text-red-500">*</span>
-              </label>
-              <select
-                {...register('country', {
-                  required: 'Le pays est requis',
-                })}
-                className={`w-full rounded-lg border-2 px-4 py-3 text-sm transition-colors focus:border-orange-500 focus:outline-none ${errors.country ? 'border-red-500' : 'border-gray-200'}`}
-              >
-                <option value="">Sélectionner</option>
-                {countries.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              {errors.country && <p className="mt-2 text-sm text-red-600">{errors.country.message}</p>}
-            </div>
+            <InputCountry
+              label="Pays"
+              required
+              setValue={setValue}
+              register={register}
+              error={errors.country?.message} // Récupère l'erreur de validation
+            />
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Genre <span className="text-red-500">*</span>
               </label>
               <div className="flex flex-wrap gap-3">
-                {['Homme', 'Femme', 'Autre'].map((g) => (
-                  <label key={g} className="flex items-center gap-2 cursor-pointer">
+                {[
+                  { label: "Homme", value: "M" },
+                  { label: "Femme", value: "F" },
+                ].map((g) => (
+                  <label
+                    key={g.value}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <input
                       type="radio"
                       className="h-4 w-4"
-                      value={g}
-                      {...register('gender', {
-                        required: 'Le genre est requis',
+                      value={g.value} // Envoie 'M' ou 'F' au backend
+                      {...register("gender", {
+                        required: "Le genre est requis",
                       })}
                     />
-                    <span className="text-sm text-gray-700">{g}</span>
+                    <span className="text-sm text-gray-700">{g.label}</span>{" "}
+                    {/* Affiche 'Homme' ou 'Femme' */}
                   </label>
                 ))}
               </div>
-              {errors.gender && <p className="mt-2 text-sm text-red-600">{errors.gender.message}</p>}
+              {errors.gender && (
+                <p className="mt-2 text-sm text-red-600">
+                  {errors.gender.message}
+                </p>
+              )}
             </div>
             <Input
               label="Date de naissance"
               type="date"
               required
               error={errors.date_of_birth?.message}
-              {...register('date_of_birth', {
-                required: 'La date de naissance est requise',
+              {...register("date_of_birth", {
+                required: "La date de naissance est requise",
               })}
             />
           </div>
@@ -191,7 +200,7 @@ export default function SignupPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Mot de passe"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               required
               error={errors.password?.message}
@@ -201,20 +210,24 @@ export default function SignupPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  {showPassword ? <Icon name="eyeOff" size={16} /> : <Icon name="eye" size={16} />}
+                  {showPassword ? (
+                    <Icon name="eyeOff" size={16} />
+                  ) : (
+                    <Icon name="eye" size={16} />
+                  )}
                 </button>
               }
-              {...register('password', {
-                required: 'Le mot de passe est requis',
+              {...register("password", {
+                required: "Le mot de passe est requis",
                 minLength: {
                   value: 6,
-                  message: 'Min 6 caractères',
+                  message: "Min 6 caractères",
                 },
               })}
             />
             <Input
               label="Confirmer le mot de passe"
-              type={showPasswordConfirm ? 'text' : 'password'}
+              type={showPasswordConfirm ? "text" : "password"}
               placeholder="••••••••"
               required
               error={errors.passwordConfirm?.message}
@@ -224,12 +237,18 @@ export default function SignupPage() {
                   onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  {showPasswordConfirm ? <Icon name="eyeOff" size={16} /> : <Icon name="eye" size={16} />}
+                  {showPasswordConfirm ? (
+                    <Icon name="eyeOff" size={16} />
+                  ) : (
+                    <Icon name="eye" size={16} />
+                  )}
                 </button>
               }
-              {...register('passwordConfirm', {
-                required: 'Confirmation requise',
-                validate: (value) => value === passwordValue || 'Les mots de passe ne correspondent pas',
+              {...register("passwordConfirm", {
+                required: "Confirmation requise",
+                validate: (value) =>
+                  value === passwordValue ||
+                  "Les mots de passe ne correspondent pas",
               })}
             />
           </div>
@@ -240,8 +259,14 @@ export default function SignupPage() {
             </div>
           )}
 
-          <Button type="submit" variant="primary" size="lg" fullWidth loading={isPending}>
-            {isPending ? 'Création...' : 'Créer mon compte'}
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={isPending}
+          >
+            {isPending ? "Création..." : "Créer mon compte"}
           </Button>
 
           <div className="relative my-6">
@@ -249,31 +274,49 @@ export default function SignupPage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Ou s'inscrire avec</span>
+              <span className="px-2 bg-white text-gray-500">
+                Ou s'inscrire avec
+              </span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Button type="button" variant="secondary" size="md" fullWidth onClick={() => handleOAuth('Google')}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              fullWidth
+              onClick={() => handleOAuth("Google")}
+            >
               <span className="flex items-center gap-2">
                 <span className="text-xl">🔍</span>
-                <span className="font-semibold text-gray-700 text-sm">Google</span>
+                <span className="font-semibold text-gray-700 text-sm">
+                  Google
+                </span>
               </span>
             </Button>
-            <Button type="button" variant="secondary" size="md" fullWidth onClick={() => handleOAuth('Facebook')}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              fullWidth
+              onClick={() => handleOAuth("Facebook")}
+            >
               <span className="flex items-center gap-2">
                 <span className="text-xl">f</span>
-                <span className="font-semibold text-gray-700 text-sm">Facebook</span>
+                <span className="font-semibold text-gray-700 text-sm">
+                  Facebook
+                </span>
               </span>
             </Button>
           </div>
 
           <div className="text-center mt-6 pt-6 border-t border-gray-200">
             <p className="text-gray-600 text-sm">
-              Vous avez déjà un compte ?{' '}
+              Vous avez déjà un compte ?{" "}
               <button
                 type="button"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
                 className="text-orange-500 font-bold hover:text-orange-600 transition-colors"
               >
                 Se connecter

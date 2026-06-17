@@ -5,6 +5,7 @@ import Icon from '@/components/shared/Icon.jsx';
 import Button from '@/components/ui/Button.jsx';
 import Input from '@/components/ui/Input.jsx';
 import { useLogin } from '@/hooks/useAuth';
+import { Mail, Phone } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export default function LoginPage() {
               }}
             >
               <span className="flex items-center gap-2">
-                <Icon name="message" size={18} /> Email
+                <Mail size={18} /> Email
               </span>
             </Button>
             <Button
@@ -77,7 +78,7 @@ export default function LoginPage() {
               }}
             >
               <span className="flex items-center gap-2">
-                <Icon name="phone" size={18} /> Téléphone
+                <Phone size={18} /> Téléphone
               </span>
             </Button>
           </div>

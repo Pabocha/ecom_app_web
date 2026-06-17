@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Icon from "../shared/Icon.jsx";
 import CategorySelectorModal from "./CategorySelectorModal.jsx";
+import { ChevronRight } from "lucide-react";
 
 const actionPopovers = [
   {
@@ -27,14 +28,16 @@ const actionPopovers = [
 export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
   const navigate = useNavigate();
   const [searchTab, setSearchTab] = useState("Produits");
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}&type=${searchTab}`);
-      setSearchQuery('');
+      navigate(
+        `/search?q=${encodeURIComponent(searchQuery)}&type=${searchTab}`,
+      );
+      setSearchQuery("");
     }
   };
 
@@ -71,7 +74,10 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
               </span>
             ))}
           </div>
-          <form onSubmit={handleSearch} className="flex bg-white rounded overflow-hidden">
+          <form
+            onSubmit={handleSearch}
+            className="flex bg-white rounded overflow-hidden"
+          >
             <button
               type="button"
               onClick={() => setCategoryModalOpen(true)}
@@ -85,7 +91,10 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-5 text-[15px] transition-colors">
+            <button
+              type="submit"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-5 text-[15px] transition-colors"
+            >
               <Icon name="search" />
             </button>
           </form>
@@ -114,14 +123,16 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
                           <div className="text-[14px] font-black">
                             {user.first_name} {user.last_name}
                           </div>
-                          <div className="text-[11px] text-gray-400">{user.email || user.phone_number}</div>
+                          <div className="text-[11px] text-gray-400">
+                            {user.email || user.phone_number}
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 p-3">
                       <button
-                        onClick={() => navigate('/profile')}
+                        onClick={() => navigate("/profile")}
                         className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600"
                       >
                         Mon profil
@@ -129,7 +140,7 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
                       <button
                         onClick={() => {
                           onLogout();
-                          navigate('/');
+                          navigate("/");
                         }}
                         className="rounded border border-red-300 px-3 py-2 text-[12px] font-bold text-red-600 hover:bg-red-50"
                       >
@@ -138,18 +149,27 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
                     </div>
 
                     <div className="grid divide-y divide-gray-100 border-t border-gray-100">
-                      <a href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
+                      <a
+                        href="#"
+                        className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                      >
                         Mes informations
-                        <Icon name="chevronRight" size={12} />
+                        <ChevronRight size={12} />
                       </a>
-                      <a href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
+                      <a
+                        href="#"
+                        className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                      >
                         Mes commandes
-                        <Icon name="chevronRight" size={12} />
+                        <ChevronRight size={12} />
                       </a>
-                      <a href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
+                      <Link
+                        to="/seller-center"
+                        className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                      >
                         Centre vendeur
-                        <Icon name="chevronRight" size={12} />
-                      </a>
+                        <ChevronRight size={12} />
+                      </Link>
                     </div>
                   </>
                 ) : (
@@ -160,24 +180,29 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
                           <Icon name="user" size={17} />
                         </span>
                         <div>
-                          <div className="text-[14px] font-black">Bienvenue sur TradeHub</div>
-                          <div className="text-[11px] text-gray-400">Compte</div>
+                          <div className="text-[14px] font-black">
+                            Bienvenue sur TradeHub
+                          </div>
+                          <div className="text-[11px] text-gray-400">
+                            Compte
+                          </div>
                         </div>
                       </div>
                       <p className="mt-2 text-[12px] leading-relaxed text-gray-500">
-                        Connectez-vous pour suivre vos achats, vos devis et vos fournisseurs.
+                        Connectez-vous pour suivre vos achats, vos devis et vos
+                        fournisseurs.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 p-3">
                       <button
-                        onClick={() => navigate('/login')}
+                        onClick={() => navigate("/login")}
                         className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600"
                       >
                         Se connecter
                       </button>
                       <button
-                        onClick={() => navigate('/signup')}
+                        onClick={() => navigate("/signup")}
                         className="rounded border border-gray-200 px-3 py-2 text-[12px] font-bold text-gray-600 hover:border-orange-300 hover:text-orange-500"
                       >
                         S'inscrire
@@ -185,13 +210,19 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
                     </div>
 
                     <div className="grid divide-y divide-gray-100 border-t border-gray-100">
-                      <a href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
+                      <a
+                        href="#"
+                        className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                      >
                         Mes informations
-                        <Icon name="chevronRight" size={12} />
+                        <ChevronRight size={12} />
                       </a>
-                      <a href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
+                      <a
+                        href="#"
+                        className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                      >
                         Centre vendeur
-                        <Icon name="chevronRight" size={12} />
+                        <ChevronRight size={12} />
                       </a>
                     </div>
                   </>
@@ -201,50 +232,60 @@ export default function TopNav({ cartCount, onCartOpen, user, onLogout }) {
           </div>
 
           {/* Other Popovers */}
-          {actionPopovers.map(({ icon, label, title, text, primary, secondary, links }) => (
-            <div key={label} className="relative group">
-              <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-white rounded hover:bg-white/10 transition-colors">
-                <Icon name={icon} size={18} className="text-orange-300" />
-                <span className="text-[11px]">{label}</span>
-              </button>
+          {actionPopovers.map(
+            ({ icon, label, title, text, primary, secondary, links }) => (
+              <div key={label} className="relative group">
+                <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-white rounded hover:bg-white/10 transition-colors">
+                  <Icon name={icon} size={18} className="text-orange-300" />
+                  <span className="text-[11px]">{label}</span>
+                </button>
 
-              <div className="pointer-events-none absolute left-1/2 top-full z-[700] mt-3 w-[260px] -translate-x-1/2 translate-y-1 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                <div className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-white shadow-[-2px_-2px_4px_rgba(0,0,0,0.04)]" />
-                <div className="relative overflow-hidden rounded-md bg-white text-[#0d1b2a] shadow-2xl shadow-black/30 ring-1 ring-black/5">
-                  <div className="border-b border-gray-100 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-50 text-orange-500">
-                        <Icon name={icon} size={17} />
-                      </span>
-                      <div>
-                        <div className="text-[14px] font-black">{title}</div>
-                        <div className="text-[11px] text-gray-400">{label}</div>
+                <div className="pointer-events-none absolute left-1/2 top-full z-[700] mt-3 w-[260px] -translate-x-1/2 translate-y-1 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                  <div className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-white shadow-[-2px_-2px_4px_rgba(0,0,0,0.04)]" />
+                  <div className="relative overflow-hidden rounded-md bg-white text-[#0d1b2a] shadow-2xl shadow-black/30 ring-1 ring-black/5">
+                    <div className="border-b border-gray-100 px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-50 text-orange-500">
+                          <Icon name={icon} size={17} />
+                        </span>
+                        <div>
+                          <div className="text-[14px] font-black">{title}</div>
+                          <div className="text-[11px] text-gray-400">
+                            {label}
+                          </div>
+                        </div>
                       </div>
+                      <p className="mt-2 text-[12px] leading-relaxed text-gray-500">
+                        {text}
+                      </p>
                     </div>
-                    <p className="mt-2 text-[12px] leading-relaxed text-gray-500">{text}</p>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-2 p-3">
-                    <button className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
-                      {primary}
-                    </button>
-                    <button className="rounded border border-gray-200 px-3 py-2 text-[12px] font-bold text-gray-600 hover:border-orange-300 hover:text-orange-500">
-                      {secondary}
-                    </button>
-                  </div>
+                    <div className="grid grid-cols-2 gap-2 p-3">
+                      <button className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
+                        {primary}
+                      </button>
+                      <button className="rounded border border-gray-200 px-3 py-2 text-[12px] font-bold text-gray-600 hover:border-orange-300 hover:text-orange-500">
+                        {secondary}
+                      </button>
+                    </div>
 
-                  <div className="grid divide-y divide-gray-100 border-t border-gray-100">
-                    {links.map((link) => (
-                      <a key={link} href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
-                        {link}
-                        <Icon name="chevronRight" size={12} />
-                      </a>
-                    ))}
+                    <div className="grid divide-y divide-gray-100 border-t border-gray-100">
+                      {links.map((link) => (
+                        <a
+                          key={link}
+                          href="#"
+                          className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                        >
+                          {link}
+                          <Icon name="chevronRight" size={12} />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ),
+          )}
 
           {/* Cart */}
           <button

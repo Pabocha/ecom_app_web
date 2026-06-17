@@ -19,6 +19,8 @@ import CartPage from "../pages/CartPage";
 import ProductDetailPage from "../components/product/ProductDetailPage";
 import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
+import SellerCenterPage from "../pages/SellerCenterPage";
+import SellerRegistrationPage from "../pages/SellerRegistration";
 import SearchResultsPage from "../pages/SearchResultsPage";
 import B2BPage from "../pages/B2BPage";
 import NewProductsPage from "../pages/NewProductsPage";
@@ -37,49 +39,23 @@ import { featuredProducts, flashDeals, categoryProducts } from "../data/data";
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if (role && user.role !== role) return <Navigate to="/" replace />;
+  if (role && user.type_user !== role) return <Navigate to="/" replace />;
   return children;
 }
 
 function HomeLayout() {
   const navigate = useNavigate();
-  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem } =
-    useCart();
+  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem } = useCart();
   const { user, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
 
   return (
     <div className="font-['Nunito_Sans'] bg-gray-100 min-h-screen">
       <AnnouncementBar />
-      <TopNav
-        cartCount={cartCount}
-        onCartOpen={() => setCartOpen(true)}
-        user={user}
-        onLogout={handleLogout}
-      />
+      <TopNav cartCount={cartCount} onCartOpen={() => setCartOpen(true)} user={user} onLogout={() => { logout(); navigate("/"); }} />
       <SubNav onOpenCategories={() => navigate("/categories")} />
-
-      <main>
-        <Outlet />
-      </main>
-
+      <main><Outlet /></main>
       <Footer />
-
-      <CartSidebar
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        items={cartItems}
-        onQty={changeQty}
-        onRemove={removeItem}
-        onOpenCartPage={() => {
-          setCartOpen(false);
-          navigate("/cart");
-        }}
-      />
+      <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} items={cartItems} onQty={changeQty} onRemove={removeItem} onOpenCartPage={() => { setCartOpen(false); navigate("/cart"); }} />
     </div>
   );
 }
@@ -91,372 +67,73 @@ function BasicLayout() {
   return (
     <div className="font-['Nunito_Sans'] bg-gray-100 min-h-screen">
       <AnnouncementBar />
-
-      <main>
-        <Outlet />
-      </main>
-
+      <main><Outlet /></main>
       <Footer />
-
-      <CartSidebar
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        items={cartItems}
-        onQty={changeQty}
-        onRemove={removeItem}
-        onOpenCartPage={() => {
-          setCartOpen(false);
-          navigate("/cart");
-        }}
-      />
+      <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} items={cartItems} onQty={changeQty} onRemove={removeItem} onOpenCartPage={() => { setCartOpen(false); navigate("/cart"); }} />
     </div>
   );
 }
 
-/**
- * Composant pour la route détail produit
- */
+// 2. LE SEUL WRAPPER VRAIMENT UTILE (Logique dynamique)
 function ProductDetailRoute() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { addToCart } = useCart();
 
-  const allProducts = [
-    ...featuredProducts,
-    ...flashDeals,
-    ...Object.values(categoryProducts).flat(),
-  ];
+  const allProducts = [...featuredProducts, ...flashDeals, ...Object.values(categoryProducts).flat()];
   const product = allProducts.find((item) => String(item.id) === String(id));
 
-  if (!product) {
-    return <Navigate to="/" replace />;
-  }
+  if (!product) return <Navigate to="/" replace />;
 
   return (
     <ProductDetailPage
       product={product}
       onClose={() => navigate(-1)}
-      onAddToCart={(product) => addToCart(product, false)}
+      onAddToCart={(p) => addToCart(p, false)}
       onOpenProduct={(p) => navigate(`/product/${p.id}`)}
     />
   );
 }
 
-/**
- * Wrappers pour les pages
- */
-
-function HomePageWrapper() {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-
-  return (
-    <HomePage
-      onAddToCart={(p) => addToCart(p)}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-      onOpenFlashDeals={() => navigate("/flash-deals")}
-      onOpenCategory={(c) => navigate(`/category/${c}`)}
-    />
-  );
-}
-
-function LoginPageWrapper() {
-  return <LoginPage />;
-}
-
-function SignupPageWrapper() {
-  return <SignupPage />;
-}
-
-function CartPageWrapper() {
-  const navigate = useNavigate();
-  const { cartItems, changeQty, removeItem, addToCart } = useCart();
-
-  return (
-    <CartPage
-      items={cartItems}
-      onClose={() => navigate("/")}
-      onQty={changeQty}
-      onRemove={removeItem}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-      onAddToCart={(p) => addToCart(p)}
-    />
-  );
-}
-
-function SearchPageWrapper() {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-
-  return (
-    <SearchResultsPage
-      onAddToCart={(p) => addToCart(p)}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-    />
-  );
-}
-
-function B2BPageWrapper() {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-
-  return (
-    <B2BPage
-      onAddToCart={(p) => addToCart(p)}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-    />
-  );
-}
-
-function FlashDealsPageWrapper() {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-
-  return (
-    <FlashDealsPage
-      onClose={() => navigate("/")}
-      onAddToCart={(p) => addToCart(p)}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-    />
-  );
-}
-
-function DealsPageWrapper() {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-
-  return (
-    <DealsPage
-      onClose={() => navigate("/")}
-      onAddToCart={(p) => addToCart(p)}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-    />
-  );
-}
-
-function NewProductsPageWrapper() {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-
-  return (
-    <NewProductsPage
-      onClose={() => navigate("/")}
-      onAddToCart={(p) => addToCart(p)}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-    />
-  );
-}
-
-function ImportPageWrapper() {
-  const navigate = useNavigate();
-
-  return <ImportPage onClose={() => navigate("/")} />;
-}
-
-function TopSellersPageWrapper() {
-  const navigate = useNavigate();
-
-  return <TopSellersPage onClose={() => navigate("/")} />;
-}
-
-function ProPageWrapper() {
-  const navigate = useNavigate();
-
-  return <ProPage onClose={() => navigate("/")} />;
-}
-
-function HelpPageWrapper() {
-  const navigate = useNavigate();
-
-  return <HelpPage onClose={() => navigate("/")} />;
-}
-
-function CategoriesPageWrapper() {
-  const navigate = useNavigate();
-
-  return (
-    <AllCategoriesPage
-      onClose={() => navigate("/")}
-      onOpenCategory={(c) => navigate(`/category/${c}`)}
-    />
-  );
-}
-
-function CategoryProductsPageWrapper() {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
-
-  return (
-    <CategoryProductsPage
-      onClose={() => navigate("/")}
-      onAddToCart={(p) => addToCart(p)}
-      onOpenProduct={(p) => navigate(`/product/${p.id}`)}
-      onOpenCategory={(c) => navigate(`/category/${c}`)}
-    />
-  );
-}
-
-/**
- * Configuration des routes
- */
+// 3. CONFIGURATION DES ROUTES NETTOYÉE
 export const routes = [
-  // AUTH ROUTES (sans layout)
-  {
-    path: "/login",
-    element: <LoginPageWrapper />,
-  },
-  {
-    path: "/signup",
-    element: <SignupPageWrapper />,
-  },
+  // ROUTES D'AUTHENTIFICATION (Sans layout)
+  { path: "/login", element: <LoginPage /> },
+  { path: "/signup", element: <SignupPage /> },
+  
+  // ROUTES VENDEURS (Protégées par le PrivateRoute !)
+  { path: "/seller-center", element: <PrivateRoute role="acheteur"><SellerCenterPage /></PrivateRoute> },
+  { path: "/seller-registration", element: <PrivateRoute><SellerRegistrationPage /></PrivateRoute> },
 
-  // HOMEPAGE avec NAVBAR
+  // ACCUEIL (Avec HomeLayout)
   {
     path: "/",
     element: <HomeLayout />,
     children: [
-      {
-        index: true,
-        element: <HomePageWrapper />,
-      },
+      { index: true, element: <HomePage /> }, // Plus besoin de HomePageWrapper !
     ],
   },
 
-  // AUTRES ROUTES avec LAYOUT BASIQUE
+  // TOUTES LES AUTRES PAGES (Regroupées sous UN SEUL BasicLayout)
   {
-    path: "/cart",
     element: <BasicLayout />,
     children: [
-      {
-        index: true,
-        element: <CartPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/search",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <SearchPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/b2b",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <B2BPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/flash-deals",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <FlashDealsPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/deals",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <DealsPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/new-products",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <NewProductsPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/import",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <ImportPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/top-sellers",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <TopSellersPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/pro",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <ProPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/help",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <HelpPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/categories",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <CategoriesPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/category/:id",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <CategoryProductsPageWrapper />,
-      },
-    ],
-  },
-  {
-    path: "/product/:id",
-    element: <BasicLayout />,
-    children: [
-      {
-        index: true,
-        element: <ProductDetailRoute />,
-      },
+      { path: "/cart", element: <CartPage /> },
+      { path: "/search", element: <SearchResultsPage /> },
+      { path: "/b2b", element: <B2BPage /> },
+      { path: "/flash-deals", element: <FlashDealsPage /> },
+      { path: "/deals", element: <DealsPage /> },
+      { path: "/new-products", element: <NewProductsPage /> },
+      { path: "/import", element: <ImportPage /> },
+      { path: "/top-sellers", element: <TopSellersPage /> },
+      { path: "/pro", element: <ProPage /> },
+      { path: "/help", element: <HelpPage /> },
+      { path: "/categories", element: <AllCategoriesPage /> },
+      { path: "/category/:id", element: <CategoryProductsPage /> },
+      { path: "/product/:id", element: <ProductDetailRoute /> }, // Route dynamique
     ],
   },
 
   // Fallback 404
-  {
-    path: "*",
-    element: <Navigate to="/" replace />,
-  },
+  { path: "*", element: <Navigate to="/" replace /> },
 ];

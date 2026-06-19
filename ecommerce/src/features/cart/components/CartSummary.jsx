@@ -1,4 +1,4 @@
-import { paymentMethods } from '../data/paymentMethods';
+import { paymentMethods } from '@/data/paymentMethod';
 import { formatPrice } from '@/data/data.js';
 
 export default function CartSummary({ subtotal, shipping, serviceFee, total, selectedPayment, hasItems }) {

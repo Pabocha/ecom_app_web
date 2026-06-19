@@ -44,7 +44,7 @@ export const PRODUCT_STATUS = {
 };
 
 export const USER_ROLES = {
-  CUSTOMER: 'customer',
-  SELLER: 'seller',
+  CUSTOMER: 'acheteur',
+  SELLER: 'vendeur',
   ADMIN: 'admin',
 };

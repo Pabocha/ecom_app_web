@@ -1,5 +1,5 @@
-import { formatPrice } from '../../data/data.js';
-import Icon from '../shared/Icon.jsx';
+import { formatPrice } from '@/data/data.js';
+import { CheckCircle, Heart, ShoppingCart } from 'lucide-react';
 
 const badgeStyles = {
   sale: 'bg-red-500',
@@ -38,7 +38,7 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }) {
           onClick={e => e.stopPropagation()}
           className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
         >
-          <Icon name="heart" size={13} />
+          <Heart size={13} />
         </button>
       </div>
 
@@ -55,7 +55,7 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }) {
         </div>
         <div className="text-[11px] text-gray-400 truncate">
           {product.supplier}
-          {product.verified && <span className="text-green-600 font-bold ml-1"><Icon name="circleCheck" size={12} /> Vérifié</span>}
+          {product.verified && <span className="text-green-600 font-bold ml-1"><CheckCircle size={12} /> Vérifié</span>}
         </div>
       </div>
 
@@ -64,7 +64,7 @@ export default function ProductCard({ product, onAddToCart, onOpenProduct }) {
         onClick={e => { e.stopPropagation(); onAddToCart(product); }}
         className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white text-[12px] font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1.5"
       >
-        <Icon name="cartAdd" size={14} /> Ajouter au panier
+        <ShoppingCart size={14} /> Ajouter au panier
       </button>
     </div>
   );

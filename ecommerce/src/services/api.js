@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL } from "../utils/constants";
+import { API_BASE_URL } from "@/utils/constants";
 import { useAuthStore } from "@/stores/authStore";
 
 const api = axios.create({
@@ -52,26 +52,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
-// ── Auth ──────────────────────────────────────────
-
-export const authService = {
-    login:    (data) => api.post('/token/', data),
-    register: (data) => api.post('/compte/user/', data),
-    logout:   () => api.post('/token/logout/'),
-    me:       () => api.get('/compte/user/me/'),
-    updateMe: (data) => api.patch('/compte/user/me/'),
-    desactivateAccount: () => api.post('/compte/user/desactivate'), 
-}
-
-// ── Vendor ───────────────────────────────────────
-
-export const vendorService = {
-    register: (data, config) => api.post('/compte/seller-account/', data, config),
-    getMyVendor: () => api.get('/compte/seller-account/me/'),
-    updateMyVendor: (data) => api.patch('/compte/seller-account/me/'),
-    desactivateVendor: () => api.post('/compte/seller-account/desactivate'), 
-}
-
 
 export default api

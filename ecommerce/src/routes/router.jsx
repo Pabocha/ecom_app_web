@@ -1,40 +1,37 @@
-import { Navigate, useNavigate, useParams, Outlet } from "react-router-dom";
-import { useCart } from "../hooks/useCart";
-import { useAuth } from "@/hooks/useAuth";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useCart } from "@/features/cart/hooks/useCart";
+import { USER_ROLES } from "@/types";
 
 // Layouts
-import AnnouncementBar from "../components/layout/AnnouncementBar";
-import TopNav from "../components/layout/TopNav";
-import SubNav from "../components/layout/SubNav";
-import Footer from "../components/layout/Footer";
-import CartSidebar from "../components/cart/CartSidebar";
+import { BasicLayout, SimpleLayout } from "@/layouts";
 
 // Pages
-import HomePage from "../pages/HomePage";
-import AllCategoriesPage from "../pages/AllCategoriesPage";
-import FlashDealsPage from "../pages/FlashDealsPage";
-import DealsPage from "../pages/DealsPage";
-import CategoryProductsPage from "../pages/CategoryProductsPage";
-import CartPage from "../pages/CartPage";
-import ProductDetailPage from "../components/product/ProductDetailPage";
-import LoginPage from "../pages/LoginPage";
-import SignupPage from "../pages/SignupPage";
-import SellerCenterPage from "../pages/SellerCenterPage";
-import SellerRegistrationPage from "../pages/SellerRegistration";
-import SearchResultsPage from "../pages/SearchResultsPage";
-import B2BPage from "../pages/B2BPage";
-import NewProductsPage from "../pages/NewProductsPage";
-import ImportPage from "../pages/ImportPage";
-import TopSellersPage from "../pages/TopSellersPage";
-import ProPage from "../pages/ProPage";
-import HelpPage from "../pages/HelpPage";
+import HomePage from "@/pages/home/HomePage";
+import AllCategoriesPage from "@/pages/catalog/AllCategoriesPage";
+import FlashDealsPage from "@/pages/deals/FlashDealsPage";
+import DealsPage from "@/pages/deals/DealsPage";
+import CategoryProductsPage from "@/pages/catalog/CategoryProductsPage";
+import CartPage from "@/pages/cart/CartPage";
+import ProductDetailPage from "@/features/product/components/ProductDetailPage";
+import LoginPage from "@/pages/auth/LoginPage";
+import SignupPage from "@/pages/auth/SignupPage";
+import SellerCenterPage from "@/pages/seller/SellerCenterPage";
+import SellerRegistrationPage from "@/pages/seller/SellerRegistration";
+import SearchResultsPage from "@/pages/catalog/SearchResultsPage";
+import B2BPage from "@/pages/b2b/B2BPage";
+import NewProductsPage from "@/pages/deals/NewProductsPage";
+import ImportPage from "@/pages/b2b/ImportPage";
+import TopSellersPage from "@/pages/deals/TopSellersPage";
+import ProPage from "@/pages/b2b/ProPage";
+import HelpPage from "@/pages/help/HelpPage";
+import ProfilePage from "@/pages/profile/ProfilePage";
+import OrdersPage from "@/pages/order/OrdersPage";
+import OrderDetailPage from "@/features/order/components/OrderDetailPage";
 
 // Data
-import { featuredProducts, flashDeals, categoryProducts } from "../data/data";
-
-/**
- * Layouts avec hooks (doivent être dans le router pour avoir accès aux Providers)
- */
+import { featuredProducts, flashDeals, categoryProducts } from "@/data/data";
+import { getOrderById } from "@/features/order/data/orderData";
 
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
@@ -43,38 +40,6 @@ function PrivateRoute({ children, role }) {
   return children;
 }
 
-function HomeLayout() {
-  const navigate = useNavigate();
-  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem } = useCart();
-  const { user, logout } = useAuth();
-
-  return (
-    <div className="font-['Nunito_Sans'] bg-gray-100 min-h-screen">
-      <AnnouncementBar />
-      <TopNav cartCount={cartCount} onCartOpen={() => setCartOpen(true)} user={user} onLogout={() => { logout(); navigate("/"); }} />
-      <SubNav onOpenCategories={() => navigate("/categories")} />
-      <main><Outlet /></main>
-      <Footer />
-      <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} items={cartItems} onQty={changeQty} onRemove={removeItem} onOpenCartPage={() => { setCartOpen(false); navigate("/cart"); }} />
-    </div>
-  );
-}
-
-function BasicLayout() {
-  const navigate = useNavigate();
-  const { cartOpen, setCartOpen, cartItems, changeQty, removeItem } = useCart();
-
-  return (
-    <div className="font-['Nunito_Sans'] bg-gray-100 min-h-screen">
-      <AnnouncementBar />
-      <main><Outlet /></main>
-      <Footer />
-      <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} items={cartItems} onQty={changeQty} onRemove={removeItem} onOpenCartPage={() => { setCartOpen(false); navigate("/cart"); }} />
-    </div>
-  );
-}
-
-// 2. LE SEUL WRAPPER VRAIMENT UTILE (Logique dynamique)
 function ProductDetailRoute() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -95,45 +60,54 @@ function ProductDetailRoute() {
   );
 }
 
-// 3. CONFIGURATION DES ROUTES NETTOYÉE
+function OrderDetailRoute() {
+  const { id } = useParams();
+  const order = getOrderById(id);
+
+  if (!order) return <Navigate to="/profile/orders" replace />;
+
+  return <OrderDetailPage order={order} />;
+}
+
 export const routes = [
-  // ROUTES D'AUTHENTIFICATION (Sans layout)
-  { path: "/login", element: <LoginPage /> },
-  { path: "/signup", element: <SignupPage /> },
-  
-  // ROUTES VENDEURS (Protégées par le PrivateRoute !)
-  { path: "/seller-center", element: <PrivateRoute role="acheteur"><SellerCenterPage /></PrivateRoute> },
-  { path: "/seller-registration", element: <PrivateRoute><SellerRegistrationPage /></PrivateRoute> },
-
-  // ACCUEIL (Avec HomeLayout)
-  {
-    path: "/",
-    element: <HomeLayout />,
-    children: [
-      { index: true, element: <HomePage /> }, // Plus besoin de HomePageWrapper !
-    ],
-  },
-
-  // TOUTES LES AUTRES PAGES (Regroupées sous UN SEUL BasicLayout)
   {
     element: <BasicLayout />,
     children: [
-      { path: "/cart", element: <CartPage /> },
+      { index: true, element: <HomePage /> },
+
+      { path: "/login", element: <LoginPage /> },
+      { path: "/signup", element: <SignupPage /> },
+
+      { path: "/seller-center", element: <PrivateRoute role={USER_ROLES.CUSTOMER}><SellerCenterPage /></PrivateRoute> },
+      { path: "/seller-registration", element: <PrivateRoute><SellerRegistrationPage /></PrivateRoute> },
+
       { path: "/search", element: <SearchResultsPage /> },
       { path: "/b2b", element: <B2BPage /> },
+
       { path: "/flash-deals", element: <FlashDealsPage /> },
       { path: "/deals", element: <DealsPage /> },
       { path: "/new-products", element: <NewProductsPage /> },
-      { path: "/import", element: <ImportPage /> },
       { path: "/top-sellers", element: <TopSellersPage /> },
-      { path: "/pro", element: <ProPage /> },
+      { path: "/import", element: <ImportPage /> },
       { path: "/help", element: <HelpPage /> },
-      { path: "/categories", element: <AllCategoriesPage /> },
-      { path: "/category/:id", element: <CategoryProductsPage /> },
-      { path: "/product/:id", element: <ProductDetailRoute /> }, // Route dynamique
     ],
   },
 
-  // Fallback 404
+  {
+    element: <SimpleLayout />,
+    children: [
+      { path: "/profile", element: <PrivateRoute><ProfilePage /></PrivateRoute> },
+      { path: "/profile/orders", element: <PrivateRoute><OrdersPage /></PrivateRoute> },
+      { path: "/profile/orders/:id", element: <PrivateRoute><OrderDetailRoute /></PrivateRoute> },
+
+      { path: "/cart", element: <CartPage /> },
+      { path: "/categories", element: <AllCategoriesPage /> },
+      { path: "/category/:id", element: <CategoryProductsPage /> },
+      { path: "/product/:id", element: <ProductDetailRoute /> },
+
+      { path: "/pro", element: <ProPage /> },
+    ],
+  },
+
   { path: "*", element: <Navigate to="/" replace /> },
 ];

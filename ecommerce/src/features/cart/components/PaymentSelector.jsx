@@ -1,5 +1,5 @@
-import { paymentMethods } from '../data/paymentMethods';
-import Icon from '@/components/shared/Icon.jsx';
+import { paymentMethods } from '@/data/paymentMethod';
+import { CheckCircle, ShieldCheck } from 'lucide-react';
 
 export default function PaymentSelector({ selectedPayment, onSelectPayment }) {
   return (
@@ -10,7 +10,7 @@ export default function PaymentSelector({ selectedPayment, onSelectPayment }) {
           <p className="text-[12px] text-gray-400">Cartes internationales et solutions Mobile Money africaines.</p>
         </div>
         <span className="flex items-center gap-1 rounded bg-green-50 px-3 py-1 text-[12px] font-black text-green-600">
-          <Icon name="shield" size={14} /> Paiement sécurisé
+          <ShieldCheck size={14} /> Paiement sécurisé
         </span>
       </div>
 
@@ -29,7 +29,7 @@ export default function PaymentSelector({ selectedPayment, onSelectPayment }) {
             <div className="mt-2 text-[10px] font-black text-orange-500">{method.badge}</div>
             {selectedPayment === method.id && (
               <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-white">
-                <Icon name="check" size={12} />
+                <CheckCircle size={12} />
               </span>
             )}
           </button>

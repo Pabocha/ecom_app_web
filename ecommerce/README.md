@@ -1,16 +1,63 @@
-# React + Vite
+# TradeHub — Global Marketplace B2B & B2C
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Marketplace e-commerce B2B & B2C construite avec React 19 + Vite 8.
 
-Currently, two official plugins are available:
+## Stack technique
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Technologie      | Version |
+|------------------|---------|
+| React            | 19      |
+| Vite             | 8       |
+| Tailwind CSS     | 4       |
+| DaisyUI          | 5       |
+| Zustand          | 5       |
+| TanStack Query   | 5       |
+| React Router     | 7       |
+| Axios            | 1       |
+| Framer Motion    | 12      |
+| React Hook Form  | 7       |
 
-## React Compiler
+## Architecture
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── components/       # Composants réutilisables (layout, home, product, shared, ui)
+├── context/          # Contexte React (UI)
+├── data/             # Données mockées et statiques
+├── features/         # Fonctionnalités métier (cart)
+│   └── cart/
+│       ├── components/   # Composants spécifiques au panier
+│       └── data/         # Données liées au panier
+├── hooks/            # Hooks personnalisés (auth, cart, vendor)
+├── layouts/          # Layouts de l'application (HomeLayout, BasicLayout)
+├── pages/            # Pages / Vues
+├── routes/           # Configuration des routes
+├── services/         # Client API (Axios + intercepteurs)
+├── stores/           # Stores Zustand (auth, cart)
+├── types/            # Constantes et typedefs JSDoc
+└── utils/            # Utilitaires (constants, helpers)
+```
 
-## Expanding the ESLint configuration
+## Démarrer
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# Installer les dépendances
+npm install
+
+# Copier les variables d'environnement
+cp .env.example .env
+
+# Lancer le serveur de développement
+npm run dev
+```
+
+Le serveur tourne sur `http://localhost:3000`. Les appels `/api/*` sont proxyfiés vers `http://localhost:8000` (backend Django).
+
+## Scripts
+
+| Commande           | Description                    |
+|--------------------|--------------------------------|
+| `npm run dev`      | Lance le serveur de développement |
+| `npm run build`    | Build de production            |
+| `npm run preview`  | Prévisualisation du build      |
+| `npm run lint`     | Vérification ESLint            |

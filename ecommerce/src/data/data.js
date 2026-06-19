@@ -197,7 +197,7 @@ export const productDetails = {
 
 export const navLinks = ["Deals du Jour", "B2B & Gros", "Nouveautés", "Import Direct", "Top Vendeurs", "Ventes Flash", "Programme Pro", "Aide"];
 
-export const formatPrice = (n) => n.toLocaleString("fr-FR") + " FCFA";
+export { formatPrice } from '@/utils/helpers';
 
 export const buildDefaultDetail = (p) => ({
   images: [p.img, p.img, p.img, p.img],

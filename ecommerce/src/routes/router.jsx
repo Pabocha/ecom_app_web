@@ -1,6 +1,6 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useCart } from "@/features/cart/hooks/useCart";
+import { useCartActions } from "@/features/cart/hooks/useCart";
 import { USER_ROLES } from "@/types";
 
 // Layouts
@@ -13,12 +13,13 @@ import FlashDealsPage from "@/pages/deals/FlashDealsPage";
 import DealsPage from "@/pages/deals/DealsPage";
 import CategoryProductsPage from "@/pages/catalog/CategoryProductsPage";
 import CartPage from "@/pages/cart/CartPage";
-import ProductDetailPage from "@/features/product/components/ProductDetailPage";
+import ProductDetailPage from "@/pages/product/ProductDetailPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import SellerCenterPage from "@/pages/seller/SellerCenterPage";
 import SellerRegistrationPage from "@/pages/seller/SellerRegistration";
 import SearchResultsPage from "@/pages/catalog/SearchResultsPage";
+import AllProductsPage from "@/pages/product/AllProductsPage";
 import B2BPage from "@/pages/b2b/B2BPage";
 import NewProductsPage from "@/pages/deals/NewProductsPage";
 import ImportPage from "@/pages/b2b/ImportPage";
@@ -27,7 +28,7 @@ import ProPage from "@/pages/b2b/ProPage";
 import HelpPage from "@/pages/help/HelpPage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 import OrdersPage from "@/pages/order/OrdersPage";
-import OrderDetailPage from "@/features/order/components/OrderDetailPage";
+import OrderDetailPage from "@/pages/order/OrderDetailPage";
 
 // Data
 import { featuredProducts, flashDeals, categoryProducts } from "@/data/data";
@@ -43,7 +44,7 @@ function PrivateRoute({ children, role }) {
 function ProductDetailRoute() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { addToCart } = useCart();
+  const { addToCart } = useCartActions();
 
   const allProducts = [...featuredProducts, ...flashDeals, ...Object.values(categoryProducts).flat()];
   const product = allProducts.find((item) => String(item.id) === String(id));
@@ -82,6 +83,7 @@ export const routes = [
       { path: "/seller-registration", element: <PrivateRoute><SellerRegistrationPage /></PrivateRoute> },
 
       { path: "/search", element: <SearchResultsPage /> },
+      { path: "/all-products", element: <AllProductsPage /> },
       { path: "/b2b", element: <B2BPage /> },
 
       { path: "/flash-deals", element: <FlashDealsPage /> },

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { featuredProducts, categoryProducts } from '@/data/data.js';
-import ProductCard from '@/components/product/ProductCard.jsx';
+import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { ArrowLeft } from 'lucide-react';
 
 export default function SearchResultsPage() {

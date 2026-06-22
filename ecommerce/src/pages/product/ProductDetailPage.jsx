@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { productDetails, buildDefaultDetail, formatPrice, featuredProducts } from '@/data/data.js';
-import ProductCard from '@/components/product/ProductCard.jsx';
+import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
 

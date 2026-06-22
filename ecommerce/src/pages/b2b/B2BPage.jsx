@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '@/features/cart/hooks/useCart';
+import { useCart, useCartActions } from '@/features/cart/hooks/useCart';
 import { featuredProducts, formatPrice } from '@/data/data.js';
-import ProductCard from '@/components/product/ProductCard.jsx';
 import { BarChart3, Box, Building2, FileText, Headphones, ShoppingCart, Truck } from 'lucide-react';
 
 const b2bIcons = {
@@ -15,7 +14,7 @@ const b2bIcons = {
 
 export default function B2BPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart } = useCartActions();
   const [selectedQuantity, setSelectedQuantity] = useState({});
   const [quoteModal, setQuoteModal] = useState(false);
   const [quoteData, setQuoteData] = useState({ email: '', company: '', phone: '', product: null });
@@ -68,7 +67,7 @@ export default function B2BPage() {
               </p>
               <div className="flex flex-wrap gap-3">
                 <button className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors flex items-center gap-2">
-                   <FileText size={18} /> Demander un devis
+                  <FileText size={18} /> Demander un devis
                 </button>
                 <button onClick={handleOpenFlashDeals} className="px-6 py-3 bg-white hover:bg-gray-100 text-gray-800 font-bold rounded-lg transition-colors">
                   En savoir plus
@@ -215,16 +214,16 @@ export default function B2BPage() {
             { icon: 'building', title: 'Paiement B2B', desc: 'Conditions flexibles et délais nets' },
             { icon: 'truck', title: 'Livraison groupée', desc: 'Économisez sur les frais de port' },
             { icon: 'headset', title: 'Support dédié', desc: 'Gestionnaire de compte attitré' },
-            ].map((adv, i) => {
+          ].map((adv, i) => {
             const AdvIcon = b2bIcons[adv.icon] || Building2;
             return (
-            <div key={i} className="bg-white rounded-lg shadow-sm p-6 text-center hover:shadow-lg transition-shadow">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-                <AdvIcon size={24} className="text-orange-600" />
+              <div key={i} className="bg-white rounded-lg shadow-sm p-6 text-center hover:shadow-lg transition-shadow">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
+                  <AdvIcon size={24} className="text-orange-600" />
+                </div>
+                <h3 className="font-black text-gray-800 mb-2">{adv.title}</h3>
+                <p className="text-gray-600 text-sm">{adv.desc}</p>
               </div>
-              <h3 className="font-black text-gray-800 mb-2">{adv.title}</h3>
-              <p className="text-gray-600 text-sm">{adv.desc}</p>
-            </div>
             );
           })}
         </div>

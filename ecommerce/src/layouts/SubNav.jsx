@@ -8,7 +8,7 @@ export default function SubNav({ onOpenCategories }) {
   const linkRoutes = {
     "Deals du Jour": "/deals",
     "B2B & Gros": "/b2b",
-    "Nouveautés": "/new",
+    "Nouveautés": "/new-products",
     "Import Direct": "/import",
     "Top Vendeurs": "/top-sellers",
     "Ventes Flash": "/flash-deals",

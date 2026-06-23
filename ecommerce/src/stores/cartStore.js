@@ -16,6 +16,23 @@ export const useCartStore = create(
             (item) => (item.cartKey || String(item.id)) === cartKey
           );
 
+          // Normalize fields for cart items (price and img)
+          const price = product.price !== undefined ? Number(product.price) : (
+            product.pricing_display?.type === 'promo' ? Number(product.pricing_display.promo_price) : (
+              product.pricing_display?.type === 'base' ? Number(product.pricing_display.price) : (
+                Number(product.base_price) || 0
+              )
+            )
+          );
+          const img = product.img || product.image || '';
+
+          const normalizedProduct = {
+            ...product,
+            price,
+            img,
+            cartKey,
+          };
+
           if (existing) {
             const nextItems = state.cartItems.map((item) =>
               (item.cartKey || String(item.id)) === cartKey
@@ -31,7 +48,7 @@ export const useCartStore = create(
           return {
             cartItems: [
               ...state.cartItems,
-              { ...product, cartKey, qty: 1 },
+              { ...normalizedProduct, qty: 1 },
             ],
             cartOpen: openSidebar ? true : state.cartOpen,
           };

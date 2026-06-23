@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useCartActions } from "@/features/cart/hooks/useCart";
+import { useCart } from "@/features/cart/hooks/useCart";
 import {
   useProducts,
   useRecommendations,
@@ -18,22 +18,19 @@ import ProductRecommended from "@/features/product/components/ProductRecommended
 import TrustStrip from "@/features/home/components/TrustStrip.jsx";
 
 export default function HomePage() {
-  const { addToCart } = useCartActions();
+  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   const { data: popularRes, isLoading: popularLoading } = useProducts({
     tab: "popular"
   });
-  const { data: recentRes, isLoading: recentLoading } = useProducts({
-    tab: "recent"
-  });
   const { data: recomRes, isLoading: recomLoading } = useRecommendations(
 
   );
-
+  
   const popularProducts = popularRes?.data?.results || popularRes?.data || [];
-  const recentProducts = recentRes?.data?.results || recentRes?.data || [];
-  const recommendedProducts = recomRes?.data?.items || recomRes?.data || [];
+  const recommendedProducts = (recomRes?.data?.items || recomRes?.data || [])
+    .map(item => item.product || item);
 
   const handleAddToCart = (product) => addToCart(product);
   const handleOpenProduct = (product) => navigate(`/product/${product.id}`);
@@ -60,14 +57,6 @@ export default function HomePage() {
         products={popularProducts}
         loading={popularLoading}
         sectionBadge="hot"
-        onAddToCart={handleAddToCart}
-        onOpenProduct={handleOpenProduct}
-      />
-      <ProductSection
-        title="Nouveaux Produits"
-        products={recentProducts}
-        loading={recentLoading}
-        sectionBadge="new"
         onAddToCart={handleAddToCart}
         onOpenProduct={handleOpenProduct}
       />

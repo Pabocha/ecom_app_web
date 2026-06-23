@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart, useCartActions } from '@/features/cart/hooks/useCart';
+import { useCart } from '@/features/cart/hooks/useCart';
 import { featuredProducts, formatPrice } from '@/data/data.js';
 import { BarChart3, Box, Building2, FileText, Headphones, ShoppingCart, Truck } from 'lucide-react';
 
@@ -14,7 +14,7 @@ const b2bIcons = {
 
 export default function B2BPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCartActions();
+  const { addToCart } = useCart();
   const [selectedQuantity, setSelectedQuantity] = useState({});
   const [quoteModal, setQuoteModal] = useState(false);
   const [quoteData, setQuoteData] = useState({ email: '', company: '', phone: '', product: null });

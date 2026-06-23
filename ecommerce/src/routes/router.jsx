@@ -1,6 +1,6 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useCartActions } from "@/features/cart/hooks/useCart";
+import { useCart } from "@/features/cart/hooks/useCart";
 import { USER_ROLES } from "@/types";
 
 // Layouts
@@ -44,7 +44,7 @@ function PrivateRoute({ children, role }) {
 function ProductDetailRoute() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { addToCart } = useCartActions();
+  const { addToCart } = useCart();
 
   const allProducts = [...featuredProducts, ...flashDeals, ...Object.values(categoryProducts).flat()];
   const product = allProducts.find((item) => String(item.id) === String(id));

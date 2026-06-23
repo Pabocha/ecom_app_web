@@ -2,7 +2,7 @@ import ProductCard from '@/features/product/components/ProductCard.jsx';
 import SectionHeader from '@/features/home/components/SectionHeader.jsx';
 
 export default function ProductSection({ title, products, loading, link, to, sectionBadge, onAddToCart, onOpenProduct }) {
-  const displayProducts = (products || []).slice(0, 10);
+  const displayProducts = (products || []);
 
   if (loading) {
     return (

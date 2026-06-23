@@ -42,3 +42,11 @@ export function useSearchAutocomplete() {
     mutationFn: (query) => productService.searchAutocomplete(query),
   });
 }
+
+export function useProductVariant(id) {
+  return useQuery({
+    queryKey: ["product-variant", id],
+    queryFn: () => productService.getProductVariant(id),
+    enabled: !!id,
+  })
+}

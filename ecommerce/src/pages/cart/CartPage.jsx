@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart, useCartActions } from '@/features/cart/hooks/useCart';
+import { useCart } from '@/features/cart/hooks/useCart';
 import { cartRecommendations } from '@/data/data.js';
 import CartItemList from '@/features/cart/components/CartItemList';
 import CartRecommendations from '@/features/cart/components/CartRecommendations';
-import VariantModal from '@/features/cart/components/VariantModal';
+import VariantModal from '@/components/VariantModal';
 import PaymentSelector from '@/features/cart/components/PaymentSelector';
 import CartSummary from '@/features/cart/components/CartSummary';
 import TopBar from '@/components/shared/TopBar';
@@ -21,8 +21,7 @@ function defaultVariantSelection(product) {
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { cartItems } = useCart();
-  const { changeQty, removeItem, addToCart } = useCartActions();
+  const { cartItems, changeQty, removeItem, addToCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState('wave');
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantSelection, setVariantSelection] = useState({});

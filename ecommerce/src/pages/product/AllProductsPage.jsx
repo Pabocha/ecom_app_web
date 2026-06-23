@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCartActions } from '@/features/cart/hooks/useCart';
+import { useCart } from '@/features/cart/hooks/useCart';
 import { featuredProducts, categoryProducts, allFlashDeals } from '@/data/data.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { Grid3X3, LayoutList, SlidersHorizontal } from 'lucide-react';
@@ -31,7 +31,7 @@ const categories = ['Tous', ...new Set(Object.keys(categoryProducts))];
 
 export default function AllProductsPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCartActions();
+  const { addToCart } = useCart();
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('popular');
   const [view, setView] = useState('grid');
@@ -76,8 +76,8 @@ export default function AllProductsPage() {
                 key={cat}
                 onClick={() => setActiveCat(cat)}
                 className={`px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-colors ${activeCat === cat
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
               >
                 {cat}

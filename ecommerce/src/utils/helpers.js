@@ -102,7 +102,12 @@ export function getProductBadges(product, sectionBadge) {
   return badges;
 }
 
-export const formatPrice = (n) => n.toLocaleString("fr-FR") + " FCFA";
+export const formatPrice = (n) => {
+  if (n === undefined || n === null || isNaN(Number(n))) {
+    return "0 FCFA";
+  }
+  return Number(n).toLocaleString("fr-FR") + " FCFA";
+};
 
 export const formatDate = (date) => {
   return new Intl.DateTimeFormat('fr-FR', {

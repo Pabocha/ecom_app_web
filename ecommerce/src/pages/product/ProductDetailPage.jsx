@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { productDetails, buildDefaultDetail, formatPrice, featuredProducts } from '@/data/data.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
-import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap } from 'lucide-react';
+import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
+import { useProduct, useProductGallery } from '@/features/product/hooks/useProduct';
 
 const TABS = ["Description", "Caractéristiques", "Prix volume", "Avis", "Questions"];
 const RATING_BG = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-500"];
@@ -13,7 +14,7 @@ function RatingStars({ rating }) {
 
 export default function ProductDetailPage({ product, onClose, onAddToCart, onOpenProduct }) {
   const [tab, setTab] = useState(TABS[0]);
-  const [selImg, setSelImg] = useState(0);
+  const [selImg, setSelImg] = useState(null);
   const [selColor, setSelColor] = useState(0);
   const [selSize, setSelSize] = useState(0);
   const [qty, setQty] = useState(1);
@@ -24,6 +25,16 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   const currImage = detail.images[selImg] || product.img;
   const price = product.price;
   const oldPrice = product.oldPrice || null;
+
+  const { data: productDetailRes, isPending: productDetailLoading } = useProduct(product.id)
+  const { data: productGalleryRes, isPending: productGalleryLoading } = useProductGallery(product.id)
+  // const { data, isLoading} = useProduct(product.id)
+  console.log(productDetailRes)
+  const productDetail = productDetailRes?.data?.results || productDetailRes?.data || [];
+  const productGallery = productGalleryRes?.data?.results || productGalleryRes?.data || [];
+  const mainImage = selImg !== null 
+  ? productGallery[selImg]?.image 
+  : (productDetail?.image);
 
   const afterAdd = () => {
     onAddToCart({
@@ -48,7 +59,11 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
         <div>
           <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-3">
             <div className="relative" style={{ paddingTop: '66%' }}>
-              <img src={currImage} alt={product.name} className="absolute inset-0 w-full h-full object-cover" />
+              <img 
+                src={mainImage} 
+                alt={productDetail.name} 
+                className="absolute inset-0 w-full h-full object-cover transition-all duration-300" 
+              />
               {product.badges?.map(b => {
                 const cls = b === 'sale' ? 'bg-red-500' : b === 'hot' ? 'bg-orange-500' : 'bg-blue-600';
                 const label = b === 'sale' ? 'Promo' : b === 'hot' ? 'Populaire' : 'Nouveau';
@@ -57,10 +72,26 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-2.5 mb-5">
-            {detail.images.slice(0, 4).map((img, i) => (
-              <button key={img} onClick={() => setSelImg(i)} className={`rounded-lg overflow-hidden border-2 transition-all ${i === selImg ? 'border-orange-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                <img src={img} alt="" className="w-full h-20 object-cover" />
+          <div className="grid grid-cols-5 gap-2.5 mb-5"> {/* Passé à grid-cols-5 pour faire de la place */}
+  
+            {/* 1. BOUTON MINIATURE POUR L'IMAGE PRINCIPALE */}
+            {(productDetail?.image) && (
+              <button 
+                onClick={() => setSelImg(null)} // <-- null remet l'image principale
+                className={`rounded-lg overflow-hidden border-2 transition-all ${selImg === null ? 'border-orange-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
+              >
+                <img src={productDetail?.image || product?.image} alt="Principale" className="w-full h-20 object-cover" />
+              </button>
+            )}
+
+            {/* 2. LES IMAGES SECONDAIRES DE LA GALERIE */}
+            {Array.isArray(productGallery) && productGallery.slice(0, 4).map((img, i) => (
+              <button 
+                key={img.id || i} 
+                onClick={() => setSelImg(i)} // <-- i affiche l'image de la galerie
+                className={`rounded-lg overflow-hidden border-2 transition-all ${selImg === i ? 'border-orange-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
+              >
+                <img src={img.image} alt="" className="w-full h-20 object-cover" />
               </button>
             ))}
           </div>
@@ -120,14 +151,14 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
                 {product.badges?.length > 0 && <div className="flex gap-1.5 mb-2.5">{product.badges.map(b => <span key={b} className="rounded text-[10px] font-black px-2 py-0.5 uppercase tracking-wider bg-orange-100 text-orange-600">{b}</span>)}</div>}
-                <h1 className="text-[20px] font-black text-[#0d1b2a] leading-tight">{product.name}</h1>
+                <h1 className="text-[20px] font-black text-[#0d1b2a] leading-tight">{productDetail.name}</h1>
               </div>
               <button onClick={() => setFavorite(!favorite)} className="p-2 rounded-full hover:bg-gray-100 transition-colors shrink-0">
                 <Heart size={20} className={favorite ? 'text-red-500 fill-red-500' : 'text-gray-400'} />
               </button>
             </div>
-            <div className="flex items-center gap-2 mb-2"><RatingStars rating={product.rating} /><span className="text-[12px] text-gray-500">{product.rating} ({product.reviews} avis)</span></div>
-            <div className="flex items-center gap-2 text-[12px] text-gray-400 mb-3"><Building2 size={13} /> Vendu par <span className="font-bold text-[#0d1b2a]">{product.supplier}</span>{product.verified && <span className="text-blue-500 flex items-center gap-0.5"><CheckCircle size={12} /> Vérifié</span>}</div>
+            <div className="flex items-center gap-2 mb-2"><RatingStars rating={productDetail.average_rating} /><span className="text-[12px] text-gray-500">{productDetail.average_rating} ({productDetail.numbers_reviews} avis)</span></div>
+            <div className="flex items-center gap-2 text-[12px] text-gray-400 mb-3"><Building2 size={13} /> Vendu par <span className="font-bold text-[#0d1b2a]">{productDetail.shop_name}</span>{productDetail.shop_is_verified && <span className="text-green-600 flex items-center gap-0.5"><BadgeCheck size={12} /> Vérifié</span>}</div>
 
             {/* Price */}
             <div className="flex items-end gap-3 mb-4"><div className="font-['Barlow_Condensed'] text-[38px] font-black text-orange-500 leading-none">{formatPrice(price)}</div>{oldPrice && <div className="text-[16px] text-gray-400 line-through mb-1">{formatPrice(oldPrice)}</div>}{product.discount && <span className="rounded bg-red-100 px-2 py-1 text-[12px] font-black text-red-600 mb-1">{product.discount}</span>}</div>

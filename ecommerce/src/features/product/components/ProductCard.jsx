@@ -82,7 +82,7 @@ export default function ProductCard({ product, sectionBadge, onAddToCart, onOpen
               );
             })}
           </div>
-          <span>({product.numbers_reviews.toLocaleString()})</span>
+          <span>({product.numbers_reviews?.toLocaleString()})</span>
         </div>
         <div className="flex text-[11px] text-gray-400 truncate font-bold">
           {product.shop_name} {product.shop_is_verified && <span className="flex text-green-600 font-bold ml-1"><BadgeCheck size={12} /> Vérifié</span>}

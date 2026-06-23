@@ -50,3 +50,13 @@ export function useProductVariant(id) {
     enabled: !!id,
   })
 }
+
+// # ---------------- praties images product
+
+export function useProductGallery(id) {
+  return useQuery({
+    queryKey: ["product-gallery", id],
+    queryFn: () => productService.getProductGallery(id),
+    enabled: !!id,
+  })
+}

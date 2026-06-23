@@ -1,0 +1,224 @@
+ça c'est un produit simple c'est-à dire sans promotion, pas de prix par paliers ni variante.
+{
+    "id": 7,
+    "image": "http://localhost:8000/media/laptop1.jpg",
+    "base_price": "1099000.00",
+    "country_origin": "US",
+    "tags": [],
+    "category_name": "Laptops",
+    "shop_name": "Apple partner",
+    "shop_is_verified": true,
+    "category": 4,
+    "total_stock": null,
+    "specific_fields_display": {},
+    "price_tiers": [],
+    "active_promotions": [],
+    "unit_price_for_quantity": {
+        "quantity": 1,
+        "unit_price": 1099000.0,
+        "currency": "XOF"
+    },
+    "pricing_display": {
+        "type": "base",
+        "display_text": "1099000 XOF",
+        "price": 1099000.0,
+        "currency": "XOF"
+    },
+    "variant_tree": null,
+    "seller_id": 1,
+    "name": "MacBook Air M3 13\" 8GB 256GB",
+    "base_price_currency": "XOF",
+    "brand": "Apple",
+    "date_added": "2026-06-18T18:11:26.798334Z",
+    "min_order_quantity": 1,
+    "stock_quantity": 72,
+    "status": "available",
+    "description": "MacBook Air M3 13\" 8GB 256GB — Produit premium disponible sur TradeHub. Qualité vérifiée, livraison rapide dans tout le Sénégal.",
+    "numbers_reviews": 0,
+    "average_rating": 0.0,
+    "views_count": 0,
+    "is_sponsored": false,
+    "sponsored_start": null,
+    "sponsored_end": null,
+    "is_active": true,
+    "remarks": "",
+    "specific_fields": {},
+    "variant_structure": [],
+    "shop": 3
+};
+
+- ça c'est un produit avec des variants et la structure de variant 
+{
+    "id": 3,
+    "image": "http://localhost:8000/media/photo-1515372039744-b8f02a3ae446_safXydr.jfif",
+    "base_price": "35000.00",
+    "country_origin": "SN",
+    "tags": [],
+    "category_name": "Mode & Vêtements",
+    "shop_name": "NG SOMBA",
+    "shop_is_verified": false,
+    "category": 9,
+    "total_stock": 10,
+    "specific_fields_display": {},
+    "price_tiers": [],
+    "active_promotions": [],
+    "unit_price_for_quantity": {
+        "quantity": 1,
+        "unit_price": 35000.0,
+        "currency": "XOF"
+    },
+    "pricing_display": {
+        "type": "base",
+        "display_text": "35000 XOF",
+        "price": 35000.0,
+        "currency": "XOF"
+    },
+    "variant_tree": {
+        "structure": [
+            "color",
+            "size"
+        ],
+        "variants": [
+            {
+                "value": "Blanc",
+                "children": [
+                    {
+                        "value": "M",
+                        "children": [
+                            {
+                                "id": 1,
+                                "sku": "3-21f05bde",
+                                "stock": 10,
+                                "weight": 0.35,
+                                "price_override": 32000.0,
+                                "price_override_currency": "XOF",
+                                "custom_attributes": [],
+                                "attributes": [
+                                    {
+                                        "id": 1,
+                                        "attribute_id": 1,
+                                        "attribute_code": "color",
+                                        "attribute_name": "Couleur",
+                                        "value": "Blanc",
+                                        "code": "white",
+                                        "hex_color": "#FFF"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "attribute_id": 2,
+                                        "attribute_code": "size",
+                                        "attribute_name": "Taille",
+                                        "value": "M",
+                                        "code": "m",
+                                        "hex_color": null
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "seller_id": 1,
+    "name": "Robe Soirée Élégante Femme — Bordeaux",
+    "base_price_currency": "XOF",
+    "brand": null,
+    "date_added": "2026-06-18T17:44:16.673029Z",
+    "min_order_quantity": 2,
+    "stock_quantity": 50,
+    "status": "available",
+    "description": "Robe Soirée Élégante Femme — Bordeaux — Produit premium disponible sur TradeHub. Qualité vérifiée, livraison rapide dans tout le Sénégal.\r\n\r\nQualité supérieure garantie\r\nLivraison rapide à Dakar et en région\r\nService après-vente inclus\r\nPaiement sécurisé",
+    "numbers_reviews": 0,
+    "average_rating": 0.0,
+    "views_count": 0,
+    "is_sponsored": false,
+    "sponsored_start": null,
+    "sponsored_end": null,
+    "is_active": true,
+    "remarks": "",
+    "specific_fields": {},
+    "variant_structure": [
+        {
+            "id": 1,
+            "code": "color",
+            "name": "Couleur"
+        },
+        {
+            "id": 2,
+            "code": "size",
+            "name": "Taille"
+        }
+    ],
+    "shop": 1
+};
+
+- ça c'est un produit avec de la promotion et des prix par paliers mais le prix prioritaire à affiché est 
+mentionné dans pricing_display (se reférer sur le fichier instructions.md pour comprendre les priorité).
+
+{
+    "id": 8,
+    "image": "http://localhost:8000/media/photo-1555041469-a586c61ea9bc.jfif",
+    "base_price": "299000.00",
+    "country_origin": "",
+    "tags": [],
+    "category_name": "Maison & Jardin",
+    "shop_name": "NG SOMBA",
+    "shop_is_verified": false,
+    "category": 10,
+    "total_stock": null,
+    "specific_fields_display": {},
+    "price_tiers": [
+        {
+            "id": 3,
+            "min_quantity": 5,
+            "max_quantity": 10,
+            "price": 80000.0
+        }
+    ],
+    "active_promotions": [
+        {
+            "price": 100000.0,
+            "start_at": "2026-06-22T21:18:56+00:00",
+            "end_at": "2026-06-25T18:00:00+00:00"
+        }
+    ],
+    "unit_price_for_quantity": {
+        "quantity": 1,
+        "unit_price": 100000.0,
+        "currency": "XOF"
+    },
+    "pricing_display": {
+        "type": "promo",
+        "display_text": "100000 XOF",
+        "base_price": 299000.0,
+        "promo_price": 100000.0,
+        "should_strike_base": true,
+        "currency": "XOF",
+        "promo_details": {
+            "start_at": "2026-06-22T21:18:56+00:00",
+            "end_at": "2026-06-25T18:00:00+00:00"
+        }
+    },
+    "variant_tree": null,
+    "seller_id": 1,
+    "name": "Canapé Scandinave 3 Places Velours",
+    "base_price_currency": "XOF",
+    "brand": null,
+    "date_added": "2026-06-18T18:14:12.873178Z",
+    "min_order_quantity": 1,
+    "stock_quantity": 5,
+    "status": "available",
+    "description": "Canapé Scandinave 3 Places Velours — Produit premium disponible sur TradeHub. Qualité vérifiée, livraison rapide dans tout le Sénégal.",
+    "numbers_reviews": 0,
+    "average_rating": 0.0,
+    "views_count": 0,
+    "is_sponsored": false,
+    "sponsored_start": null,
+    "sponsored_end": null,
+    "is_active": true,
+    "remarks": "",
+    "specific_fields": {},
+    "variant_structure": [],
+    "shop": 1
+}

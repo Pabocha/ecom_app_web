@@ -121,7 +121,7 @@ export default function CategoryProductsPage() {
                   <h3 className="min-h-[40px] text-[14px] font-black leading-tight text-[#0d1b2a]">{product.name}</h3>
                   <div className="mt-2 flex items-center gap-1 text-[11px] text-gray-400">
                     <span className="text-yellow-400">{'★'.repeat(Math.floor(product.rating))}</span>
-                    <span>({product.reviews.toLocaleString()})</span>
+                    <span>({product.reviews?.toLocaleString()})</span>
                     {product.verified && <span className="ml-auto flex items-center gap-1 font-bold text-green-600"><CheckCircle size={12} /> Vérifié</span>}
                   </div>
                   <div className="mt-3 flex items-end justify-between gap-2">

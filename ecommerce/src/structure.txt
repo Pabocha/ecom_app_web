@@ -58,7 +58,7 @@
     "shop_name": "NG SOMBA",
     "shop_is_verified": false,
     "category": 9,
-    "total_stock": 10,
+    "total_stock": 44,
     "specific_fields_display": {},
     "price_tiers": [],
     "active_promotions": [],
@@ -86,8 +86,8 @@
                         "value": "M",
                         "children": [
                             {
-                                "id": 1,
-                                "sku": "3-21f05bde",
+                                "id": 3,
+                                "sku": "3-853d51ba",
                                 "stock": 10,
                                 "weight": 0.35,
                                 "price_override": 32000.0,
@@ -110,6 +110,113 @@
                                         "attribute_name": "Taille",
                                         "value": "M",
                                         "code": "m",
+                                        "hex_color": null
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": "XL",
+                        "children": [
+                            {
+                                "id": 4,
+                                "sku": "3-7907250a",
+                                "stock": 12,
+                                "weight": 0.45,
+                                "price_override": null,
+                                "price_override_currency": null,
+                                "custom_attributes": [],
+                                "attributes": [
+                                    {
+                                        "id": 1,
+                                        "attribute_id": 1,
+                                        "attribute_code": "color",
+                                        "attribute_name": "Couleur",
+                                        "value": "Blanc",
+                                        "code": "white",
+                                        "hex_color": "#FFF"
+                                    },
+                                    {
+                                        "id": 3,
+                                        "attribute_id": 2,
+                                        "attribute_code": "size",
+                                        "attribute_name": "Taille",
+                                        "value": "XL",
+                                        "code": "xl",
+                                        "hex_color": null
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "value": "Bleu",
+                "children": [
+                    {
+                        "value": "XXL",
+                        "children": [
+                            {
+                                "id": 5,
+                                "sku": "3-47bc2b38",
+                                "stock": 10,
+                                "weight": 0.35,
+                                "price_override": 36000.0,
+                                "price_override_currency": "XOF",
+                                "custom_attributes": [],
+                                "attributes": [
+                                    {
+                                        "id": 4,
+                                        "attribute_id": 1,
+                                        "attribute_code": "color",
+                                        "attribute_name": "Couleur",
+                                        "value": "Bleu",
+                                        "code": "blue",
+                                        "hex_color": "#024dfa"
+                                    },
+                                    {
+                                        "id": 5,
+                                        "attribute_id": 2,
+                                        "attribute_code": "size",
+                                        "attribute_name": "Taille",
+                                        "value": "XXL",
+                                        "code": "xxl",
+                                        "hex_color": null
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": "S",
+                        "children": [
+                            {
+                                "id": 6,
+                                "sku": "3-347d2625",
+                                "stock": 12,
+                                "weight": 0.45,
+                                "price_override": null,
+                                "price_override_currency": null,
+                                "custom_attributes": [],
+                                "attributes": [
+                                    {
+                                        "id": 4,
+                                        "attribute_id": 1,
+                                        "attribute_code": "color",
+                                        "attribute_name": "Couleur",
+                                        "value": "Bleu",
+                                        "code": "blue",
+                                        "hex_color": "#024dfa"
+                                    },
+                                    {
+                                        "id": 6,
+                                        "attribute_id": 2,
+                                        "attribute_code": "size",
+                                        "attribute_name": "Taille",
+                                        "value": "S",
+                                        "code": "s",
                                         "hex_color": null
                                     }
                                 ]

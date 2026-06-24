@@ -1,8 +1,8 @@
 // MODIFICATION ICI — Helpers extraits de ProductDetailPage
 
 export function extractVariantData(tree) {
-  if (!tree?.variants?.length) return { colors: [], colorNames: [], sizes: [] };
-  const colors = [], colorNames = [], sizes = [];
+  if (!tree?.variants?.length) return { colors: [], colorNames: [], parentVariants: [] };
+  const colors = [], colorNames = [];
   tree.variants.forEach(v => {
     if (!colorNames.includes(v.value)) {
       colorNames.push(v.value);
@@ -11,9 +11,8 @@ export function extractVariantData(tree) {
       const ca = leaf?.attributes?.find(a => a.attribute_code === 'color' || a.attribute_code === 'Couleur');
       colors.push(ca?.hex_color || '#ccc');
     }
-    v.children?.forEach(c => { if (!sizes.includes(c.value)) sizes.push(c.value); });
   });
-  return { colors, colorNames, sizes };
+  return { colors, colorNames, parentVariants: tree.variants };
 }
 
 export function buildSpecs(p) {
@@ -63,7 +62,7 @@ export function buildDetailFromApi(productDetail) {
     },
     colors: variantData.colors,
     colorNames: variantData.colorNames,
-    sizes: variantData.sizes,
+    parentVariants: variantData.parentVariants,
     stock,
   };
 }

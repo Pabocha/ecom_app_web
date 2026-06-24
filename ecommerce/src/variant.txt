@@ -1,0 +1,651 @@
+  "variant_tree": {
+        "structure": [
+            "color",
+            "ram",
+            "storage"
+        ],
+        "variants": [
+            {
+                "value": "Bleu",
+                "children": [
+                    {
+                        "value": "2 Go",
+                        "children": [
+                            {
+                                "value": "16 Go",
+                                "children": [
+                                    {
+                                        "id": 7,
+                                        "sku": "6-45f5518e",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            },
+                                            {
+                                                "id": 13,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "2 Go",
+                                                "code": "2go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 7,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "16 Go",
+                                                "code": "16go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "32 Go",
+                                "children": [
+                                    {
+                                        "id": 8,
+                                        "sku": "6-180973a6",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 8,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "32 Go",
+                                                "code": "32go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            },
+                                            {
+                                                "id": 13,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "2 Go",
+                                                "code": "2go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "64 Go",
+                                "children": [
+                                    {
+                                        "id": 9,
+                                        "sku": "6-7e8f7329",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 9,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "64 Go",
+                                                "code": "64go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            },
+                                            {
+                                                "id": 13,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "2 Go",
+                                                "code": "2go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": "4 Go",
+                        "children": [
+                            {
+                                "value": "32 Go",
+                                "children": [
+                                    {
+                                        "id": 10,
+                                        "sku": "6-ab99f966",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 8,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "32 Go",
+                                                "code": "32go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            },
+                                            {
+                                                "id": 14,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "4 Go",
+                                                "code": "4go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "64 Go",
+                                "children": [
+                                    {
+                                        "id": 11,
+                                        "sku": "6-16a9a987",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 9,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "64 Go",
+                                                "code": "64go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            },
+                                            {
+                                                "id": 14,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "4 Go",
+                                                "code": "4go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "128 Go",
+                                "children": [
+                                    {
+                                        "id": 12,
+                                        "sku": "6-20862740",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 10,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "128 Go",
+                                                "code": "128go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            },
+                                            {
+                                                "id": 14,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "4 Go",
+                                                "code": "4go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": "16 Go",
+                        "children": [
+                            {
+                                "value": "128 Go",
+                                "children": [
+                                    {
+                                        "id": 13,
+                                        "sku": "6-da0ac679",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 16,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "16 Go",
+                                                "code": "16go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 10,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "128 Go",
+                                                "code": "128go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "256 Go",
+                                "children": [
+                                    {
+                                        "id": 14,
+                                        "sku": "6-c2fd0e0b",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 16,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "16 Go",
+                                                "code": "16go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 11,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "256 Go",
+                                                "code": "256go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 4,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Bleu",
+                                                "code": "blue",
+                                                "hex_color": "#024dfa"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "value": "Blanc",
+                "children": [
+                    {
+                        "value": "8 Go",
+                        "children": [
+                            {
+                                "value": "64 Go",
+                                "children": [
+                                    {
+                                        "id": 15,
+                                        "sku": "6-6c6f7300",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 1,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Blanc",
+                                                "code": "white",
+                                                "hex_color": "#FFF"
+                                            },
+                                            {
+                                                "id": 9,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "64 Go",
+                                                "code": "64go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 15,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "8 Go",
+                                                "code": "8go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "128 Go",
+                                "children": [
+                                    {
+                                        "id": 16,
+                                        "sku": "6-afc418fd",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 1,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Blanc",
+                                                "code": "white",
+                                                "hex_color": "#FFF"
+                                            },
+                                            {
+                                                "id": 10,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "128 Go",
+                                                "code": "128go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 15,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "8 Go",
+                                                "code": "8go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "256 Go",
+                                "children": [
+                                    {
+                                        "id": 17,
+                                        "sku": "6-a0c0bdb7",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 1,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Blanc",
+                                                "code": "white",
+                                                "hex_color": "#FFF"
+                                            },
+                                            {
+                                                "id": 11,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "256 Go",
+                                                "code": "256go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 15,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "8 Go",
+                                                "code": "8go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": "16 Go",
+                        "children": [
+                            {
+                                "value": "128 Go",
+                                "children": [
+                                    {
+                                        "id": 18,
+                                        "sku": "6-ecaae3c1",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 16,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "16 Go",
+                                                "code": "16go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 1,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Blanc",
+                                                "code": "white",
+                                                "hex_color": "#FFF"
+                                            },
+                                            {
+                                                "id": 10,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "128 Go",
+                                                "code": "128go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "value": "256 Go",
+                                "children": [
+                                    {
+                                        "id": 19,
+                                        "sku": "6-be778ad0",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 16,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "16 Go",
+                                                "code": "16go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 1,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Blanc",
+                                                "code": "white",
+                                                "hex_color": "#FFF"
+                                            },
+                                            {
+                                                "id": 11,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "256 Go",
+                                                "code": "256go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "value": "32 Go",
+                        "children": [
+                            {
+                                "value": "256 Go",
+                                "children": [
+                                    {
+                                        "id": 20,
+                                        "sku": "6-dd25a02d",
+                                        "stock": 10,
+                                        "weight": null,
+                                        "price_override": null,
+                                        "price_override_currency": null,
+                                        "custom_attributes": [],
+                                        "attributes": [
+                                            {
+                                                "id": 1,
+                                                "attribute_id": 1,
+                                                "attribute_code": "color",
+                                                "attribute_name": "Couleur",
+                                                "value": "Blanc",
+                                                "code": "white",
+                                                "hex_color": "#FFF"
+                                            },
+                                            {
+                                                "id": 11,
+                                                "attribute_id": 3,
+                                                "attribute_code": "storage",
+                                                "attribute_name": "Stockage",
+                                                "value": "256 Go",
+                                                "code": "256go",
+                                                "hex_color": null
+                                            },
+                                            {
+                                                "id": 17,
+                                                "attribute_id": 6,
+                                                "attribute_code": "ram",
+                                                "attribute_name": "Ram",
+                                                "value": "32 Go",
+                                                "code": "32go",
+                                                "hex_color": null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },

@@ -3,6 +3,7 @@ import { featuredProducts } from '@/data/data.js';
 import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount } from '@/utils/helpers.js';
 import { buildDetailFromApi } from '@/features/product/utils/helpers.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
+import ProductSkeleton from '@/features/product/components/ProductSkeleton.jsx';
 import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
 import { useProductGallery, useProductDetailShop } from '@/features/product/hooks/useProduct';
@@ -24,17 +25,29 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   const [favorite, setFavorite] = useState(false);
 
   // MODIFICATION ICI — product est maintenant le produit dynamique (API) passé par le routeur
-  const { data: productGalleryRes, isPending: productGalleryLoading } = useProductGallery(product.id)
-  const { data: detailShopRes, isPending: detailShopLoading } = useProductDetailShop(product.shop)
+  const { data: productGalleryRes, isPending: productGalleryLoading } = useProductGallery(product?.id)
+  const { data: detailShopRes, isPending: detailShopLoading } = useProductDetailShop(product?.shop)
   
   const productGallery = productGalleryRes?.data?.results || productGalleryRes?.data || [];
   const detailShop = detailShopRes?.data?.results || detailShopRes?.data || {};
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <TopBar onBack={onClose} />
+        <ProductSkeleton />
+      </div>
+    );
+  }
 
   // Données construites depuis l'API via les helpers
   const pricing = getProductPricing(product);
   const badges = getProductBadges(product);
   const discountPct = getPromoDiscount(product.pricing_display);
   const detail = buildDetailFromApi(product);
+  // MODIFICATION ICI — enfants du parent variant sélectionné seulement
+  const currentParent = detail.parentVariants?.[selColor];
+  const currentSizes = currentParent?.children?.map(c => c.value) || [];
   const mainImage = selImg !== null 
   ? productGallery[selImg]?.image 
   : (product?.image);
@@ -43,7 +56,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
     onAddToCart({
       ...product,
       qty,
-      selectedVariants: { color: detail.colorNames?.[selColor], size: detail.sizes?.[selSize] },
+      selectedVariants: { color: detail.colorNames?.[selColor], size: currentSizes?.[selSize] },
       cartKey: `${product.id}-${selColor}-${selSize}`,
     });
   };
@@ -76,12 +89,11 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             </div>
           </div>
 
-          <div className="grid grid-cols-5 gap-2.5 mb-5"> {/* Passé à grid-cols-5 pour faire de la place */}
-  
+          <div className="grid grid-cols-5 gap-2.5 mb-5">
             {/* 1. BOUTON MINIATURE POUR L'IMAGE PRINCIPALE */}
             {(product?.image) && (
               <button 
-                onClick={() => setSelImg(null)} // <-- null remet l'image principale
+                onClick={() => setSelImg(null)}
                 className={`rounded-lg overflow-hidden border-2 transition-all ${selImg === null ? 'border-orange-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
                 <img src={product?.image} alt="Principale" className="w-full h-20 object-cover" />
@@ -89,15 +101,17 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             )}
 
             {/* 2. LES IMAGES SECONDAIRES DE LA GALERIE */}
-            {Array.isArray(productGallery) && productGallery.slice(0, 4).map((img, i) => (
+            {productGalleryLoading ? (
+              Array.from({ length: 4 }, (_, i) => <div key={i} className="bg-gray-200 rounded-lg h-20 animate-pulse" />)
+            ) : (Array.isArray(productGallery) && productGallery.slice(0, 4).map((img, i) => (
               <button 
                 key={img.id || i} 
-                onClick={() => setSelImg(i)} // <-- i affiche l'image de la galerie
+                onClick={() => setSelImg(i)}
                 className={`rounded-lg overflow-hidden border-2 transition-all ${selImg === i ? 'border-orange-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
                 <img src={img.image} alt="" className="w-full h-20 object-cover" />
               </button>
-            ))}
+            )))}
           </div>
 
           {/* Tabs */}
@@ -183,10 +197,10 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             )}
 
             {/* Colors */}
-            {detail.colors?.length > 0 && <div className="mb-4"><div className="text-[13px] font-bold text-gray-500 mb-2">Couleur : <span className="text-[#0d1b2a]">{detail.colorNames[selColor]}</span></div><div className="flex gap-2">{detail.colors.map((c, i) => <button key={c} onClick={() => setSelColor(i)} className={`w-9 h-9 rounded-full border-2 transition-all ${i === selColor ? 'border-orange-500 scale-110' : 'border-gray-200'}`} style={{ backgroundColor: c }} />)}</div></div>}
+            {detail.colors?.length > 0 && <div className="mb-4"><div className="text-[13px] font-bold text-gray-500 mb-2">Couleur : <span className="text-[#0d1b2a]">{detail.colorNames[selColor]}</span></div><div className="flex gap-2">{detail.colors.map((c, i) => <button key={c} onClick={() => { setSelColor(i); setSelSize(0); }} className={`w-9 h-9 rounded-full border-2 transition-all ${i === selColor ? 'border-orange-500 scale-110' : 'border-gray-200'}`} style={{ backgroundColor: c }} />)}</div></div>}
 
             {/* Sizes */}
-            {detail.sizes?.length > 0 && <div className="mb-4"><div className="text-[13px] font-bold text-gray-500 mb-2">Taille : <span className="text-[#0d1b2a]">{detail.sizes[selSize]}</span></div><div className="flex gap-2">{detail.sizes.map((s, i) => <button key={s} onClick={() => setSelSize(i)} className={`px-4 py-2 rounded border text-[13px] font-bold transition-all ${i === selSize ? 'border-orange-500 bg-orange-50 text-orange-500' : 'border-gray-200 text-gray-600 hover:border-orange-300'}`}>{s}</button>)}</div></div>}
+            {currentSizes?.length > 0 && <div className="mb-4"><div className="text-[13px] font-bold text-gray-500 mb-2">Taille : <span className="text-[#0d1b2a]">{currentSizes[selSize]}</span></div><div className="flex gap-2">{currentSizes.map((s, i) => <button key={s} onClick={() => setSelSize(i)} className={`px-4 py-2 rounded border text-[13px] font-bold transition-all ${i === selSize ? 'border-orange-500 bg-orange-50 text-orange-500' : 'border-gray-200 text-gray-600 hover:border-orange-300'}`}>{s}</button>)}</div></div>}
 
             {/* Stock */}
             <div className="mb-4"><div className="flex justify-between text-[12px] mb-1"><span className="text-gray-500">Disponibilité</span><span className="font-bold text-green-600">{detail.stock > 0 ? `${detail.stock} en stock` : 'Épuisé'}</span></div>{detail.stock > 0 && <div className="h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full" style={{ width: `${Math.min((detail.stock / 100) * 100, 100)}%` }} /></div>}</div>
@@ -216,7 +230,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
           </div>
 
           {/* Supplier card — MODIFICATION ICI : données de la boutique via l'API */}
-          <div className="bg-white rounded-lg shadow-sm p-5">
+          <div className={`bg-white rounded-lg shadow-sm p-5 ${detailShopLoading ? 'animate-pulse' : ''}`}>
             <div className="flex items-center gap-3 mb-4">
               <img src={detailShop.logo} alt="" className="w-12 h-12 rounded object-cover" />
               <div>

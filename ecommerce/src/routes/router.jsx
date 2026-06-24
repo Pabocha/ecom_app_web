@@ -47,11 +47,8 @@ function ProductDetailRoute() {
   const { id } = useParams();
   const { addToCart } = useCart();
 
-  const { data: productRes, isLoading } = useProduct(id);
+  const { data: productRes } = useProduct(id);
   const product = productRes?.data?.results || productRes?.data || null;
-
-  if (isLoading) return <div className="min-h-screen bg-gray-100 flex items-center justify-center"><div className="text-gray-400 text-[14px]">Chargement...</div></div>;
-  if (!product) return <Navigate to="/" replace />;
 
   return (
     <ProductDetailPage

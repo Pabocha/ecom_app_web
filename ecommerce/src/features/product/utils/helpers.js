@@ -1,0 +1,69 @@
+// MODIFICATION ICI — Helpers extraits de ProductDetailPage
+
+export function extractVariantData(tree) {
+  if (!tree?.variants?.length) return { colors: [], colorNames: [], sizes: [] };
+  const colors = [], colorNames = [], sizes = [];
+  tree.variants.forEach(v => {
+    if (!colorNames.includes(v.value)) {
+      colorNames.push(v.value);
+      const findLeaf = (n) => n.children?.length ? findLeaf(n.children[0]) : n;
+      const leaf = findLeaf(v);
+      const ca = leaf?.attributes?.find(a => a.attribute_code === 'color' || a.attribute_code === 'Couleur');
+      colors.push(ca?.hex_color || '#ccc');
+    }
+    v.children?.forEach(c => { if (!sizes.includes(c.value)) sizes.push(c.value); });
+  });
+  return { colors, colorNames, sizes };
+}
+
+export function buildSpecs(p) {
+  const s = [];
+  if (p.brand) s.push(['Marque', p.brand]);
+  if (p.country_origin) s.push(['Origine', p.country_origin]);
+  if (p.min_order_quantity && p.min_order_quantity > 1) s.push(['Quantité min.', p.min_order_quantity]);
+  if (p.specific_fields_display) Object.entries(p.specific_fields_display).forEach(([k, v]) => { if (v) s.push([k, v]); });
+  if (p.status) s.push(['Statut', p.status === 'available' ? 'Disponible' : p.status]);
+  return s;
+}
+
+export function buildVolumePricing(priceTiers, pricingDisplay) {
+  return (priceTiers || []).map((tier, i, arr) => {
+    const base = pricingDisplay?.price || tier.price;
+    const economia = tier.max_quantity ? `Éco. ${Math.round((1 - tier.price / base) * 100)}%` : '';
+    return {
+      qty: `${tier.min_quantity}${tier.max_quantity ? '-' + tier.max_quantity : '+'}`,
+      price: tier.price,
+      best: i === arr.length - 1,
+      label: economia,
+    };
+  });
+}
+
+export function buildDetailFromApi(productDetail) {
+  const variantData = extractVariantData(productDetail.variant_tree);
+  const volumePricing = buildVolumePricing(productDetail.price_tiers, productDetail.pricing_display);
+  const specs = buildSpecs(productDetail);
+  const stock = productDetail.stock_quantity ?? productDetail.total_stock ?? 0;
+
+  return {
+    description: productDetail.description || '',
+    descLines: (productDetail.description || '').split('\n').filter(Boolean),
+    specs,
+    volumePricing,
+    ratingDist: [0, 0, 0, 0, 0],
+    reviews: [],
+    questions: [],
+    supplier: {
+      name: productDetail.shop_name || '',
+      logo: '',
+      location: '',
+      since: '',
+      transactions: '',
+      responseRate: '',
+    },
+    colors: variantData.colors,
+    colorNames: variantData.colorNames,
+    sizes: variantData.sizes,
+    stock,
+  };
+}

@@ -14,6 +14,7 @@ import DealsPage from "@/pages/deals/DealsPage";
 import CategoryProductsPage from "@/pages/catalog/CategoryProductsPage";
 import CartPage from "@/pages/cart/CartPage";
 import ProductDetailPage from "@/pages/product/ProductDetailPage";
+import ShopPage from "@/pages/shop/ShopPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import SellerCenterPage from "@/pages/seller/SellerCenterPage";
@@ -57,6 +58,7 @@ function ProductDetailRoute() {
       onClose={() => navigate(-1)}
       onAddToCart={(p) => addToCart(p, false)}
       onOpenProduct={(p) => navigate(`/product/${p.id}`)}
+      onOpenShop={(shopId) => navigate(`/shop/${shopId}`)}
     />
   );
 }
@@ -106,6 +108,7 @@ export const routes = [
       { path: "/categories", element: <AllCategoriesPage /> },
       { path: "/category/:id", element: <CategoryProductsPage /> },
       { path: "/product/:id", element: <ProductDetailRoute /> },
+      { path: "/shop/:id", element: <ShopPage /> },
 
       { path: "/pro", element: <ProPage /> },
     ],

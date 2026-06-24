@@ -221,4 +221,54 @@ mentionné dans pricing_display (se reférer sur le fichier instructions.md pour
     "specific_fields": {},
     "variant_structure": [],
     "shop": 1
+},
+
+- structure de detail d'une boutique 
+{
+    "id": 3,
+    "name": "Apple partner",
+    "email_contact": "contact@apple.com",
+    "description": "Boutique partenaire officiel d'apple US",
+    "phone_number": "",
+    "country_origin": "US",
+    "address": "New Jerssey",
+    "logo": "http://localhost:8000/media/logos/apple.jpg",
+    "date_created": "2026-06-18T18:09:41.458519Z",
+    "status": "inactive",
+    "delivery_conditions": "",
+    "delivery_time_estimate": null,
+    "free_shipping": false,
+    "return_policy": "",
+    "total_products": 4,
+    "total_orders": 0,
+    "average_rating": 0.0,
+    "number_of_reviews": 0,
+    "total_follow": 0,
+    "number_sale": 0,
+    "is_top_seller": false,
+    "is_verifted": true,
+    "verified_at": "2026-06-18T18:09:39Z",
+    "categories_details": [
+        {
+            "id": 18,
+            "name": "Smartphones",
+            "description": "",
+            "image": "http://localhost:8000/media/images/category/images6.jpeg",
+            "category_type": "shop"
+        }
+    ],
+    "total_followers": 0,
+    "review_summary": {
+        "average_rating": 0.0,
+        "total_reviews": 0,
+        "ratings_breakdown": {
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0
+        }
+    },
+    "reviews": [],
+    "latest_statistics": null
 }

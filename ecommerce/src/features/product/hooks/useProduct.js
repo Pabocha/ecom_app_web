@@ -51,6 +51,14 @@ export function useProductVariant(id) {
   })
 }
 
+export function useProductDetailShop(shopId) {
+  return useQuery({
+    queryKey: ["detail-shop", shopId],
+    queryFn: () => productService.getProductDetailShop(shopId),
+    enabled: !!shopId,
+  })
+}
+
 // # ---------------- praties images product
 
 export function useProductGallery(id) {

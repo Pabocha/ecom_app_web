@@ -14,6 +14,7 @@ export const productService = {
     searchProduct: (query) => api.get('/v1/products/search/', { params: { q: query } }),
     searchAutocomplete: (query) => api.get('/v1/products/search/autocomplete/', { params: { q: query } }),
     getProductVariant: (id) => api.get(`/v1/products/${id}/variants-list/`),
+    getProductDetailShop: (shopId) => api.get(`/v1/shop/${shopId}/public-detail/`),
 
     // # ---------------- praties images product
     getProductGallery: (id) => api.get(`/v1/products/${id}/gallery/`)

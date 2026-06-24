@@ -1,6 +1,7 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useCart } from "@/features/cart/hooks/useCart";
+import { useProduct } from "@/features/product/hooks/useProduct";
 import { USER_ROLES } from "@/types";
 
 // Layouts
@@ -32,7 +33,6 @@ import OrdersPage from "@/pages/order/OrdersPage";
 import OrderDetailPage from "@/pages/order/OrderDetailPage";
 
 // Data
-import { featuredProducts, flashDeals, categoryProducts } from "@/data/data";
 import { getOrderById } from "@/features/order/data/orderData";
 
 function PrivateRoute({ children, role }) {
@@ -47,9 +47,10 @@ function ProductDetailRoute() {
   const { id } = useParams();
   const { addToCart } = useCart();
 
-  const allProducts = [...featuredProducts, ...flashDeals, ...Object.values(categoryProducts).flat()];
-  const product = allProducts.find((item) => String(item.id) === String(id));
+  const { data: productRes, isLoading } = useProduct(id);
+  const product = productRes?.data?.results || productRes?.data || null;
 
+  if (isLoading) return <div className="min-h-screen bg-gray-100 flex items-center justify-center"><div className="text-gray-400 text-[14px]">Chargement...</div></div>;
   if (!product) return <Navigate to="/" replace />;
 
   return (

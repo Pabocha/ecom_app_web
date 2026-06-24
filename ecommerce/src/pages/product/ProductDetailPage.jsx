@@ -5,7 +5,7 @@ import { buildDetailFromApi } from '@/features/product/utils/helpers.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
-import { useProduct, useProductGallery, useProductDetailShop } from '@/features/product/hooks/useProduct';
+import { useProductGallery, useProductDetailShop } from '@/features/product/hooks/useProduct';
 
 const TABS = ["Description", "Caractéristiques", "Prix volume", "Avis", "Questions"];
 const RATING_BG = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-500"];
@@ -22,26 +22,22 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   const [qty, setQty] = useState(1);
   const [expanded, setExpanded] = useState(false);
   const [favorite, setFavorite] = useState(false);
-  console.log(product)
 
-  const { data: productDetailRes, isPending: productDetailLoading } = useProduct(product.id)
+  // MODIFICATION ICI — product est maintenant le produit dynamique (API) passé par le routeur
   const { data: productGalleryRes, isPending: productGalleryLoading } = useProductGallery(product.id)
-  // MODIFICATION ICI — shop ID vient de productDetail (API), pas de product (statique)
-  const shopId = product?.shop;
-  const { data: detailShopRes, isPending: detailShopLoading } = useProductDetailShop(shopId)
+  const { data: detailShopRes, isPending: detailShopLoading } = useProductDetailShop(product.shop)
   
-  const productDetail = productDetailRes?.data?.results || productDetailRes?.data || {};
   const productGallery = productGalleryRes?.data?.results || productGalleryRes?.data || [];
   const detailShop = detailShopRes?.data?.results || detailShopRes?.data || {};
 
-  // MODIFICATION ICI — Données construites depuis l'API via les helpers
-  const pricing = getProductPricing(productDetail);
-  const badges = getProductBadges(productDetail);
-  const discountPct = getPromoDiscount(productDetail.pricing_display);
-  const detail = buildDetailFromApi(productDetail);
+  // Données construites depuis l'API via les helpers
+  const pricing = getProductPricing(product);
+  const badges = getProductBadges(product);
+  const discountPct = getPromoDiscount(product.pricing_display);
+  const detail = buildDetailFromApi(product);
   const mainImage = selImg !== null 
   ? productGallery[selImg]?.image 
-  : (productDetail?.image);
+  : (product?.image);
 
   const afterAdd = () => {
     onAddToCart({
@@ -68,7 +64,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             <div className="relative" style={{ paddingTop: '66%' }}>
               <img 
                 src={mainImage} 
-                alt={productDetail.name} 
+                alt={product.name} 
                 className="absolute inset-0 w-full h-full object-cover transition-all duration-300" 
               />
               {/* MODIFICATION ICI — badges depuis l'API */}
@@ -83,12 +79,12 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
           <div className="grid grid-cols-5 gap-2.5 mb-5"> {/* Passé à grid-cols-5 pour faire de la place */}
   
             {/* 1. BOUTON MINIATURE POUR L'IMAGE PRINCIPALE */}
-            {(productDetail?.image) && (
+            {(product?.image) && (
               <button 
                 onClick={() => setSelImg(null)} // <-- null remet l'image principale
                 className={`rounded-lg overflow-hidden border-2 transition-all ${selImg === null ? 'border-orange-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
-                <img src={productDetail?.image || product?.image} alt="Principale" className="w-full h-20 object-cover" />
+                <img src={product?.image} alt="Principale" className="w-full h-20 object-cover" />
               </button>
             )}
 
@@ -141,7 +137,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             {tab === 'Avis' && (
               <div className="space-y-4">
                 <div className="flex items-center gap-6 pb-4 border-b border-gray-100">
-                  <div className="text-center"><div className="font-['Barlow_Condensed'] text-[48px] font-black text-[#0d1b2a]">{productDetail.average_rating?.toFixed(1) || '0.0'}</div><RatingStars rating={productDetail.average_rating || 0} /><div className="text-[12px] text-gray-400">{(productDetail.numbers_reviews || 0).toLocaleString()} avis</div></div>
+                  <div className="text-center"><div className="font-['Barlow_Condensed'] text-[48px] font-black text-[#0d1b2a]">{product.average_rating?.toFixed(1) || '0.0'}</div><RatingStars rating={product.average_rating || 0} /><div className="text-[12px] text-gray-400">{(product.numbers_reviews || 0).toLocaleString()} avis</div></div>
                   <div className="flex-1 space-y-1.5">{detail.ratingDist.map((count, i) => <div key={i} className="flex items-center gap-2 text-[12px]"><span className="w-8 text-right text-gray-500">{5 - i}★</span><div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full ${RATING_BG[i]} rounded-full transition-all`} style={{ width: `${(count / 100)}%` }} /></div><span className="w-6 text-right text-gray-400">{count}%</span></div>)}</div>
                 </div>
                 {detail.reviews.map((r, i) => <div key={i} className={`pb-4 ${i < detail.reviews.length - 1 ? 'border-b border-gray-50' : ''}`}><div className="flex items-center gap-2 mb-1"><RatingStars rating={r.rating} /><span className="text-[13px] font-bold text-[#0d1b2a]">{r.author}</span>{r.verified && <span className="text-[10px] bg-blue-50 text-blue-600 font-black px-1.5 py-0.5 rounded">Vérifié</span>}<span className="ml-auto text-[11px] text-gray-400">{r.date}</span></div><p className="text-[13px] text-gray-600 leading-relaxed">{r.text}</p><div className="mt-2 flex items-center gap-3 text-[11px] text-gray-400"><button className="hover:text-orange-500 font-bold">👍 Utile ({r.helpful})</button><button className="hover:text-orange-500 font-bold">Signaler</button></div></div>)}
@@ -163,14 +159,14 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
                   const labelMap = { sale: 'Promo', hot: 'Populaire', b2b: 'B2B', new: 'Nouveau' };
                   return <span key={b.key} className="rounded text-[10px] font-black px-2 py-0.5 uppercase tracking-wider bg-orange-100 text-orange-600">{b.label || labelMap[b.key] || b.key}</span>;
                 })}</div>}
-                <h1 className="text-[20px] font-black text-[#0d1b2a] leading-tight">{productDetail.name}</h1>
+                <h1 className="text-[20px] font-black text-[#0d1b2a] leading-tight">{product.name}</h1>
               </div>
               <button onClick={() => setFavorite(!favorite)} className="p-2 rounded-full hover:bg-gray-100 transition-colors shrink-0">
                 <Heart size={20} className={favorite ? 'text-red-500 fill-red-500' : 'text-gray-400'} />
               </button>
             </div>
-            <div className="flex items-center gap-2 mb-2"><RatingStars rating={productDetail.average_rating} /><span className="text-[12px] text-gray-500">{(productDetail.average_rating || 0).toFixed(1)} ({(productDetail.numbers_reviews || 0).toLocaleString()} avis)</span></div>
-            <div className="flex items-center gap-2 text-[12px] text-gray-400 mb-3"><Building2 size={13} /> Vendu par <span className="font-bold text-[#0d1b2a]">{productDetail.shop_name}</span>{productDetail.shop_is_verified && <span className="text-green-600 flex items-center gap-0.5"><BadgeCheck size={12} /> Vérifié</span>}</div>
+            <div className="flex items-center gap-2 mb-2"><RatingStars rating={product.average_rating} /><span className="text-[12px] text-gray-500">{(product.average_rating || 0).toFixed(1)} ({(product.numbers_reviews || 0).toLocaleString()} avis)</span></div>
+            <div className="flex items-center gap-2 text-[12px] text-gray-400 mb-3"><Building2 size={13} /> Vendu par <span className="font-bold text-[#0d1b2a]">{product.shop_name}</span>{product.shop_is_verified && <span className="text-green-600 flex items-center gap-0.5"><BadgeCheck size={12} /> Vérifié</span>}</div>
 
             {/* Price */}
             {/* MODIFICATION ICI — prix depuis pricing_display de l'API */}
@@ -224,7 +220,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             <div className="flex items-center gap-3 mb-4">
               <img src={detailShop.logo} alt="" className="w-12 h-12 rounded object-cover" />
               <div>
-                <div className="text-[13px] font-black text-[#0d1b2a]">{detailShop.name || productDetail.shop_name}</div>
+                <div className="text-[13px] font-black text-[#0d1b2a]">{detailShop.name || product.shop_name}</div>
                 <div className="text-[11px] text-gray-400">{detailShop.address || ''}</div>
               </div>
             </div>
@@ -238,7 +234,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             <div className="flex gap-2 mt-3">
               <button className="flex-1 rounded border border-orange-300 py-2.5 text-[12px] font-bold text-orange-500 hover:bg-orange-50 transition-colors">Contacter</button>
               {/* MODIFICATION ICI — navigation vers la page boutique */}
-              <button onClick={() => onOpenShop?.(shopId)} className="flex-1 rounded bg-[#0d1b2a] py-2.5 text-[12px] font-bold text-white hover:bg-orange-500 transition-colors">Voir le shop</button>
+              <button onClick={() => onOpenShop?.(product.shop)} className="flex-1 rounded bg-[#0d1b2a] py-2.5 text-[12px] font-bold text-white hover:bg-orange-500 transition-colors">Voir le shop</button>
               <button className="flex-1 rounded bg-orange-500 py-2.5 text-[12px] font-bold text-white hover:bg-orange-600 transition-colors">Devis</button>
             </div>
           </div>

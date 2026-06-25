@@ -1,7 +1,7 @@
 import { formatPrice } from '@/data/data.js';
 
 function hasVariants(product) {
-  return product.variants && Object.keys(product.variants).length > 0;
+  return product.has_variant || (product.variants && Object.keys(product.variants).length > 0);
 }
 
 export default function CartRecommendationsCard({ product, onProductClick, onAddToCart }) {

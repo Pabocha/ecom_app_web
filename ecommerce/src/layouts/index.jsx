@@ -49,12 +49,14 @@ export function BasicLayout() {
         }}
       />
 
-      {/* Global variant modal (opened when product.has_variant) */}
+      {/* MODIFICATION ICI — Modal globale avec raw (arbre dynamique) + loading */}
       {
         (() => {
           const variantProduct = useVariantStore(state => state.product);
           const variantsMap = useVariantStore(state => state.variantsMap);
           const selection = useVariantStore(state => state.selection);
+          const raw = useVariantStore(state => state.raw);
+          const loading = useVariantStore(state => state.loading);
 
           const productForModal = useMemo(() => {
             if (!variantProduct) return null;
@@ -70,6 +72,8 @@ export function BasicLayout() {
             <VariantModal
               product={productForModal}
               selection={selection}
+              raw={raw}
+              loading={loading}
               onSelectionChange={(name, value) => useVariantStore.getState().setSelection(name, value)}
               onConfirm={() => useVariantStore.getState().confirm()}
               onClose={() => useVariantStore.getState().close()}
@@ -85,6 +89,8 @@ export function SimpleLayout() {
   const variantProduct = useVariantStore(state => state.product);
   const variantsMap = useVariantStore(state => state.variantsMap);
   const selection = useVariantStore(state => state.selection);
+  const raw = useVariantStore(state => state.raw);
+  const loading = useVariantStore(state => state.loading);
 
   const productForModal = useMemo(() => {
     if (!variantProduct) return null;
@@ -105,6 +111,8 @@ export function SimpleLayout() {
       <VariantModal
         product={productForModal}
         selection={selection}
+        raw={raw}
+        loading={loading}
         onSelectionChange={(name, value) => useVariantStore.getState().setSelection(name, value)}
         onConfirm={() => useVariantStore.getState().confirm()}
         onClose={() => useVariantStore.getState().close()}

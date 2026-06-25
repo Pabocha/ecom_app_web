@@ -2,6 +2,27 @@ import { create } from 'zustand';
 import { productService } from '@/features/product/services/productService';
 import { useCartStore } from '@/stores/cartStore';
 
+// MODIFICATION ICI — Reconstruction de la sélection valide dans l'arbre
+function getValidSelection(raw, selection) {
+  const { structure, variants } = raw;
+  const result = {};
+  let nodes = variants;
+
+  for (let i = 0; i < structure.length; i++) {
+    const attrCode = structure[i];
+    const currentVal = selection[attrCode];
+    const availableValues = (nodes || []).map(n => n.value);
+    const validVal = availableValues.includes(currentVal) ? currentVal : availableValues[0];
+    if (!validVal) break;
+    result[attrCode] = validVal;
+    const node = (nodes || []).find(n => n.value === validVal);
+    if (!node?.children) break;
+    nodes = node.children;
+  }
+
+  return result;
+}
+
 function collectVariantMap(structure = [], nodes = []) {
   const map = {};
   structure.forEach((_, i) => map[structure[i]] = []);
@@ -29,10 +50,8 @@ function findLeafBySelection(structure = [], nodes = [], selection = {}) {
     current = found.children;
   }
 
-  // current should now be an array of leaf variant objects (with id)
   if (!Array.isArray(current) || current.length === 0) return null;
 
-  // If there are multiple leaves, try to match attributes
   const leaves = current;
   const leaf = leaves.find(l => {
     if (!l.attributes) return true;
@@ -40,6 +59,54 @@ function findLeafBySelection(structure = [], nodes = [], selection = {}) {
   }) || leaves[0];
 
   return leaf;
+}
+
+// MODIFICATION ICI — Helper pour les options disponibles à un niveau donné
+function getAvailableOptionsAtLevel(raw, selection) {
+  const { structure, variants } = raw;
+  const keys = Object.keys(selection);
+  let nodes = variants;
+
+  for (let i = 0; i < keys.length; i++) {
+    const attrCode = structure[i];
+    const val = selection[attrCode];
+    if (!val) break;
+    const node = (nodes || []).find(n => n.value === val);
+    if (!node?.children) break;
+    nodes = node.children;
+  }
+
+  const nextAttrCode = structure[keys.length];
+  if (!nextAttrCode) return { attribute: null, options: [], isLeaf: true };
+
+  return {
+    attribute: nextAttrCode,
+    options: (nodes || []).map(n => ({
+      value: n.value,
+      hexColor: null,
+    })),
+    isLeaf: false,
+  };
+}
+
+// MODIFICATION ICI — Récupère hex_color pour une valeur à un niveau donné
+function getHexForValue(raw, selection, attrCode, value) {
+  const { structure, variants } = raw;
+  const tempSel = { ...selection, [attrCode]: value };
+  let nodes = variants;
+  for (let i = 0; i < structure.length; i++) {
+    const key = structure[i];
+    const val = tempSel[key];
+    if (!val) break;
+    const node = (nodes || []).find(n => n.value === val);
+    if (!node) break;
+    if (!node.children || node.children.length === 0) {
+      const attr = node.attributes?.find(a => a.attribute_code === attrCode);
+      return attr?.hex_color || null;
+    }
+    nodes = node.children;
+  }
+  return null;
 }
 
 export const useVariantStore = create((set, get) => ({
@@ -58,16 +125,35 @@ export const useVariantStore = create((set, get) => ({
       const structure = data.structure || [];
       const nodes = data.variants || [];
       const variantsMap = collectVariantMap(structure, nodes);
-      const selection = Object.fromEntries(Object.keys(variantsMap).map(k => [k, variantsMap[k][0]]));
 
-      set({ loading: false, open: true, raw: data, variantsMap, selection, product });
+      // MODIFICATION ICI — Sélection initiale via l'arbre (pas à plat)
+      let initialSelection = {};
+      let currentNodes = nodes;
+      for (const attrCode of structure) {
+        const firstVal = currentNodes[0]?.value;
+        if (!firstVal) break;
+        initialSelection[attrCode] = firstVal;
+        const node = currentNodes.find(n => n.value === firstVal);
+        if (!node?.children) break;
+        currentNodes = node.children;
+      }
+
+      set({ loading: false, open: true, raw: data, variantsMap, selection: initialSelection, product });
     } catch (error) {
       console.error('Erreur fetching variants', error);
       set({ loading: false, open: false, raw: null, variantsMap: null, selection: {}, product: null });
     }
   },
 
-  setSelection: (name, value) => set(state => ({ selection: { ...state.selection, [name]: value } })),
+  // MODIFICATION ICI — Cascade dans l'arbre lors du changement de sélection
+  setSelection: (name, value) => set(state => {
+    const newSelection = { ...state.selection, [name]: value };
+    if (state.raw) {
+      const validSelection = getValidSelection(state.raw, newSelection);
+      return { selection: validSelection };
+    }
+    return { selection: newSelection };
+  }),
 
   close: () => set({ open: false, product: null, raw: null, variantsMap: null, selection: {} }),
 

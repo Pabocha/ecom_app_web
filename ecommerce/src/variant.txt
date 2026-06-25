@@ -1,4 +1,26 @@
 
+
+**Contexte et Rappel de notre Architecture :**
+Nous avons mis en place un système de variantes de produits e-commerce basé sur un arbre de données dynamique à profondeur variable (`variant_tree`).
+Pour rappel, voici comment fonctionne notre structure (basée sur notre fichier `variant.txt`) :
+* **L'ordre des sélecteurs** est dicté dynamiquement par le tableau `"structure"`. Par exemple : `["color", "ram", "storage"]`.
+* **Les libellés en français** doivent être récupérés dans la clé `"attribute_name"` (ex: `"Couleur"`, `"Ram"`, `"Stockage"`).
+* **L'arborescence** s'organise avec des nœuds parents et des `children`. Par exemple, l'utilisateur sélectionne d'abord `"Bleu"` (Couleur), ce qui lui ouvre les options `"2 Go"` ou `"4 Go"` (Ram), et s'il clique sur `"2 Go"`, cela lui affiche les options `"16 Go"`, `"32 Go"` ou `"64 Go"` (Stockage). Une fois le dernier niveau atteint, on obtient l'objet final contenant l'identifiant de la variante (`id`), son code `sku` et son `stock`.
+
+**Nouvel Objectif : Logique de déclenchement sur les "Product Cards" (Cartes Produits)**
+Je souhaite maintenant implémenter ce comportement directement au clic sur le bouton "Ajouter au panier" de mes cartes produits (Page d'accueil, listes de catégories, etc.) et non plus sur la page détail. Le flux logique doit suivre ces deux étapes :
+**Étape 1 : Vérification initiale du produit (Gardien)**
+* Au clic sur "Ajouter au panier", l'application vérifie d'abord la propriété booléenne **`has_variant`** dans l'objet `product` de la carte.
+* **Si `has_variant: false` :** Le produit est standard. On l'ajoute directement au panier.
+* **Si `has_variant: true` :** L'ajout immédiat est bloqué. L'application doit déclencher un appel API vers notre endpoint (ex: `/api/v1/products/{id}/variants-list/`) pour récupérer le `variant_tree`.
+  
+**Étape 2 : Chargement et Rendu Dynamique de l'Arbre**
+* Pendant l'appel API, la carte produit affiche un état de chargement (*loading*).
+* Une fois le JSON reçu, une interface contextuelle (popover, mini-modale ou volet déroulant lié à la carte) s'ouvre.
+* Tu dois générer les sélecteurs d'options de manière 100 % dynamique en suivant l'ordre de la `"structure"` reçue, en affichant les `"attribute_name"` en français, et en guidant l'utilisateur à travers les `children` jusqu'à la sélection finale d'un SKU valide et disponible en stock.
+
+Donne-moi la stratégie et le code frontend complet pour gérer ce flux asynchrone (Vérification `has_variant` $\rightarrow$ Appel API $\rightarrow$ Rendu de l'arbre d'options) de manière totalement isolée pour chaque carte produit.
+
 {
     "product_id": 6,
     "score": 0.2,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { featuredProducts } from '@/data/data.js';
 import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount } from '@/utils/helpers.js';
 import { buildDetailFromApi } from '@/features/product/utils/helpers.js';
@@ -18,8 +18,7 @@ function RatingStars({ rating }) {
 export default function ProductDetailPage({ product, onClose, onAddToCart, onOpenProduct, onOpenShop }) {
   const [tab, setTab] = useState(TABS[0]);
   const [selImg, setSelImg] = useState(null);
-  const [selColor, setSelColor] = useState(0);
-  const [selSize, setSelSize] = useState(0);
+  const [selIndices, setSelIndices] = useState([0]);
   const [qty, setQty] = useState(1);
   const [expanded, setExpanded] = useState(false);
   const [favorite, setFavorite] = useState(false);
@@ -30,6 +29,14 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   
   const productGallery = productGalleryRes?.data?.results || productGalleryRes?.data || [];
   const detailShop = detailShopRes?.data?.results || detailShopRes?.data || {};
+
+  // MODIFICATION ICI — Arbre de variantes dynamique (N niveaux)
+  const variantDepth = product?.variant_tree?.structure?.length || 0;
+  useEffect(() => {
+    if (selIndices.length !== variantDepth) {
+      setSelIndices(Array(variantDepth).fill(0));
+    }
+  }, [variantDepth]);
 
   if (!product) {
     return (
@@ -45,19 +52,69 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   const badges = getProductBadges(product);
   const discountPct = getPromoDiscount(product.pricing_display);
   const detail = buildDetailFromApi(product);
-  // MODIFICATION ICI — enfants du parent variant sélectionné seulement
-  const currentParent = detail.parentVariants?.[selColor];
-  const currentSizes = currentParent?.children?.map(c => c.value) || [];
+
+  const getOptionsAtLevel = (level) => {
+    if (!detail.variantData?.levels?.length) return [];
+    if (level === 0) return detail.variantData.levels;
+    let node = detail.variantData.levels[selIndices[0]];
+    for (let i = 1; i < level; i++) {
+      if (!node?.children?.[selIndices[i]]) return [];
+      node = node.children[selIndices[i]];
+    }
+    return node?.children || [];
+  };
+
+  const getHexForOption = (level, optionIdx) => {
+    if (!detail.variantData?.levels?.length) return '#ccc';
+    let node = detail.variantData.levels[selIndices[0]];
+    for (let i = 1; i < level; i++) {
+      if (!node?.children?.[selIndices[i]]) return '#ccc';
+      node = node.children[selIndices[i]];
+    }
+    if (level > 0) {
+      node = node?.children?.[optionIdx];
+    } else {
+      node = detail.variantData.levels[optionIdx];
+    }
+    if (!node) return '#ccc';
+    const findLeaf = (n) => n.children?.length ? findLeaf(n.children[0]) : n;
+    const leaf = findLeaf(node);
+    const attrCode = detail.variantData.attrInfo[level]?.code;
+    const attr = leaf?.attributes?.find(a => a.attribute_code === attrCode);
+    return attr?.hex_color || '#ccc';
+  };
+
+  const getLeafVariant = () => {
+    if (!detail.variantData?.levels?.length) return null;
+    const lastLevel = detail.variantData.structure.length - 1;
+    if (lastLevel < 0) return null;
+    const options = getOptionsAtLevel(lastLevel);
+    const node = options?.[selIndices[lastLevel]];
+    return node?.children?.[0] || null;
+  };
+
+  const handleLevelClick = (level, idx) => {
+    const next = [...selIndices];
+    next[level] = idx;
+    for (let d = level + 1; d < next.length; d++) next[d] = 0;
+    setSelIndices(next);
+  };
+
   const mainImage = selImg !== null 
   ? productGallery[selImg]?.image 
   : (product?.image);
 
   const afterAdd = () => {
+    const leaf = getLeafVariant();
+    const selectedVariants = {};
+    detail.variantData?.attrInfo?.forEach((attr, i) => {
+      selectedVariants[attr.code] = getOptionsAtLevel(i)?.[selIndices[i]]?.value;
+    });
     onAddToCart({
       ...product,
       qty,
-      selectedVariants: { color: detail.colorNames?.[selColor], size: currentSizes?.[selSize] },
-      cartKey: `${product.id}-${selColor}-${selSize}`,
+      selectedVariants,
+      cartKey: `${product.id}-${leaf?.id || selIndices.join('-')}`,
     });
   };
 
@@ -196,11 +253,42 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
               </div>
             )}
 
-            {/* Colors */}
-            {detail.colors?.length > 0 && <div className="mb-4"><div className="text-[13px] font-bold text-gray-500 mb-2">Couleur : <span className="text-[#0d1b2a]">{detail.colorNames[selColor]}</span></div><div className="flex gap-2">{detail.colors.map((c, i) => <button key={c} onClick={() => { setSelColor(i); setSelSize(0); }} className={`w-9 h-9 rounded-full border-2 transition-all ${i === selColor ? 'border-orange-500 scale-110' : 'border-gray-200'}`} style={{ backgroundColor: c }} />)}</div></div>}
-
-            {/* Sizes */}
-            {currentSizes?.length > 0 && <div className="mb-4"><div className="text-[13px] font-bold text-gray-500 mb-2">Taille : <span className="text-[#0d1b2a]">{currentSizes[selSize]}</span></div><div className="flex gap-2">{currentSizes.map((s, i) => <button key={s} onClick={() => setSelSize(i)} className={`px-4 py-2 rounded border text-[13px] font-bold transition-all ${i === selSize ? 'border-orange-500 bg-orange-50 text-orange-500' : 'border-gray-200 text-gray-600 hover:border-orange-300'}`}>{s}</button>)}</div></div>}
+            {/* MODIFICATION ICI — Sélecteurs de variantes dynamique (N niveaux) */}
+            {detail.variantData?.attrInfo?.map((attr, level) => {
+              const options = getOptionsAtLevel(level);
+              const sel = selIndices[level];
+              if (!options?.length) return null;
+              return (
+                <div key={attr.code} className="mb-4">
+                  <div className="text-[13px] font-bold text-gray-500 mb-2">
+                    {attr.name} : <span className="text-[#0d1b2a]">{options[sel]?.value}</span>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {options.map((opt, i) => {
+                      if (attr.hasHex) {
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => handleLevelClick(level, i)}
+                            className={`w-9 h-9 rounded-full border-2 transition-all ${i === sel ? 'border-orange-500 scale-110' : 'border-gray-200'}`}
+                            style={{ backgroundColor: getHexForOption(level, i) }}
+                          />
+                        );
+                      }
+                      return (
+                        <button
+                          key={opt.value}
+                          onClick={() => handleLevelClick(level, i)}
+                          className={`px-4 py-2 rounded border text-[13px] font-bold transition-all ${i === sel ? 'border-orange-500 bg-orange-50 text-orange-500' : 'border-gray-200 text-gray-600 hover:border-orange-300'}`}
+                        >
+                          {opt.value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
 
             {/* Stock */}
             <div className="mb-4"><div className="flex justify-between text-[12px] mb-1"><span className="text-gray-500">Disponibilité</span><span className="font-bold text-green-600">{detail.stock > 0 ? `${detail.stock} en stock` : 'Épuisé'}</span></div>{detail.stock > 0 && <div className="h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full" style={{ width: `${Math.min((detail.stock / 100) * 100, 100)}%` }} /></div>}</div>

@@ -1,4 +1,19 @@
-  "variant_tree": {
+Contexte et Objectif :
+Je développe un système de variantes de produits e-commerce. Je t'ai fourni trois fichiers pour comprendre mon architecture : instruction.md, structure.txt et variant.txt.
+
+L'objectif est que tu comprennes comment parser et afficher dynamiquement l'arbre des variantes (variant_tree) fourni dans variant.txt.
+
+Règles et Contraintes Techniques :
+
+Hiérarchie et Profondeur Dynamiques : Contrairement aux exemples classiques limités à 2 niveaux (ex: Couleur > Taille), mes variantes sont gérées sous forme d'arbre (variant_tree) à profondeur variable. L'exemple fourni contient 3 niveaux (color → ram → storage), mais cela doit rester 100 % dynamique selon les données de la base de données.
+
+Ordre d'affichage : Base-toi scrupuleusement sur l'ordre défini dans le tableau "structure" de l'objet "variant_tree" pour savoir dans quel ordre imbriquer et afficher les sélecteurs d'attributs.
+
+Internationalisation (Langue) : Pour l'affichage des libellés (les labels des options), utilise toujours la clé "attribute_name" (ex: "Couleur", "Stockage") afin d'obtenir automatiquement le nom traduit en français, plutôt que le code technique (attribute_code).
+
+Prends bien en compte cette structure dynamique pour toutes tes futures réponses et propositions de code. Dis-moi si tu as bien compris la logique du variant_tree. 
+ 
+"variant_tree": {
         "structure": [
             "color",
             "ram",

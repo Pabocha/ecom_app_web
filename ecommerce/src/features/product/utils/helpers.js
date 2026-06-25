@@ -1,18 +1,24 @@
-// MODIFICATION ICI — Helpers extraits de ProductDetailPage
-
+// MODIFICATION ICI — Arbre de variantes dynamique (N niveaux)
 export function extractVariantData(tree) {
-  if (!tree?.variants?.length) return { colors: [], colorNames: [], parentVariants: [] };
-  const colors = [], colorNames = [];
-  tree.variants.forEach(v => {
-    if (!colorNames.includes(v.value)) {
-      colorNames.push(v.value);
-      const findLeaf = (n) => n.children?.length ? findLeaf(n.children[0]) : n;
-      const leaf = findLeaf(v);
-      const ca = leaf?.attributes?.find(a => a.attribute_code === 'color' || a.attribute_code === 'Couleur');
-      colors.push(ca?.hex_color || '#ccc');
-    }
+  if (!tree?.variants?.length) return null;
+
+  const findLeaf = (n) => n.children?.length ? findLeaf(n.children[0]) : n;
+  const leaf = tree.variants.length ? findLeaf(tree.variants[0]) : null;
+
+  const attrInfo = (tree.structure || []).map(code => {
+    const attr = leaf?.attributes?.find(a => a.attribute_code === code);
+    return {
+      code,
+      name: attr?.attribute_name || code,
+      hasHex: !!attr?.hex_color,
+    };
   });
-  return { colors, colorNames, parentVariants: tree.variants };
+
+  return {
+    structure: tree.structure || [],
+    attrInfo,
+    levels: tree.variants,
+  };
 }
 
 export function buildSpecs(p) {
@@ -60,9 +66,7 @@ export function buildDetailFromApi(productDetail) {
       transactions: '',
       responseRate: '',
     },
-    colors: variantData.colors,
-    colorNames: variantData.colorNames,
-    parentVariants: variantData.parentVariants,
+    variantData,
     stock,
   };
 }

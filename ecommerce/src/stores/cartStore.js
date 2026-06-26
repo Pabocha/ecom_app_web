@@ -10,6 +10,7 @@ function normalizeCartItems(results = []) {
       price: Number(item.price || item.unit_price || 0),
       qty: item.quantity || 1,
       supplier: item.shop_name || item.supplier || '',
+      lineId: item.id,
     };
     if (item.is_variant_item) {
       const attributes = item.variant_attributes || [];
@@ -35,10 +36,14 @@ export const useCartStore = create((set, get) => ({
   cartItems: [],
   cartOpen: false,
   loading: false,
+  loadingKeys: {},
 
   setCartOpen: (open) => set({ cartOpen: open }),
 
-  // MODIFICATION ICI — Récupère le panier depuis l'API
+  setLoadingKey: (key, value) => set(state => ({
+    loadingKeys: { ...state.loadingKeys, [key]: value },
+  })),
+
   fetchCart: async () => {
     set({ loading: true });
     try {
@@ -52,7 +57,6 @@ export const useCartStore = create((set, get) => ({
     }
   },
 
-  // MODIFICATION ICI — Ajoute via API puis refetch
   addToCart: async (product, openSidebar = true) => {
     if (openSidebar) set({ cartOpen: true });
     try {
@@ -66,40 +70,42 @@ export const useCartStore = create((set, get) => ({
     }
   },
 
-  // MODIFICATION ICI — Change la quantité via API puis refetch
   changeQty: async (id, delta) => {
     const { cartItems } = get();
     const item = cartItems.find(i => (i.cartKey || String(i.id)) === id);
     if (!item) return;
+    const cartKey = item.cartKey || String(item.id);
+    get().setLoadingKey(cartKey, true);
     const newQty = Math.max(1, item.qty + delta);
     try {
-      const payload = item.is_variant_item
-        ? { variant: item.variant_id, quantity: newQty }
-        : { product: item.id, quantity: newQty };
-      await cartService.changeQuantityItem(payload);
+      await cartService.changeQuantityItem(item.lineId, { quantity: newQty });
       await get().fetchCart();
     } catch (error) {
       console.error('Erreur changement quantité:', error);
+    } finally {
+      get().setLoadingKey(cartKey, false);
     }
   },
 
-  // MODIFICATION ICI — Supprime via API puis refetch
   removeItem: async (id) => {
     const { cartItems } = get();
     const item = cartItems.find(i => (i.cartKey || String(i.id)) === id);
     if (!item) return;
+    const cartKey = item.cartKey || String(item.id);
+    get().setLoadingKey(cartKey, true);
     try {
       const payload = item.is_variant_item
-        ? { data: { variant: item.variant_id } }
-        : { data: { product: item.id } };
+        ? { variant_id: item.variant_id }
+        : { product_id: item.id };
       await cartService.removeCartItem(payload);
       await get().fetchCart();
     } catch (error) {
       console.error('Erreur suppression article:', error);
+    } finally {
+      get().setLoadingKey(cartKey, false);
     }
   },
 
-  // MODIFICATION ICI — Vide le panier via API
   clearCart: async () => {
     try {
       await cartService.clearCart();

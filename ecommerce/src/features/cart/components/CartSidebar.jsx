@@ -1,12 +1,12 @@
 import { memo, useMemo } from 'react';
 import { formatPrice } from '@/data/data.js';
-import { Lock, ShoppingCart, Trash2, X } from 'lucide-react';
+import { Loader, Lock, ShoppingCart, Trash2, X } from 'lucide-react';
 
 function variantLabel(selection) {
   return Object.entries(selection).map(([key, value]) => `${key}: ${value}`).join(' · ');
 }
 
-const CartSidebarItem = memo(function CartSidebarItem({ item, onQty, onRemove }) {
+const CartSidebarItem = memo(function CartSidebarItem({ item, onQty, onRemove, isLoading }) {
   const itemId = item.cartKey || item.id;
 
   return (
@@ -19,19 +19,23 @@ const CartSidebarItem = memo(function CartSidebarItem({ item, onQty, onRemove })
         )}
         <div className="font-['Barlow_Condensed'] text-[16px] font-black text-orange-500">{formatPrice(item.price)}</div>
         <div className="flex items-center gap-2 mt-1.5">
-          <button onClick={() => onQty(itemId, -1)} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white flex items-center justify-center text-[14px] font-bold transition-colors">−</button>
-          <span className="text-[14px] font-bold w-5 text-center">{item.qty}</span>
-          <button onClick={() => onQty(itemId, 1)} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white flex items-center justify-center text-[14px] font-bold transition-colors">+</button>
+          <button onClick={() => onQty(itemId, -1)} disabled={isLoading} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white disabled:opacity-40 flex items-center justify-center text-[14px] font-bold transition-colors">−</button>
+          {isLoading ? (
+            <Loader size={14} className="animate-spin text-orange-500 mx-auto" />
+          ) : (
+            <span className="text-[14px] font-bold w-5 text-center">{item.qty}</span>
+          )}
+          <button onClick={() => onQty(itemId, 1)} disabled={isLoading} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white disabled:opacity-40 flex items-center justify-center text-[14px] font-bold transition-colors">+</button>
         </div>
       </div>
-      <button onClick={() => onRemove(itemId)} className="text-gray-300 hover:text-red-500 transition-colors self-start text-[14px]">
+      <button onClick={() => onRemove(itemId)} disabled={isLoading} className="text-gray-300 hover:text-red-500 disabled:opacity-40 transition-colors self-start text-[14px]">
         <Trash2 size={14} />
       </button>
     </div>
   );
 });
 
-function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage }) {
+function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage, loadingKeys }) {
   const total = useMemo(() => items.reduce((s, i) => s + i.price * i.qty, 0), [items]);
   const totalQty = useMemo(() => items.reduce((s, i) => s + i.qty, 0), [items]);
 
@@ -56,9 +60,12 @@ function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage }) 
               <p className="text-[12px] mt-1">Ajoutez des articles pour commencer</p>
             </div>
           ) : (
-            items.map((item) => (
-              <CartSidebarItem key={item.cartKey || item.id} item={item} onQty={onQty} onRemove={onRemove} />
-            ))
+            items.map((item) => {
+              const itemKey = item.cartKey || String(item.id);
+              return (
+                <CartSidebarItem key={itemKey} item={item} onQty={onQty} onRemove={onRemove} isLoading={loadingKeys?.[itemKey]} />
+              );
+            })
           )}
         </div>
 

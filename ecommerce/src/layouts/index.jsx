@@ -13,7 +13,7 @@ import { useVariantStore } from '@/stores/variantStore';
 
 export function BasicLayout() {
   const navigate = useNavigate();
-  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem } = useCart();
+  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem, loadingKeys } = useCart();
   const { user, logout } = useAuth();
 
   // MODIFICATION ICI — Charge le panier depuis l'API au montage
@@ -47,6 +47,7 @@ export function BasicLayout() {
         items={cartItems}
         onQty={changeQty}
         onRemove={removeItem}
+        loadingKeys={loadingKeys}
         onOpenCartPage={() => {
           setCartOpen(false);
           navigate('/cart');

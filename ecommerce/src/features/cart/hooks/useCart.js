@@ -11,6 +11,7 @@ export function useCart() {
     changeQty: state.changeQty,
     removeItem: state.removeItem,
     clearCart: state.clearCart,
+    loadingKeys: state.loadingKeys,
     cartCount: state.cartItems.reduce((sum, item) => sum + item.qty, 0),
   })));
 

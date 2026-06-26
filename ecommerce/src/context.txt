@@ -1,3 +1,5 @@
+je viens d'ajouter un ficher context.txt dans src mais avant de commencer faudrait d'abord lire le fichier instruction.md qui se trouve aussi dans src pour comprendre mon arcitecture. Après ça tu peux maintenant commencer en gros l'idée c'est du le panier venant direct de la base de données alors faudrait peut être déjà pensé aussi a retirer l'état du panier locale
+
 Je travaille sur la gestion du panier de ma plateforme e-commerce. Je te fournis les structures exactes des requêtes de création (POST) ainsi que la réponse JSON renvoyée par l'API pour l'affichage de la liste des éléments du panier (`GET /api/v1/cart/`).
 **1. Formats des requêtes d'ajout au panier (`POST /api/v1/cart/add/`)**
 * **Pour un produit simple (sans variantes) :** On envoie l'ID du produit de base.
@@ -13,3 +15,92 @@ Analyse bien la réponse JSON reçue. Chaque élément du tableau `results` poss
 * **Cas `is_variant_item: true` :** L'élément possède un champ `variant` (ex: `12`) et `product` est à `null`. Les informations spécifiques à la déclinaison choisie se trouvent dans le tableau **`variant_attributes`** (qui liste les objets avec `attribute` et `value` déjà formatés, ex: Couleur: Bleu, Stockage: 128 Go).
 * **Cas `is_variant_item: false` :** Le champ `variant` est à `null`, et le champ `product` contient l'ID du produit simple. Le tableau `variant_attributes` est vide.
 
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 2,
+            "user": 2,
+            "variant": 12,
+            "product": null,
+            "variant_sku": "6-20862740",
+            "variant_attributes": [
+                {
+                    "id": 4,
+                    "attribute": "Couleur",
+                    "value": "Bleu"
+                },
+                {
+                    "id": 10,
+                    "attribute": "Stockage",
+                    "value": "128 Go"
+                },
+                {
+                    "id": 14,
+                    "attribute": "Ram",
+                    "value": "4 Go"
+                }
+            ],
+            "product_name": "Samsung Galaxy S24 Ultra 512GB",
+            "quantity": 1,
+            "product_base_price": 400000.0,
+            "unit_price": 350000.0,
+            "product_image": "http://localhost:8000/media/photo-1610945265064-0e34e5519bbf.jfif",
+            "product_brand": "Samsung Galaxy",
+            "product_status": "available",
+            "product_min_order_quantity": 1,
+            "product_description": "Samsung Galaxy S24 Ultra 512GB — Produit premium disponible sur TradeHub. Qualité vérifiée, livraison rapide dans tout le Sénégal.",
+            "product_currency": "XOF",
+            "line_total": 350000.0,
+            "price_tiers": [
+                {
+                    "min_quantity": 10,
+                    "max_quantity": 20,
+                    "price": 350000.0
+                },
+                {
+                    "min_quantity": 21,
+                    "max_quantity": null,
+                    "price": 300000.0
+                }
+            ],
+            "active_promotions": [],
+            "is_variant_item": true,
+            "available_stock": 10,
+            "is_out_of_stock": false,
+            "can_fulfill_requested_quantity": true
+        },
+        {
+            "id": 1,
+            "user": 2,
+            "variant": null,
+            "product": 4,
+            "variant_attributes": [],
+            "product_name": "Nike Air Max 270 React — Homme",
+            "quantity": 1,
+            "product_base_price": 10000.0,
+            "unit_price": 7500.0,
+            "product_image": "http://localhost:8000/media/nike-react-5595746_1920.jpg",
+            "product_brand": "SportsHub Africa",
+            "product_status": "available",
+            "product_min_order_quantity": 1,
+            "product_description": "Nike Air Max 270 React — Homme — Produit premium disponible sur TradeHub. Qualité vérifiée, livraison rapide dans tout le Sénégal.",
+            "product_currency": "XOF",
+            "line_total": 7500.0,
+            "price_tiers": [],
+            "active_promotions": [
+                {
+                    "price": 7500.0,
+                    "start_at": "2026-06-20T10:12:43Z",
+                    "end_at": "2026-06-26T18:00:00Z"
+                }
+            ],
+            "is_variant_item": false,
+            "available_stock": 200,
+            "is_out_of_stock": false,
+            "can_fulfill_requested_quantity": true
+        }
+    ]
+}

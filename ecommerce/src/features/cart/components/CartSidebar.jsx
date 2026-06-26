@@ -2,6 +2,10 @@ import { memo, useMemo } from 'react';
 import { formatPrice } from '@/data/data.js';
 import { Lock, ShoppingCart, Trash2, X } from 'lucide-react';
 
+function variantLabel(selection) {
+  return Object.entries(selection).map(([key, value]) => `${key}: ${value}`).join(' · ');
+}
+
 const CartSidebarItem = memo(function CartSidebarItem({ item, onQty, onRemove }) {
   const itemId = item.cartKey || item.id;
 
@@ -10,6 +14,9 @@ const CartSidebarItem = memo(function CartSidebarItem({ item, onQty, onRemove })
       <img src={item.img} alt={item.name} className="w-16 h-16 rounded object-cover shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="text-[13px] font-semibold text-[#0d1b2a] leading-tight mb-1 line-clamp-2">{item.name}</div>
+        {item.selectedVariants && (
+          <div className="text-[11px] font-bold text-orange-500 mb-1">{variantLabel(item.selectedVariants)}</div>
+        )}
         <div className="font-['Barlow_Condensed'] text-[16px] font-black text-orange-500">{formatPrice(item.price)}</div>
         <div className="flex items-center gap-2 mt-1.5">
           <button onClick={() => onQty(itemId, -1)} className="w-6 h-6 rounded bg-gray-100 hover:bg-orange-500 hover:text-white flex items-center justify-center text-[14px] font-bold transition-colors">−</button>

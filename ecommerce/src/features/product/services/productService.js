@@ -1,11 +1,5 @@
 import api from '@/services/api';
 
-// function toQueryString(params) {
-//   const entries = Object.entries(params).filter(([_, v]) => v);
-//   if (entries.length === 0) return '';
-//   return '?' + entries.map(([k]) => encodeURIComponent(k)).join('&');
-// }
-
 export const productService = {
     getProducts: (params = {}) => api.get('/v1/products/', {params}),
     getProductById: (id) => api.get(`/v1/products/${id}`),

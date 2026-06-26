@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { featuredProducts } from '@/data/data.js';
 import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount } from '@/utils/helpers.js';
-import { buildDetailFromApi } from '@/features/product/utils/helpers.js';
+import { buildDetailFromApi, getOptionsAtLevel, getHexForOption, getLeafVariant, updateLevelSelection } from '@/features/product/utils/helpers.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import ProductSkeleton from '@/features/product/components/ProductSkeleton.jsx';
 import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
@@ -19,9 +19,10 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   const [tab, setTab] = useState(TABS[0]);
   const [selImg, setSelImg] = useState(null);
   const [selIndices, setSelIndices] = useState([0]);
-  const [qty, setQty] = useState(1);
+  const [qty, setQty] = useState(1);  
   const [expanded, setExpanded] = useState(false);
   const [favorite, setFavorite] = useState(false);
+  const [toast, setToast] = useState(null);
 
   // MODIFICATION ICI — product est maintenant le produit dynamique (API) passé par le routeur
   const { data: productGalleryRes, isPending: productGalleryLoading } = useProductGallery(product?.id)
@@ -38,6 +39,12 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
     }
   }, [variantDepth]);
 
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
   if (!product) {
     return (
       <div className="min-h-screen bg-gray-100">
@@ -53,51 +60,8 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   const discountPct = getPromoDiscount(product.pricing_display);
   const detail = buildDetailFromApi(product);
 
-  const getOptionsAtLevel = (level) => {
-    if (!detail.variantData?.levels?.length) return [];
-    if (level === 0) return detail.variantData.levels;
-    let node = detail.variantData.levels[selIndices[0]];
-    for (let i = 1; i < level; i++) {
-      if (!node?.children?.[selIndices[i]]) return [];
-      node = node.children[selIndices[i]];
-    }
-    return node?.children || [];
-  };
-
-  const getHexForOption = (level, optionIdx) => {
-    if (!detail.variantData?.levels?.length) return '#ccc';
-    let node = detail.variantData.levels[selIndices[0]];
-    for (let i = 1; i < level; i++) {
-      if (!node?.children?.[selIndices[i]]) return '#ccc';
-      node = node.children[selIndices[i]];
-    }
-    if (level > 0) {
-      node = node?.children?.[optionIdx];
-    } else {
-      node = detail.variantData.levels[optionIdx];
-    }
-    if (!node) return '#ccc';
-    const findLeaf = (n) => n.children?.length ? findLeaf(n.children[0]) : n;
-    const leaf = findLeaf(node);
-    const attrCode = detail.variantData.attrInfo[level]?.code;
-    const attr = leaf?.attributes?.find(a => a.attribute_code === attrCode);
-    return attr?.hex_color || '#ccc';
-  };
-
-  const getLeafVariant = () => {
-    if (!detail.variantData?.levels?.length) return null;
-    const lastLevel = detail.variantData.structure.length - 1;
-    if (lastLevel < 0) return null;
-    const options = getOptionsAtLevel(lastLevel);
-    const node = options?.[selIndices[lastLevel]];
-    return node?.children?.[0] || null;
-  };
-
   const handleLevelClick = (level, idx) => {
-    const next = [...selIndices];
-    next[level] = idx;
-    for (let d = level + 1; d < next.length; d++) next[d] = 0;
-    setSelIndices(next);
+    setSelIndices(updateLevelSelection(selIndices, level, idx));
   };
 
   const mainImage = selImg !== null 
@@ -105,10 +69,10 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   : (product?.image);
 
   const afterAdd = () => {
-    const leaf = getLeafVariant();
+    const leaf = getLeafVariant(detail.variantData, selIndices);
     const selectedVariants = {};
     detail.variantData?.attrInfo?.forEach((attr, i) => {
-      selectedVariants[attr.code] = getOptionsAtLevel(i)?.[selIndices[i]]?.value;
+      selectedVariants[attr.code] = getOptionsAtLevel(detail.variantData, selIndices, i)?.[selIndices[i]]?.value;
     });
     onAddToCart({
       ...product,
@@ -116,6 +80,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
       selectedVariants,
       cartKey: `${product.id}-${leaf?.id || selIndices.join('-')}`,
     });
+    setToast('Produit ajouté au panier');
   };
 
   const handleBuyNow = () => {
@@ -253,9 +218,9 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
               </div>
             )}
 
-            {/* MODIFICATION ICI — Sélecteurs de variantes dynamique (N niveaux) */}
+            {/* Sélecteurs de variantes dynamique (N niveaux) */}
             {detail.variantData?.attrInfo?.map((attr, level) => {
-              const options = getOptionsAtLevel(level);
+              const options = getOptionsAtLevel(detail.variantData, selIndices, level);
               const sel = selIndices[level];
               if (!options?.length) return null;
               return (
@@ -271,7 +236,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
                             key={opt.value}
                             onClick={() => handleLevelClick(level, i)}
                             className={`w-9 h-9 rounded-full border-2 transition-all ${i === sel ? 'border-orange-500 scale-110' : 'border-gray-200'}`}
-                            style={{ backgroundColor: getHexForOption(level, i) }}
+                            style={{ backgroundColor: getHexForOption(detail.variantData, selIndices, level, i) }}
                           />
                         );
                       }
@@ -377,6 +342,16 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             <div className="grid grid-cols-5 gap-2.5">
               {featuredProducts.slice(0, 5).map(p => <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} />)}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-[1300] rounded-lg bg-[#0d1b2a] px-5 py-3 text-[14px] font-bold text-white shadow-2xl transition-all duration-300">
+          <div className="flex items-center gap-2">
+            <ShoppingCart size={16} className="text-orange-500" />
+            {toast}
           </div>
         </div>
       )}

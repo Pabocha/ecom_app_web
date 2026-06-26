@@ -54,7 +54,7 @@ function ProductDetailRoute() {
     <ProductDetailPage
       product={product}
       onClose={() => navigate(-1)}
-      onAddToCart={(p) => addToCart(p, false)}
+      onAddToCart={(p) => addToCart(p, true)}
       onOpenProduct={(p) => navigate(`/product/${p.id}`)}
       onOpenShop={(shopId) => navigate(`/shop/${shopId}`)}
     />

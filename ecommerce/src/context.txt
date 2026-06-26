@@ -1,0 +1,15 @@
+Je travaille sur la gestion du panier de ma plateforme e-commerce. Je te fournis les structures exactes des requêtes de création (POST) ainsi que la réponse JSON renvoyée par l'API pour l'affichage de la liste des éléments du panier (`GET /api/v1/cart/`).
+**1. Formats des requêtes d'ajout au panier (`POST /api/v1/cart/add/`)**
+* **Pour un produit simple (sans variantes) :** On envoie l'ID du produit de base.
+```json
+{ "product": 1, "quantity": 2 }
+```
+* **Pour un produit avec variantes :** On envoie directement l'ID unique de la variante ciblée (le produit parent est omis ou passé à null côté backend).
+```json
+{ "variant": 5, "quantity": 1 }
+```
+**2. Structure de la réponse de la liste du panier (`GET`)**
+Analyse bien la réponse JSON reçue. Chaque élément du tableau `results` possède un booléen crucial : **`is_variant_item`**.
+* **Cas `is_variant_item: true` :** L'élément possède un champ `variant` (ex: `12`) et `product` est à `null`. Les informations spécifiques à la déclinaison choisie se trouvent dans le tableau **`variant_attributes`** (qui liste les objets avec `attribute` et `value` déjà formatés, ex: Couleur: Bleu, Stockage: 128 Go).
+* **Cas `is_variant_item: false` :** Le champ `variant` est à `null`, et le champ `product` contient l'ID du produit simple. Le tableau `variant_attributes` est vide.
+

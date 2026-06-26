@@ -28,11 +28,3 @@ export function useCart() {
   return { ...wrapped, addToCart };
 }
 
-// export function useCartActions() {
-//   return useCartStore((state) => ({
-//     addToCart: state.addToCart,
-//     changeQty: state.changeQty,
-//     removeItem: state.removeItem,
-//     clearCart: state.clearCart,
-//   }))
-// }

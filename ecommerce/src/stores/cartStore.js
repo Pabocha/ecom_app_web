@@ -33,10 +33,12 @@ export const useCartStore = create(
             cartKey,
           };
 
+          const addQty = product.qty || 1;
+
           if (existing) {
             const nextItems = state.cartItems.map((item) =>
               (item.cartKey || String(item.id)) === cartKey
-                ? { ...item, qty: item.qty + 1 }
+                ? { ...item, qty: item.qty + addQty }
                 : item
             );
             return {
@@ -48,7 +50,7 @@ export const useCartStore = create(
           return {
             cartItems: [
               ...state.cartItems,
-              { ...normalizedProduct, qty: 1 },
+              { ...normalizedProduct, qty: addQty },
             ],
             cartOpen: openSidebar ? true : state.cartOpen,
           };

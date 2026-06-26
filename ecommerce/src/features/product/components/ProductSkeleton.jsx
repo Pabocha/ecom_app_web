@@ -1,4 +1,4 @@
-// MODIFICATION ICI — Skeleton pour la page détail produit
+// Skeleton pour la page détail produit
 export default function ProductSkeleton() {
   return (
     <div className="max-w-[1300px] mx-auto px-4 py-5 grid grid-cols-[580px_1fr] gap-6 animate-pulse">

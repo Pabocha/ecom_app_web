@@ -1,8 +1,7 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useCartStore } from '@/stores/cartStore';
 import AnnouncementBar from '@/layouts/AnnouncementBar';
 import TopNav from '@/layouts/TopNav';
 import SubNav from '@/layouts/SubNav';
@@ -13,11 +12,8 @@ import { useVariantStore } from '@/stores/variantStore';
 
 export function BasicLayout() {
   const navigate = useNavigate();
-  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem, loadingKeys } = useCart();
+  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem, isPending } = useCart();
   const { user, logout } = useAuth();
-
-  // MODIFICATION ICI — Charge le panier depuis l'API au montage
-  useEffect(() => { useCartStore.getState().fetchCart(); }, []);
 
   const handleLogout = () => {
     logout();
@@ -47,7 +43,7 @@ export function BasicLayout() {
         items={cartItems}
         onQty={changeQty}
         onRemove={removeItem}
-        loadingKeys={loadingKeys}
+        isPending={isPending}
         onOpenCartPage={() => {
           setCartOpen(false);
           navigate('/cart');
@@ -91,9 +87,6 @@ export function BasicLayout() {
 }
 
 export function SimpleLayout() {
-  // MODIFICATION ICI — Charge le panier depuis l'API au montage
-  useEffect(() => { useCartStore.getState().fetchCart(); }, []);
-
   const variantProduct = useVariantStore(state => state.product);
   const variantsMap = useVariantStore(state => state.variantsMap);
   const selection = useVariantStore(state => state.selection);

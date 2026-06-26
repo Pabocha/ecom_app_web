@@ -5,7 +5,7 @@ function variantLabel(selection) {
   return Object.entries(selection).map(([key, value]) => `${key}: ${value}`).join(' · ');
 }
 
-export default function CartItemList({ items, totalQty, onQty, onRemove, onItemClick, loadingKeys }) {
+export default function CartItemList({ items, totalQty, onQty, onRemove, onItemClick, isPending }) {
   if (items.length === 0) {
     return (
       <div className="py-20 text-center text-gray-400">
@@ -20,7 +20,7 @@ export default function CartItemList({ items, totalQty, onQty, onRemove, onItemC
     <div className="divide-y divide-gray-100">
       {items.map(item => {
         const itemKey = item.cartKey || String(item.id);
-        const isLoading = loadingKeys?.[itemKey];
+        const isLoading = isPending(itemKey);
         return (
         <article key={itemKey} className="p-4 grid grid-cols-[96px_1fr_auto] gap-4">
           <button onClick={() => onItemClick(item.id)} className="overflow-hidden rounded bg-gray-50">

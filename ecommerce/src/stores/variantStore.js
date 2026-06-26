@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { productService } from '@/features/product/services/productService';
+import { cartService } from '@/features/cart/services/cartService';
 import { useCartStore } from '@/stores/cartStore';
+import { queryClient } from '@/App';
 
 // MODIFICATION ICI — Reconstruction de la sélection valide dans l'arbre
 function getValidSelection(raw, selection) {
@@ -176,8 +178,9 @@ export const useVariantStore = create((set, get) => ({
       price: price,
     };
 
-    const addToCart = useCartStore.getState().addToCart;
-    addToCart(cartItem, true);
+    cartService.addCartItems({ variant: leaf?.id, quantity: 1 });
+    queryClient.invalidateQueries({ queryKey: ["cart-items"] });
+    useCartStore.getState().setCartOpen(true);
     set({ open: false, product: null, raw: null, variantsMap: null, selection: {} });
   },
 }));

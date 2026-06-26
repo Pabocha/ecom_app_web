@@ -35,7 +35,7 @@ const CartSidebarItem = memo(function CartSidebarItem({ item, onQty, onRemove, i
   );
 });
 
-function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage, loadingKeys }) {
+function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage, isPending }) {
   const total = useMemo(() => items.reduce((s, i) => s + i.price * i.qty, 0), [items]);
   const totalQty = useMemo(() => items.reduce((s, i) => s + i.qty, 0), [items]);
 
@@ -63,7 +63,7 @@ function CartSidebar({ open, onClose, items, onQty, onRemove, onOpenCartPage, lo
             items.map((item) => {
               const itemKey = item.cartKey || String(item.id);
               return (
-                <CartSidebarItem key={itemKey} item={item} onQty={onQty} onRemove={onRemove} isLoading={loadingKeys?.[itemKey]} />
+                <CartSidebarItem key={itemKey} item={item} onQty={onQty} onRemove={onRemove} isLoading={isPending(itemKey)} />
               );
             })
           )}

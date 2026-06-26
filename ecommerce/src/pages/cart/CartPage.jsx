@@ -21,7 +21,7 @@ function defaultVariantSelection(product) {
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { cartItems, changeQty, removeItem, addToCart, loadingKeys } = useCart();
+  const { cartItems, changeQty, removeItem, addToCart, isPending } = useCart();
   const [selectedPayment, setSelectedPayment] = useState('wave');
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantSelection, setVariantSelection] = useState({});
@@ -70,7 +70,7 @@ export default function CartPage() {
               </div>
               <span className="rounded bg-orange-50 px-3 py-1 text-[12px] font-black text-orange-500">Livraison gratuite dès 50 000 FCFA</span>
             </div>
-            <CartItemList items={items} totalQty={totalQty} onQty={changeQty} onRemove={removeItem} onItemClick={(id) => navigate(`/product/${id}`)} loadingKeys={loadingKeys} />
+            <CartItemList items={items} totalQty={totalQty} onQty={changeQty} onRemove={removeItem} onItemClick={(id) => navigate(`/product/${id}`)} isPending={isPending} />
           </section>
 
           <PaymentSelector selectedPayment={selectedPayment} onSelectPayment={setSelectedPayment} />

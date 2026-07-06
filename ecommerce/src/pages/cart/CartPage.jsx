@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { cartRecommendations } from '@/data/data.js';
@@ -27,11 +27,35 @@ export default function CartPage() {
   const [variantSelection, setVariantSelection] = useState({});
 
   const items = cartItems;
-  const subtotal = items.reduce((s, item) => s + item.price * item.qty, 0);
-  const totalQty = items.reduce((s, item) => s + item.qty, 0);
+  const itemKeys = useMemo(() => items.map((item) => item.cartKey || String(item.id)), [items]);
+  const [selectedKeys, setSelectedKeys] = useState(() => new Set(itemKeys));
+
+  const selectedItems = useMemo(
+    () => items.filter((item) => selectedKeys.has(item.cartKey || String(item.id))),
+    [items, selectedKeys],
+  );
+
+  const selectedCount = selectedItems.length;
+  const allSelected = items.length > 0 && selectedCount === items.length;
+
+  const subtotal = selectedItems.reduce((s, item) => s + item.price * item.qty, 0);
+  const totalQty = selectedItems.reduce((s, item) => s + item.qty, 0);
   const shipping = subtotal >= 50000 || subtotal === 0 ? 0 : 2500;
   const serviceFee = subtotal > 0 ? Math.round(subtotal * 0.012) : 0;
   const total = subtotal + shipping + serviceFee;
+
+  const handlePay = () => {
+    navigate('/checkout', {
+      state: {
+        selectedPayment,
+        subtotal,
+        shipping,
+        serviceFee,
+        total,
+        selectedItemKeys: Array.from(selectedKeys),
+      },
+    });
+  };
 
   const addRecommendedProduct = (product) => {
     if (hasVariants(product)) {
@@ -41,6 +65,40 @@ export default function CartPage() {
     }
     addToCart(product, false);
   };
+
+  const toggleSelectAll = () => {
+    setSelectedKeys((prev) => {
+      if (prev.size === items.length) {
+        return new Set();
+      }
+      return new Set(itemKeys);
+    });
+  };
+
+  const toggleSelectItem = (itemKey) => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemKey)) {
+        next.delete(itemKey);
+      } else {
+        next.add(itemKey);
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      itemKeys.forEach((key) => next.add(key));
+      Array.from(next).forEach((key) => {
+        if (!itemKeys.includes(key)) {
+          next.delete(key);
+        }
+      });
+      return next;
+    });
+  }, [itemKeys]);
 
   const confirmVariant = () => {
     const label = Object.entries(variantSelection)
@@ -63,14 +121,36 @@ export default function CartPage() {
       <div className="max-w-[1300px] mx-auto px-4 pt-5 grid grid-cols-[1fr_390px] gap-5">
         <main className="space-y-4">
           <section className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-gray-100 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-[18px] font-black text-[#0d1b2a]">Articles sélectionnés</h2>
-                <p className="text-[12px] text-gray-400">{totalQty} article{totalQty > 1 ? 's' : ''} dans votre panier</p>
+                <p className="text-[12px] text-gray-400">
+                  {selectedCount} article{selectedCount > 1 ? 's' : ''} sélectionné{selectedCount > 1 ? 's' : ''} sur {items.length}
+                </p>
               </div>
-              <span className="rounded bg-orange-50 px-3 py-1 text-[12px] font-black text-orange-500">Livraison gratuite dès 50 000 FCFA</span>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-[13px] font-bold text-[#0d1b2a]">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-gray-300 text-orange-500"
+                  />
+                  Tout sélectionner
+                </label>
+                <span className="rounded bg-orange-50 px-3 py-1 text-[12px] font-black text-orange-500">Livraison gratuite dès 50 000 FCFA</span>
+              </div>
             </div>
-            <CartItemList items={items} totalQty={totalQty} onQty={changeQty} onRemove={removeItem} onItemClick={(id) => navigate(`/product/${id}`)} isPending={isPending} />
+            <CartItemList
+            items={items}
+            totalQty={totalQty}
+            onQty={changeQty}
+            onRemove={removeItem}
+            onItemClick={(id) => navigate(`/product/${id}`)}
+            isPending={isPending}
+            selectedItems={selectedKeys}
+            onToggleSelect={toggleSelectItem}
+          />
           </section>
 
           <PaymentSelector selectedPayment={selectedPayment} onSelectPayment={setSelectedPayment} />
@@ -88,7 +168,7 @@ export default function CartPage() {
         </main>
 
         <aside className="space-y-4">
-          <CartSummary subtotal={subtotal} shipping={shipping} serviceFee={serviceFee} total={total} selectedPayment={selectedPayment} hasItems={items.length > 0} />
+          <CartSummary subtotal={subtotal} shipping={shipping} serviceFee={serviceFee} total={total} selectedPayment={selectedPayment} hasItems={items.length > 0} onPay={handlePay} />
         </aside>
       </div>
 

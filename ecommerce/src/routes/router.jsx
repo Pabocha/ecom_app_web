@@ -14,6 +14,8 @@ import FlashDealsPage from "@/pages/deals/FlashDealsPage";
 import DealsPage from "@/pages/deals/DealsPage";
 import CategoryProductsPage from "@/pages/catalog/CategoryProductsPage";
 import CartPage from "@/pages/cart/CartPage";
+import CheckoutPage from "@/pages/cart/CheckoutPage";
+import SuccessPage from "@/pages/cart/SuccessPage";
 import ProductDetailPage from "@/pages/product/ProductDetailPage";
 import ShopPage from "@/pages/shop/ShopPage";
 import LoginPage from "@/pages/auth/LoginPage";
@@ -103,6 +105,8 @@ export const routes = [
       { path: "/profile/orders/:id", element: <PrivateRoute><OrderDetailRoute /></PrivateRoute> },
 
       { path: "/cart", element: <CartPage /> },
+      { path: "/checkout", element: <PrivateRoute><CheckoutPage /></PrivateRoute> },
+      { path: "/order-success", element: <SuccessPage /> },
       { path: "/categories", element: <AllCategoriesPage /> },
       { path: "/category/:id", element: <CategoryProductsPage /> },
       { path: "/product/:id", element: <ProductDetailRoute /> },

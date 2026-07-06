@@ -1,4 +1,4 @@
-// MODIFICATION ICI — Arbre de variantes dynamique (N niveaux)
+// Arbre de variantes dynamique (N niveaux)
 export function extractVariantData(tree) {
   if (!tree?.variants?.length) return null;
 
@@ -21,6 +21,7 @@ export function extractVariantData(tree) {
   };
 }
 
+// Fonctions pour l'affichage des caractéristique des produits 
 export function buildSpecs(p) {
   const s = [];
   if (p.brand) s.push(['Marque', p.brand]);
@@ -31,6 +32,7 @@ export function buildSpecs(p) {
   return s;
 }
 
+// Fontions de gestion pour l'affichage des prox par paliers
 export function buildVolumePricing(priceTiers, pricingDisplay) {
   return (priceTiers || []).map((tier, i, arr) => {
     const base = pricingDisplay?.price || tier.price;
@@ -44,7 +46,7 @@ export function buildVolumePricing(priceTiers, pricingDisplay) {
   });
 }
 
-// MODIFICATION ICI — Fonctions de navigation dans l'arbre de variantes
+//  Fonctions de navigation dans l'arbre de variantes
 export function getOptionsAtLevel(variantData, selIndices, level) {
   if (!variantData?.levels?.length) return [];
   if (level === 0) return variantData.levels;
@@ -56,6 +58,7 @@ export function getOptionsAtLevel(variantData, selIndices, level) {
   return node?.children || [];
 }
 
+// Fonctions pour extraire les couleurs hexa d'une variante 
 export function getHexForOption(variantData, selIndices, level, optionIdx) {
   if (!variantData?.levels?.length) return '#ccc';
   let node = variantData.levels[selIndices[0]];

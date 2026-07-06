@@ -5,7 +5,7 @@ function variantLabel(selection) {
   return Object.entries(selection).map(([key, value]) => `${key}: ${value}`).join(' · ');
 }
 
-export default function CartItemList({ items, totalQty, onQty, onRemove, onItemClick, isPending }) {
+export default function CartItemList({ items, totalQty, onQty, onRemove, onItemClick, isPending, selectedItems = new Set(), onToggleSelect = () => {} }) {
   if (items.length === 0) {
     return (
       <div className="py-20 text-center text-gray-400">
@@ -21,8 +21,20 @@ export default function CartItemList({ items, totalQty, onQty, onRemove, onItemC
       {items.map(item => {
         const itemKey = item.cartKey || String(item.id);
         const isLoading = isPending(itemKey);
+        const isSelected = selectedItems?.has(itemKey);
         return (
-        <article key={itemKey} className="p-4 grid grid-cols-[96px_1fr_auto] gap-4">
+        <article key={itemKey} className="p-4 grid grid-cols-[auto_96px_1fr_auto] gap-4 items-start">
+          <label className="inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onToggleSelect(itemKey)}
+              className="sr-only"
+            />
+            <span className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${isSelected ? 'border-orange-500 bg-orange-500' : 'border-gray-300 bg-white'}`}>
+              {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-white" />}
+            </span>
+          </label>
           <button onClick={() => onItemClick(item.id)} className="overflow-hidden rounded bg-gray-50">
             <img src={item.img} alt={item.name} className="h-24 w-24 object-cover transition-transform hover:scale-105" />
           </button>

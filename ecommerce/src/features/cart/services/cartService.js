@@ -6,5 +6,5 @@ export const cartService = {
     changeQuantityItem: (id, data) => api.patch(`/v1/cart/${id}/change-quantity/`, data),
     removeCartItem: (data) => api.delete('/v1/cart/remove-product/', { data }),
     clearCart: () => api.delete('/v1/cart/clear/'),
-    previewCouponCart: (data) => api.post('/v1/cart/preview-coupon/'),
+    previewCouponCart: (data) => api.post('/v1/cart/preview-coupon/', data),
 }

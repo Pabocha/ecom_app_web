@@ -6,6 +6,7 @@ export const paymentMethods = [
     logo: 'https://www.wave.com/img/nav-logo.svg',
     badge: 'Populaire au Sénégal',
     tone: 'border-sky-200 bg-sky-50',
+    requiresPhone: true,
   },
   {
     id: 'orange-money',
@@ -14,6 +15,7 @@ export const paymentMethods = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Logo_Orange_Money.svg',
     badge: 'SN, CI, ML, BF',
     tone: 'border-orange-200 bg-orange-50',
+    requiresPhone: true,
   },
   {
     id: 'mtn-momo',
@@ -22,6 +24,7 @@ export const paymentMethods = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/9/93/MTN_2022_logo.svg',
     badge: 'Afrique de l’Ouest',
     tone: 'border-yellow-200 bg-yellow-50',
+    requiresPhone: true,
   },
   {
     id: 'moov-money',
@@ -30,6 +33,7 @@ export const paymentMethods = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Moov_Money_Flooz.png',
     badge: 'Moov / Flooz',
     tone: 'border-orange-200 bg-orange-50',
+    requiresPhone: true,
   },
   {
     id: 'free-money',
@@ -38,6 +42,7 @@ export const paymentMethods = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Free_logo.svg',
     badge: 'Sénégal',
     tone: 'border-red-200 bg-red-50',
+    requiresPhone: true,
   },
   {
     id: 'paydunya',
@@ -46,6 +51,7 @@ export const paymentMethods = [
     logo: 'https://logo.clearbit.com/paydunya.com',
     badge: 'Cartes + Mobile Money',
     tone: 'border-blue-200 bg-blue-50',
+    requiresPhone: false,
   },
   {
     id: 'visa',
@@ -54,6 +60,7 @@ export const paymentMethods = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg',
     badge: 'International',
     tone: 'border-blue-200 bg-blue-50',
+    requiresPhone: false,
   },
   {
     id: 'mastercard',
@@ -62,6 +69,7 @@ export const paymentMethods = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg',
     badge: 'International',
     tone: 'border-red-200 bg-red-50',
+    requiresPhone: false,
   },
   {
     id: 'paypal',
@@ -70,5 +78,6 @@ export const paymentMethods = [
     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg',
     badge: 'Compte PayPal',
     tone: 'border-sky-200 bg-sky-50',
+    requiresPhone: false,
   },
 ];

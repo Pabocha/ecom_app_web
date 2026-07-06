@@ -1,7 +1,7 @@
 import { paymentMethods } from '@/data/paymentMethod';
 import { formatPrice } from '@/data/data.js';
 
-export default function CartSummary({ subtotal, shipping, serviceFee, total, selectedPayment, hasItems }) {
+export default function CartSummary({ subtotal, shipping, serviceFee, total, selectedPayment, hasItems, onPay }) {
   const selected = paymentMethods.find(method => method.id === selectedPayment);
 
   return (
@@ -42,7 +42,7 @@ export default function CartSummary({ subtotal, shipping, serviceFee, total, sel
         </div>
       )}
 
-      <button disabled={!hasItems} className="mt-4 w-full rounded bg-orange-500 py-3.5 text-[15px] font-black text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300">
+      <button disabled={!hasItems} onClick={onPay} className="mt-4 w-full rounded bg-orange-500 py-3.5 text-[15px] font-black text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300">
         Payer maintenant
       </button>
     </section>

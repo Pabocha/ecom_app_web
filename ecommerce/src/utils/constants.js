@@ -22,6 +22,8 @@ export const ROUTES = {
   PRO: '/pro',
   IMPORT: '/import',
   HELP: '/help',
+  CHECKOUT: '/checkout',
+  ORDER_SUCCESS: '/order-success',
 };
 
 export const BREAKPOINTS = {

@@ -28,7 +28,7 @@ api.interceptors.response.use(
         // 3. On récupère le refresh token depuis Zustand
         const refresh = useAuthStore.getState().refresh;
         
-        const { data } = await axios.post(`${API_BASE_URL}/token/refresh/`, {
+        const { data } = await axios.post(`${API_BASE_URL}/v1/auth/token/refresh/`, {
           refresh,
         });
 

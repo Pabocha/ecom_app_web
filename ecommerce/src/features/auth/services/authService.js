@@ -7,4 +7,6 @@ export const authService = {
     me:       () => api.get('/v1/accounts/users/me/'),
     updateMe: (data) => api.patch('/v1/accounts/users/me/'),
     desactivateAccount: () => api.post('/v1/accounts/users/desactivate'), 
+    // AJOUT — Vérifier si l'utilisateur est connecté (cookie envoyé automatiquement)
+    check:    () => api.get('/v1/auth/check/'),
 }

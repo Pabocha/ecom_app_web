@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow'; 
 import { authService } from '@/features/auth/services/authService';
@@ -9,7 +9,6 @@ export function useAuth() {
     useShallow((state) => ({ 
       user: state.user,
       access: state.access,
-      refresh: state.refresh,
       isAuthenticated: state.isAuthenticated,
       login: state.loginSuccess,
       logout: state.logout,
@@ -25,8 +24,9 @@ export function useLogin() {
   const loginMutation = useMutation({
     mutationFn: authService.login,
     onSuccess: (response) => {
+      // MODIFICATION ICI — plus de refresh dans la réponse (cookie HttpOnly)
       const data = response?.data ?? response;
-      loginSuccess(data.user, data.access, data.refresh);
+      loginSuccess(data.user, data.access);
       navigate('/');
     },
     onError: (error) => {
@@ -41,6 +41,49 @@ export function useLogin() {
     isPending: loginMutation.isPending,
     error: serverError,
     resetError: loginMutation.reset,
+  };
+}
+
+// AJOUT — Vérifier si l'utilisateur est connecté au load (cookie HttpOnly)
+export function useCheckAuth() {
+  const setUser = useAuthStore((state) => state.setUser);
+
+  return useQuery({
+    queryKey: ['auth-check'],
+    queryFn: async () => {
+      const response = await authService.check();
+      const data = response?.data ?? response;
+      if (data?.authenticated && data?.user) {
+        setUser(data.user);
+      }
+      return data;
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// AJOUT — Déconnexion
+export function useLogout() {
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+
+  const logoutMutation = useMutation({
+    mutationFn: authService.logout,
+    onSuccess: () => {
+      logout();
+      navigate('/');
+    },
+    onError: () => {
+      // Même si l'API échoue, on déconnecte côté frontend
+      logout();
+      navigate('/');
+    },
+  });
+
+  return {
+    logout: logoutMutation.mutate,
+    isPending: logoutMutation.isPending,
   };
 }
 

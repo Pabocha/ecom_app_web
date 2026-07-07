@@ -1,23 +1,17 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
-export const useAuthStore = create(
-  persist(
-    (set) => ({
-      user: null,
-      access: null,
-      refresh: null,
-      isAuthenticated: false,
+// MODIFICATION ICI — Store mémoire, plus de persist (refresh token HttpOnly cookie)
+export const useAuthStore = create((set) => ({
+  user: null,
+  access: null,
+  isAuthenticated: false,
 
-      loginSuccess: (user, access, refresh) =>
-        set({ user, access, refresh, isAuthenticated: true }),
+  // AJOUT — setUser pour useCheckAuth
+  setUser: (user) => set({ user, isAuthenticated: true }),
 
-      logout: () =>
-        set({ user: null, access: null, refresh: null, isAuthenticated: false }),
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({ user: state.user, access: state.access, refresh: state.refresh, isAuthenticated: state.isAuthenticated }),
-    }
-  )
-);
+  loginSuccess: (user, access) =>
+    set({ user, access, isAuthenticated: true }),
+
+  logout: () =>
+    set({ user: null, access: null, isAuthenticated: false }),
+}));

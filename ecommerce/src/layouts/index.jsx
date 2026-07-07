@@ -1,24 +1,26 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuth, useCheckAuth, useLogout } from '@/features/auth/hooks/useAuth';
 import AnnouncementBar from '@/layouts/AnnouncementBar';
 import TopNav from '@/layouts/TopNav';
 import SubNav from '@/layouts/SubNav';
 import Footer from '@/layouts/Footer';
 import CartSidebar from '@/features/cart/components/CartSidebar';
 import VariantModal from '@/components/VariantModal';
+import LoginModal from '@/features/auth/components/LoginModal';
 import { useVariantStore } from '@/stores/variantStore';
 
 export function BasicLayout() {
   const navigate = useNavigate();
   const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem, isPending } = useCart();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  // AJOUT — Vérifier session au load via cookie HttpOnly
+  useCheckAuth();
+
+  // MODIFICATION ICI — Logout via API pour supprimer le cookie HttpOnly
+  const { logout } = useLogout();
 
   return (
     <div className="font-['Nunito_Sans'] bg-gray-100 min-h-screen">
@@ -27,7 +29,7 @@ export function BasicLayout() {
         cartCount={cartCount}
         onCartOpen={() => setCartOpen(true)}
         user={user}
-        onLogout={handleLogout}
+        onLogout={logout}
       />
       <SubNav onOpenCategories={() => navigate('/categories')} />
 
@@ -82,6 +84,9 @@ export function BasicLayout() {
           );
         })()
       }
+
+      {/* AJOUT — Modal de connexion */}
+      <LoginModal />
     </div>
   );
 }
@@ -92,6 +97,9 @@ export function SimpleLayout() {
   const selection = useVariantStore(state => state.selection);
   const raw = useVariantStore(state => state.raw);
   const loading = useVariantStore(state => state.loading);
+
+  // AJOUT — Vérifier session au load via cookie HttpOnly
+  useCheckAuth();
 
   const productForModal = useMemo(() => {
     if (!variantProduct) return null;
@@ -118,6 +126,9 @@ export function SimpleLayout() {
         onConfirm={() => useVariantStore.getState().confirm()}
         onClose={() => useVariantStore.getState().close()}
       />
+
+      {/* AJOUT — Modal de connexion */}
+      <LoginModal />
     </div>
   );
 }

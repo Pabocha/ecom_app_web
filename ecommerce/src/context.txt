@@ -1,19 +1,22 @@
-Compris. Voici la version finale clarifiée :
-Modifications
-Fichier	Action
-src/data/paymentMethod.js	Ajouter requiresPhone
-src/features/cart/components/CartSummary.jsx	Prop onPay + onClick
-src/pages/cart/CartPage.jsx	Handler handlePay → navigate
-src/utils/constants.js	Ajouter CHECKOUT, ORDER_SUCCESS
-src/routes/router.jsx	Routes /checkout (PrivateRoute), /order-success
-Créations
-Fichier	Dépend de
-src/pages/checkout/CheckoutPage.jsx	—
-src/pages/checkout/SuccessPage.jsx	—
-src/features/cart/components/CheckoutForm.jsx	cart
-src/features/order/services/orderService.js	order → ajouter placeOrder()
-src/features/cart/services/cartService.js	déjà existant → previewCouponCart() existe mais est inutilisé, on l'exploite
-Répartition claire
-- cart → CheckoutForm (adresse, promo, téléphone) + utilisation de cartService.previewCouponCart
-- order → orderService.placeOrder(data) (API POST /v1/orders/)
-- pages/checkout/ → pages CheckoutPage et SuccessPage
+Notre API Django utilise maintenant des cookies HttpOnly pour le refresh token au lieu de le renvoyer dans le body. Voici comment le frontend doit s'adapter :
+Comportement attendu
+1. Login (POST /api/v1/auth/token/)
+Réponse :
+- Body : { "access": "<JWT>", "user": {...} }
+- Cookie HttpOnly : refresh_token (automatique, invisible au JS)
+→ Tu stockes l'access token dans une variable mémoire (pas localStorage, pas sessionStorage). L'utilisateur est connecté.
+2. Requêtes authentifiées
+Envoie le header : Authorization: Bearer <access_token> sur chaque requête.
+3. Interceptor Axios — Refresh automatique
+Configure un interceptor response :
+- Si le status est 401 et que ce n'est pas déjà une requête vers /refresh/ :
+  1. Appelle POST /api/v1/auth/token/refresh/ (sans body, le cookie HttpOnly est envoyé automatiquement par le navigateur)
+  2. La réponse renvoie : { "access": "<new_access_token>" }
+  3. Remplace l'access token en mémoire et réessaie la requête originale
+  4. Si le refresh échoue aussi → redirige vers la page de login
+4. Vérifier si l'utilisateur est connecté au load
+Appelle GET /api/v1/auth/check/ :
+- Si { "authenticated": true, "user": {...} } → utilisateur connecté, stocke l'user en mémoire
+- Si { "authenticated": false } → pas connecté, tu le laisse naviguer mais si dans l'app une partie demande à ce qu'il soit connecter en ouvre une un modal pour lui demander de se connecter 
+5. Logout (POST /api/v1/auth/logout/)
+Envoie la requête (le cookie est envoyé auto). Le cookie est supprimé côté serveur. Vide l'access token en mémoire côté frontend.

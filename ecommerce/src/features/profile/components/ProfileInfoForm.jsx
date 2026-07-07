@@ -67,28 +67,13 @@ export default function ProfileInfoForm({ form, editing, updateMutation, onInfoS
         />
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 grid grid-cols-2 gap-4">
         <Input
           label="Adresse"
           placeholder="Votre adresse complète"
           disabled={!editing}
           suffix={<MapPin size={16} className="text-gray-400" />}
           {...register('full_address')}
-        />
-      </div>
-
-      <div className="mt-4 grid grid-cols-3 gap-4">
-        <Input
-          label="Ville"
-          placeholder="Ville"
-          disabled={!editing}
-          {...register('city')}
-        />
-        <Input
-          label="Code postal"
-          placeholder="Code postal"
-          disabled={!editing}
-          {...register('postal_code')}
         />
         <InputCountry
           label="Pays"
@@ -98,6 +83,8 @@ export default function ProfileInfoForm({ form, editing, updateMutation, onInfoS
           required={false}
         />
       </div>
+
+    
 
       {updateMutation.error && (
         <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">

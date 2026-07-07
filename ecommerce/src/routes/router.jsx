@@ -2,6 +2,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useProduct } from "@/features/product/hooks/useProduct";
+import { useUIStore } from "@/stores/uiStore";
 import { USER_ROLES } from "@/types";
 
 // Layouts
@@ -39,7 +40,13 @@ import { getOrderById } from "@/features/order/data/orderData";
 
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
+
+  // MODIFICATION ICI — Ouvre la modal de connexion au lieu de rediriger
+  if (!user) {
+    useUIStore.getState().openLoginModal();
+    return null;
+  }
+
   if (role && user.type_user !== role) return <Navigate to="/" replace />;
   return children;
 }

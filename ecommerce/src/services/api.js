@@ -14,7 +14,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Refresh token automatique si 401
+// Refresh token via HttpOnly cookie (envoi automatique par le navigateur)
 api.interceptors.response.use(
   (response) => response,
 
@@ -25,24 +25,18 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       original._retry = true;
       try {
-        // 3. On récupère le refresh token depuis Zustand
-        const refresh = useAuthStore.getState().refresh;
-        
-        const { data } = await axios.post(`${API_BASE_URL}/v1/auth/token/refresh/`, {
-          refresh,
-        });
+        // 3. Le refresh token est dans le cookie HttpOnly → pas besoin de body
+        const { data } = await axios.post(`${API_BASE_URL}/v1/auth/token/refresh/`);
 
-        // 4. ON MET À JOUR ZUSTAND DIRECTEMENT !
-        // (Zustand s'occupera TOUT SEUL de mettre à jour le localStorage proprement)
+        // 4. Stocker le nouvel access token en mémoire
         useAuthStore.setState({ access: data.access });
 
         original.headers.Authorization = `Bearer ${data.access}`;
         return api(original);
       } catch (refreshError) {
-        // 5. En cas d'échec, on demande à Zustand de vider l'état ou de logout
-        // Si tu as une action logout() dans ton store : useAuthStore.getState().logout()
-        useAuthStore.setState({ access: null, refresh: null, isAuthenticated: false, user: null });
-        
+        // 5. Échec du refresh → déconnexion et redirection
+        useAuthStore.getState().logout();
+
         if (window.location.pathname !== "/login") {
           window.location.href = "/login";
         }

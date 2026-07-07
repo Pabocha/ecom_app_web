@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, Eye, EyeOff, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import { authService } from '@/features/auth/services/authService';
-import { useAuthStore } from '@/stores/authStore';
+import { useLogin } from '@/features/auth/hooks/useAuth';
 import { useUIStore } from '@/stores/uiStore';
 
 // AJOUT — Modal de connexion (utilisée par PrivateRoute quand l'utilisateur n'est pas connecté)
@@ -14,20 +12,11 @@ export default function LoginModal() {
   const navigate = useNavigate();
   const open = useUIStore((state) => state.loginModalOpen);
   const closeLoginModal = useUIStore((state) => state.closeLoginModal);
-  const loginSuccess = useAuthStore((state) => state.loginSuccess);
 
-  const loginMutation = useMutation({
-    mutationFn: authService.login,
-    onSuccess: (response) => {
-      const data = response?.data ?? response;
-      loginSuccess(data.user, data.access);
-      closeLoginModal();
-    },
+  // MODIFICATION ICI — Utilise le hook useLogin avec onSuccess qui ferme la modale (pas de navigation)
+  const { login, isPending, error, resetError } = useLogin({
+    onSuccess: closeLoginModal,
   });
-
-  const isPending = loginMutation.isPending;
-  const error = loginMutation.error?.response?.data?.detail || loginMutation.error?.message;
-  const resetError = loginMutation.reset;
 
   const {
     register,
@@ -48,7 +37,7 @@ export default function LoginModal() {
     } else {
       payload.email = data.phone;
     }
-    loginMutation.mutate(payload);
+    login(payload);
   };
 
   if (!open) return null;

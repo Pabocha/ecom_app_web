@@ -1,4 +1,4 @@
-import { formatPrice } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 import { Loader, ShoppingCart, Trash2 } from 'lucide-react';
 
 function variantLabel(selection) {

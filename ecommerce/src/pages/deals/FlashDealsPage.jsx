@@ -1,16 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { allFlashDeals, flashDealCategories, formatPrice } from '@/data/data.js';
+import { allFlashDeals, flashDealCategories } from '@/data/data.js';
+import { formatPrice, filterAndSortDeals, normalizeDeal } from '@/utils/helpers';
 import { Bolt } from 'lucide-react';
-
-const normalizeDeal = deal => ({
-  ...deal,
-  oldPrice: deal.oldPrice || Math.round(deal.price * 1.45),
-  supplier: 'TradeHub Flash',
-  verified: true,
-  badges: ['sale', 'hot'],
-});
 
 export default function FlashDealsPage() {
   const navigate = useNavigate();
@@ -18,13 +11,7 @@ export default function FlashDealsPage() {
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('urgent');
 
-  const filtered = allFlashDeals
-    .filter(deal => activeCat === 'Tous' || deal.cat === activeCat)
-    .sort((a, b) => {
-      if (sort === 'discount') return Math.abs(Number.parseInt(b.discount)) - Math.abs(Number.parseInt(a.discount));
-      if (sort === 'sold') return b.sold - a.sold;
-      return a.timeLeft.localeCompare(b.timeLeft);
-    });
+  const deals = filterAndSortDeals(allFlashDeals, { activeCat, sort });
 
   return (
     <div className="min-h-screen bg-gray-100 pb-12">
@@ -66,7 +53,7 @@ export default function FlashDealsPage() {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          {filtered.map(deal => {
+          {deals.map(deal => {
             const product = normalizeDeal(deal);
             return (
               <div key={deal.id} onClick={() => navigate(`/product/${product.id}`)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">

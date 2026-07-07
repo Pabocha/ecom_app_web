@@ -2,13 +2,14 @@ import { useCartData } from './useCartData';
 import { useCartUI } from './useCartUI';
 import { useCheckout } from './useCheckout';
 
-export function useCart() {
+// MODIFICATION ICI — Accepte form pour la synchro store (CheckoutPage)
+export function useCart({ form } = {}) {
   const cartUI = useCartUI();
   const cartData = useCartData({
     setCartOpen: cartUI.setCartOpen,
     setPendingKey: cartUI.setPendingKey,
   });
-  const checkout = useCheckout({ cartItems: cartData.cartItems });
+  const checkout = useCheckout({ cartItems: cartData.cartItems, form });
 
   return {
     ...cartData,

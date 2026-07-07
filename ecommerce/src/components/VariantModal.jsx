@@ -1,55 +1,12 @@
-import { formatPrice } from '@/data/data.js';
 import { Loader, X } from 'lucide-react';
-
-function variantLabel(selection) {
-  return Object.entries(selection).map(([key, value]) => `${key}: ${value}`).join(' · ');
-}
+import { formatPrice } from '@/utils/helpers';
+import { getOptionsAtLevelFromRaw, getAttrNameFromRaw, variantLabel } from '@/features/product/utils/helpers';
 
 // Version dynamique qui utilise raw (arbre) ou fallback flat
 export default function VariantModal({ product, selection, raw, loading, onSelectionChange, onConfirm, onClose }) {
   if (!product) return null;
 
   const hasTree = raw?.structure?.length > 0 && raw?.variants?.length > 0;
-
-  // Options disponibles à un niveau donné (contrainte par sélections parentes)
-  function getOptionsAtLevel(rawData, sel, level) {
-    const { structure, variants } = rawData;
-    let nodes = variants;
-    for (let i = 0; i < level; i++) {
-      const attrCode = structure[i];
-      const val = sel[attrCode];
-      if (!val) break;
-      const node = (nodes || []).find(n => n.value === val);
-      if (!node?.children) break;
-      nodes = node.children;
-    }
-    const attrCode = structure[level];
-    return (nodes || []).map(n => {
-      let leaf = n;
-      while (leaf?.children?.length) leaf = leaf.children[0];
-      const hex = leaf?.attributes?.find(a => a.attribute_code === attrCode)?.hex_color || null;
-      return { value: n.value, hexColor: hex };
-    });
-  }
-
-  // MODIFICATION ICI — Récupère le nom d'attribut français depuis n'importe quelle feuille
-  function getAttrName(rawData, attrCode) {
-    function walk(nodes) {
-      if (!nodes) return null;
-      for (const n of nodes) {
-        if (n.attributes) {
-          const attr = n.attributes.find(a => a.attribute_code === attrCode);
-          if (attr) return attr.attribute_name;
-        }
-        if (n.children) {
-          const found = walk(n.children);
-          if (found) return found;
-        }
-      }
-      return null;
-    }
-    return walk(rawData?.variants) || attrCode;
-  }
 
   return (
     <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/55 px-4">
@@ -85,8 +42,8 @@ export default function VariantModal({ product, selection, raw, loading, onSelec
         ) : hasTree ? (
           <div className="space-y-5 p-5">
             {raw.structure.map((attrCode, levelIndex) => {
-              const attrName = getAttrName(raw, attrCode);
-              const options = getOptionsAtLevel(raw, selection, levelIndex);
+              const attrName = getAttrNameFromRaw(raw, attrCode);
+              const options = getOptionsAtLevelFromRaw(raw, selection, levelIndex);
               const selectedVal = selection[attrCode];
               const hasHex = options.some(o => o.hexColor);
 

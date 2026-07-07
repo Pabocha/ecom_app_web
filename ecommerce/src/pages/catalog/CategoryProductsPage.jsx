@@ -5,20 +5,7 @@ import { categories, categoryProducts, featuredProducts } from '@/data/data.js';
 import { Car, Dumbbell, Factory, HeartPulse, House, Microchip, Shirt, ShoppingBasket } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
 import CategoryProductCard from '@/features/product/components/CategoryProductCard';
-
-const normalizeProduct = product => ({
-  ...product,
-  badges: product.badges || (product.badge ? ['sale'] : []),
-  discount: product.discount || (product.oldPrice ? `-${Math.round((1 - product.price / product.oldPrice) * 100)}%` : null),
-});
-
-function fallbackProducts(category) {
-  return featuredProducts.map((product, index) => ({
-    ...product,
-    id: Number(`${category.name.length}${product.id}${index}`),
-    subcat: category.subcats[index % category.subcats.length],
-  }));
-}
+import { filterAndSortProducts } from '@/utils/helpers';
 
 const catIcons = {
   microchip: Microchip,
@@ -47,16 +34,16 @@ export default function CategoryProductsPage() {
 
   const products = useMemo(() => {
     const base = categoryProducts[currentCategory.name] || fallbackProducts(currentCategory);
-    return base
-      .filter(product => activeSubcat === 'Tous' || product.subcat === activeSubcat)
-      .map(normalizeProduct)
-      .sort((a, b) => {
-        if (sort === 'priceAsc') return a.price - b.price;
-        if (sort === 'priceDesc') return b.price - a.price;
-        if (sort === 'new') return Number(Boolean(b.isNew)) - Number(Boolean(a.isNew));
-        return b.reviews - a.reviews;
-      });
+    return filterAndSortProducts(base, { activeSubcat, sort });
   }, [activeSubcat, currentCategory, sort]);
+
+  function fallbackProducts(category) {
+    return featuredProducts.map((product, index) => ({
+      ...product,
+      id: Number(`${category.name.length}${product.id}${index}`),
+      subcat: category.subcats[index % category.subcats.length],
+    }));
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 pb-14">

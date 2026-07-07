@@ -4,6 +4,7 @@ import { useCart } from '@/features/cart/hooks/useCart';
 import { featuredProducts, categoryProducts } from '@/data/data.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { ArrowLeft } from 'lucide-react';
+import { searchProducts } from '@/utils/helpers';
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
@@ -13,20 +14,9 @@ export default function SearchResultsPage() {
   const searchType = searchParams.get('type') || 'Produits';
 
   const results = useMemo(() => {
-    if (!query.trim()) return [];
-
+    if (!query.trim() || searchType !== 'Produits') return [];
     const allProducts = [...featuredProducts, ...Object.values(categoryProducts).flat()];
-    const lowerQuery = query.toLowerCase();
-
-    if (searchType === 'Produits') {
-      return allProducts.filter(p =>
-        p.name.toLowerCase().includes(lowerQuery) ||
-        p.description?.toLowerCase().includes(lowerQuery) ||
-        p.category?.toLowerCase().includes(lowerQuery)
-      );
-    }
-
-    return [];
+    return searchProducts(allProducts, query);
   }, [query, searchType]);
 
   return (

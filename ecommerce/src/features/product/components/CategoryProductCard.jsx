@@ -1,5 +1,5 @@
 import { CheckCircle } from 'lucide-react';
-import { formatPrice } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 
 export default function CategoryProductCard({ product, onProductClick, onAddToCart }) {
   return (

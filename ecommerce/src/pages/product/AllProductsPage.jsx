@@ -4,28 +4,7 @@ import { useCart } from '@/features/cart/hooks/useCart';
 import { featuredProducts, categoryProducts, allFlashDeals } from '@/data/data.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { Grid3X3, LayoutList, SlidersHorizontal } from 'lucide-react';
-
-const normalizeCatProduct = p => ({
-  ...p,
-  badges: p.badges || (p.badge ? [p.badge.toLowerCase()] : p.isNew ? ['new'] : []),
-  discount: p.discount || (p.oldPrice ? `-${Math.round((1 - p.price / p.oldPrice) * 100)}%` : null),
-  cartKey: 'cat',
-});
-
-const allProducts = [
-  ...featuredProducts.map(p => ({ ...p, cartKey: 'featured' })),
-  ...allFlashDeals.map(d => ({
-    ...d,
-    supplier: d.supplier || 'TradeHub Flash',
-    rating: d.rating || 4.5,
-    reviews: d.reviews || 100,
-    verified: true,
-    badges: ['sale'],
-    oldPrice: d.oldPrice || Math.round(d.price * 1.4),
-    cartKey: 'flash',
-  })),
-  ...Object.values(categoryProducts).flat().map(normalizeCatProduct),
-];
+import { buildAllProducts, filterAllProducts } from '@/utils/helpers';
 
 const categories = ['Tous', ...new Set(Object.keys(categoryProducts))];
 
@@ -36,26 +15,9 @@ export default function AllProductsPage() {
   const [sort, setSort] = useState('popular');
   const [view, setView] = useState('grid');
 
-  const filtered = useMemo(() => {
-    let items = activeCat === 'Tous'
-      ? allProducts
-      : allProducts.filter(p => p.category === activeCat || p.subcat || true);
+  const allProducts = useMemo(() => buildAllProducts(featuredProducts, allFlashDeals, categoryProducts), []);
 
-    if (activeCat !== 'Tous') {
-      const catProducts = categoryProducts[activeCat] || [];
-      const catNames = catProducts.map(cp => cp.name);
-      items = items.filter(p => catNames.includes(p.name));
-    }
-
-    items = [...new Map(items.map(p => [p.id, p])).values()];
-
-    if (sort === 'priceAsc') items.sort((a, b) => a.price - b.price);
-    else if (sort === 'priceDesc') items.sort((a, b) => b.price - a.price);
-    else if (sort === 'new') items.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-    else items.sort((a, b) => b.reviews - a.reviews);
-
-    return items;
-  }, [activeCat, sort]);
+  const filtered = useMemo(() => filterAllProducts(allProducts, { activeCat, sort, categoryProducts }), [activeCat, sort, allProducts]);
 
   return (
     <div className="min-h-screen bg-gray-100 pb-14">

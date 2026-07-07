@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { featuredProducts, formatPrice } from '@/data/data.js';
+import { featuredProducts } from '@/data/data.js';
+import { formatPrice, getPricingTiers, getAppliedPrice } from '@/utils/helpers';
 import { BarChart3, Box, Building2, FileText, Headphones, ShoppingCart, Truck } from 'lucide-react';
 
 const b2bIcons = {
@@ -18,22 +19,6 @@ export default function B2BPage() {
   const [selectedQuantity, setSelectedQuantity] = useState({});
   const [quoteModal, setQuoteModal] = useState(false);
   const [quoteData, setQuoteData] = useState({ email: '', company: '', phone: '', product: null });
-
-  // Tarifs dégressifs B2B
-  const getPricingTiers = (basePrice) => [
-    { min: 1, max: 9, discount: 0, price: basePrice },
-    { min: 10, max: 49, discount: 10, price: basePrice * 0.9 },
-    { min: 50, max: 99, discount: 15, price: basePrice * 0.85 },
-    { min: 100, max: 249, discount: 20, price: basePrice * 0.8 },
-    { min: 250, max: 499, discount: 25, price: basePrice * 0.75 },
-    { min: 500, max: null, discount: 30, price: basePrice * 0.7 },
-  ];
-
-  const getAppliedPrice = (basePrice, qty) => {
-    const tiers = getPricingTiers(basePrice);
-    const tier = tiers.find(t => qty >= t.min && (!t.max || qty <= t.max));
-    return tier ? tier.price : basePrice;
-  };
 
   const handleQuoteSubmit = (product) => {
     setQuoteData({ ...quoteData, product });

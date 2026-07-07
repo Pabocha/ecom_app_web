@@ -1,17 +1,27 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { ArrowLeft, ShoppingBag, CreditCard, Tag } from 'lucide-react';
 import CheckoutForm from '@/features/cart/components/CheckoutForm';
-import { formatPrice } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useOrders } from '@/features/order/hooks/useOrders';
 import { useCheckoutStore } from '@/stores/checkoutStore';
 
+// MODIFICATION ICI — Page épurée : la synchro store est déléguée au hook useCheckout
 export default function CheckoutPage() {
   const location = useLocation();
   const selectedItemKeys = location.state?.selectedItemKeys || [];
   const selectedKeysSet = useMemo(() => new Set(selectedItemKeys), [selectedItemKeys]);
+
+  const { checkoutData } = useCheckoutStore();
+  const [addressEditing, setAddressEditing] = useState(true);
+  const [couponCode, setCouponCode] = useState('');
+
+  const form = useForm({
+    mode: 'onBlur',
+    defaultValues: checkoutData,
+  });
 
   const {
     checkout: {
@@ -19,59 +29,20 @@ export default function CheckoutPage() {
       paymentMethod,
       couponMutation,
       couponResult,
+      subtotal,
+      shipping,
+      serviceFee,
     },
     clearMutation,
-  } = useCart();
+  } = useCart({ form });
 
   const items = useMemo(
     () => allItems.filter((item) => selectedKeysSet.has(item.cartKey || String(item.id))),
     [allItems, selectedKeysSet],
   );
 
-  const { checkoutData, setCheckoutData } = useCheckoutStore();
-  const [addressEditing, setAddressEditing] = useState(true);
-  const [couponCode, setCouponCode] = useState('');
-
   const discount = couponResult?.valid ? Number(couponResult.discount || 0) : 0;
-  const { subtotal, shipping, serviceFee, total } = useMemo(() => {
-    const subtotalValue = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-    const shippingValue = subtotalValue >= 50000 || subtotalValue === 0 ? 0 : 2500;
-    const serviceFeeValue = subtotalValue > 0 ? Math.round(subtotalValue * 0.012) : 0;
-
-    return {
-      subtotal: subtotalValue,
-      shipping: shippingValue,
-      serviceFee: serviceFeeValue,
-      total: Math.max(0, subtotalValue + shippingValue + serviceFeeValue - discount),
-    };
-  }, [items, discount]);
-
-  const form = useForm({
-    mode: 'onBlur',
-    defaultValues: checkoutData,
-  });
-
-  useEffect(() => {
-    form.reset(checkoutData);
-  }, [checkoutData, form]);
-
-  const watchedValues = form.watch();
-
-  useEffect(() => {
-    if (!watchedValues) return;
-
-    const fields = ['full_address', 'city', 'postal_code', 'country', 'phone_number'];
-    const isSame = fields.every((key) => watchedValues[key] === checkoutData[key]);
-    if (!isSame) {
-      setCheckoutData({
-        full_address: watchedValues.full_address ?? '',
-        city: watchedValues.city ?? '',
-        postal_code: watchedValues.postal_code ?? '',
-        country: watchedValues.country ?? 'SN',
-        phone_number: watchedValues.phone_number ?? '',
-      });
-    }
-  }, [watchedValues, checkoutData, setCheckoutData]);
+  const total = Math.max(0, subtotal + shipping + serviceFee - discount);
 
   const { orderMutation } = useOrders({ clearMutation });
 

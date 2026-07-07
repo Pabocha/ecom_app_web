@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useAuth, useCheckAuth, useLogout } from '@/features/auth/hooks/useAuth';
+import { useVariantActions } from '@/features/product/hooks/useVariant';
 import AnnouncementBar from '@/layouts/AnnouncementBar';
 import TopNav from '@/layouts/TopNav';
 import SubNav from '@/layouts/SubNav';
@@ -21,6 +22,9 @@ export function BasicLayout() {
 
   // MODIFICATION ICI — Logout via API pour supprimer le cookie HttpOnly
   const { logout } = useLogout();
+
+  // MODIFICATION ICI — Hook pour la confimation variante (logique métier)
+  const { confirmVariant } = useVariantActions();
 
   return (
     <div className="font-['Nunito_Sans'] bg-gray-100 min-h-screen">
@@ -78,7 +82,7 @@ export function BasicLayout() {
               raw={raw}
               loading={loading}
               onSelectionChange={(name, value) => useVariantStore.getState().setSelection(name, value)}
-              onConfirm={() => useVariantStore.getState().confirm()}
+              onConfirm={confirmVariant}
               onClose={() => useVariantStore.getState().close()}
             />
           );
@@ -92,6 +96,8 @@ export function BasicLayout() {
 }
 
 export function SimpleLayout() {
+  // MODIFICATION ICI — Hook pour la confimation variante (logique métier)
+  const { confirmVariant } = useVariantActions();
   const variantProduct = useVariantStore(state => state.product);
   const variantsMap = useVariantStore(state => state.variantsMap);
   const selection = useVariantStore(state => state.selection);
@@ -123,7 +129,7 @@ export function SimpleLayout() {
         raw={raw}
         loading={loading}
         onSelectionChange={(name, value) => useVariantStore.getState().setSelection(name, value)}
-        onConfirm={() => useVariantStore.getState().confirm()}
+        onConfirm={confirmVariant}
         onClose={() => useVariantStore.getState().close()}
       />
 

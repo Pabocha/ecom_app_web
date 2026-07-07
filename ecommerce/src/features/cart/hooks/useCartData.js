@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useVariantStore } from '@/stores/variantStore';
+import { useVariantActions } from '@/features/product/hooks/useVariant';
 import { cartService } from '@/features/cart/services/cartService';
 import { normalizeCartItems } from '@/features/cart/utils/helpers.js';
 import { CART_ITEMS_QUERY_KEY } from './cartQueryKeys';
 
 export function useCartData({ setCartOpen, setPendingKey } = {}) {
   const queryClient = useQueryClient();
+  const { openVariant } = useVariantActions();
 
   const { data: cartItems = [] } = useQuery({
     queryKey: CART_ITEMS_QUERY_KEY,
@@ -45,7 +46,7 @@ export function useCartData({ setCartOpen, setPendingKey } = {}) {
 
   const addToCart = (product, openSidebar = true) => {
     if (product?.has_variant && !product.selectedVariants && !product.variant_id) {
-      useVariantStore.getState().openVariant(product);
+      openVariant(product);
       return;
     }
 

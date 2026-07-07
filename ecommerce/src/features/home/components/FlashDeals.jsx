@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { flashDeals, formatPrice } from '@/data/data.js';
+import { flashDeals } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 import { Bolt } from 'lucide-react';
 
 export default function FlashDeals({ onOpenAllDeals, onOpenProduct }) {

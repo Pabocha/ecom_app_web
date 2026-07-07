@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { formatPrice } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 import { Loader, Lock, ShoppingCart, Trash2, X } from 'lucide-react';
 
 function variantLabel(selection) {

@@ -17,17 +17,18 @@ export function useAuth() {
   );
 }
 
-export function useLogin() {
+// MODIFICATION ICI — Accepte un onSuccess optionnel pour la modal de connexion
+export function useLogin({ onSuccess } = {}) {
   const navigate = useNavigate();
   const loginSuccess = useAuthStore((state) => state.loginSuccess);
 
   const loginMutation = useMutation({
     mutationFn: authService.login,
     onSuccess: (response) => {
-      // MODIFICATION ICI — plus de refresh dans la réponse (cookie HttpOnly)
       const data = response?.data ?? response;
       loginSuccess(data.user, data.access);
-      navigate('/');
+      if (onSuccess) onSuccess();
+      else navigate('/');
     },
     onError: (error) => {
       console.error('Erreur d\'authentification API :', error.message);

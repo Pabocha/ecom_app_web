@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { allFlashDeals, formatPrice } from '@/data/data.js';
+import { allFlashDeals } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 import { Tag } from 'lucide-react';
 
 export default function DealsPage() {

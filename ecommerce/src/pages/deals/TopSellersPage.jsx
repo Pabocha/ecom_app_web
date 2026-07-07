@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { suppliers, formatPrice } from '@/data/data.js';
+import { suppliers } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 import { Crown } from 'lucide-react';
 
 export default function TopSellersPage() {

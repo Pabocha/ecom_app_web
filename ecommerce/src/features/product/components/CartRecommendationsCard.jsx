@@ -1,4 +1,4 @@
-import { formatPrice } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 
 function hasVariants(product) {
   return product.has_variant || (product.variants && Object.keys(product.variants).length > 0);

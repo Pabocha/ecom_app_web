@@ -1,5 +1,5 @@
 import { paymentMethods } from '@/data/paymentMethod';
-import { formatPrice } from '@/data/data.js';
+import { formatPrice } from '@/utils/helpers';
 
 export default function CartSummary({ subtotal, shipping, serviceFee, total, selectedPayment, hasItems, onPay }) {
   const selected = paymentMethods.find(method => method.id === selectedPayment);

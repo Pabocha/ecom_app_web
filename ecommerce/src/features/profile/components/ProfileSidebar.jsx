@@ -1,6 +1,6 @@
 import { Calendar, ShoppingBag, ShieldCheck, Edit2, X } from 'lucide-react';
 import Button from '@/components/ui/Button';
-import { SIDE_TABS } from '@/features/profile/data/profileData';
+import { SIDE_TABS } from '@/utils/constants.js';
 
 function ProfileStat({ icon: Icon, label, value }) {
   return (

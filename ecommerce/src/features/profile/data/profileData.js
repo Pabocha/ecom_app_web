@@ -1,12 +1,3 @@
-import { User, MessageSquare, Gift, History } from 'lucide-react';
-
-export const SIDE_TABS = [
-  { key: 'infos', label: 'Informations', icon: User },
-  { key: 'reviews', label: 'Avis en attente', icon: MessageSquare },
-  { key: 'coupons', label: "Bons d'achat", icon: Gift },
-  { key: 'recent', label: 'Vus récemment', icon: History },
-];
-
 export const mockPendingReviews = [
   { id: 1, name: 'iPhone 15 Pro Max 256GB Titanium', img: 'https://images.unsplash.com/photo-1696446702183-cbd29d049619?w=100&q=80', date: '12 Juin 2025' },
   { id: 2, name: 'Samsung Galaxy S24 Ultra 512GB', img: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=100&q=80', date: '28 Mai 2025' },

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useProfileForm, usePasswordForm } from '@/features/profile/hooks/useProfile';
+import { useProfileForm, usePasswordForm, useAddresses } from '@/features/profile/hooks/useProfile';
 import ProfileSidebar from '@/features/profile/components/ProfileSidebar';
 import ProfileInfoForm from '@/features/profile/components/ProfileInfoForm';
 import ProfilePasswordForm from '@/features/profile/components/ProfilePasswordForm';
+import ProfileAddresses from '@/features/profile/components/ProfileAddresses';
 import ProfileReviews from '@/features/profile/components/ProfileReviews';
 import ProfileCoupons from '@/features/profile/components/ProfileCoupons';
 import ProfileRecentViews from '@/features/profile/components/ProfileRecentViews';
@@ -17,6 +18,8 @@ export default function ProfilePage() {
 
   const profileForm = useProfileForm(user);
   const passwordForm = usePasswordForm();
+  // MODIFICATION ICI — Hook adresses pour le tab addresses
+  const addressData = useAddresses();
 
   const { editing, setEditing, form, updateMutation } = profileForm;
 
@@ -53,6 +56,16 @@ export default function ProfilePage() {
               />
               <ProfilePasswordForm passwordForm={passwordForm} />
             </>
+          )}
+          {/* MODIFICATION ICI — Tab adresses */}
+          {activeTab === 'addresses' && (
+            <ProfileAddresses
+              addresses={addressData.addresses}
+              isLoading={addressData.isLoading}
+              addMutation={addressData.addMutation}
+              updateMutation={addressData.updateMutation}
+              deleteMutation={addressData.deleteMutation}
+            />
           )}
           {activeTab === 'reviews' && <ProfileReviews />}
           {activeTab === 'coupons' && <ProfileCoupons />}

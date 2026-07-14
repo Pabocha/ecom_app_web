@@ -8,7 +8,6 @@ import { collectVariantMap, findLeafBySelection } from '@/features/product/utils
 import { CART_ITEMS_QUERY_KEY } from '@/features/cart/hooks/cartQueryKeys';
 
 // Hook contenant la logique métier d'ouverture et confirmation de la modale variante
-// Respecte l'architecture : les hooks orchestrent les services + stores
 export function useVariantActions() {
   const queryClient = useQueryClient();
 

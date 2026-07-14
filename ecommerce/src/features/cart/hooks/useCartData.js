@@ -16,6 +16,7 @@ export function useCartData({ setCartOpen, setPendingKey } = {}) {
       const results = data?.results || data || [];
       return normalizeCartItems(results);
     },
+    staleTime: 30_000,
   });
 
   const addMutation = useMutation({

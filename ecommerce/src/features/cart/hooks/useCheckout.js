@@ -1,41 +1,14 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { paymentMethods } from '@/data/paymentMethod';
 import { cartService } from '@/features/cart/services/cartService';
-import { useCheckoutStore } from '@/stores/checkoutStore';
 import { useMutation } from '@tanstack/react-query';
 
-// MODIFICATION ICI — Le hook gère aussi la synchro formulaire/store (plus dans la page)
-export function useCheckout({ cartItems = [], form } = {}) {
+export function useCheckout({ cartItems = [] } = {}) {
   const [couponResult, setCouponResult] = useState(null);
   const location = useLocation();
   const selectedPayment = location.state?.selectedPayment || 'wave';
   const paymentMethod = paymentMethods.find(method => method.id === selectedPayment) || paymentMethods[0];
-
-  // Synchro formulaire → store (logique métier déplacée de CheckoutPage)
-  const { checkoutData, setCheckoutData } = useCheckoutStore();
-
-  useEffect(() => {
-    if (form) form.reset(checkoutData);
-  }, [checkoutData, form]);
-
-  const watchedValues = form?.watch();
-
-  useEffect(() => {
-    if (!watchedValues) return;
-
-    const fields = ['full_address', 'city', 'postal_code', 'country', 'phone_number'];
-    const isSame = fields.every((key) => watchedValues[key] === checkoutData[key]);
-    if (!isSame) {
-      setCheckoutData({
-        full_address: watchedValues.full_address ?? '',
-        city: watchedValues.city ?? '',
-        postal_code: watchedValues.postal_code ?? '',
-        country: watchedValues.country ?? 'SN',
-        phone_number: watchedValues.phone_number ?? '',
-      });
-    }
-  }, [watchedValues, checkoutData, setCheckoutData]);
 
   const checkoutTotals = useMemo(() => {
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);

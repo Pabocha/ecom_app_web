@@ -1,27 +1,25 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { ArrowLeft, ShoppingBag, CreditCard, Tag } from 'lucide-react';
-import CheckoutForm from '@/features/cart/components/CheckoutForm';
+import { ArrowLeft, ShoppingBag, CreditCard, Tag, MapPin, Plus } from 'lucide-react';
 import { formatPrice } from '@/utils/helpers';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useOrders } from '@/features/order/hooks/useOrders';
-import { useCheckoutStore } from '@/stores/checkoutStore';
+import { useAddresses } from '@/features/profile/hooks/useProfile';
+import AddressCard from '@/components/shared/AddressCard';
+import ModalAddressForm from '@/features/profile/components/ModalAddressForm';
+import Button from '@/components/ui/Button';
 
-// MODIFICATION ICI — Page épurée : la synchro store est déléguée au hook useCheckout
 export default function CheckoutPage() {
   const location = useLocation();
   const selectedItemKeys = location.state?.selectedItemKeys || [];
   const selectedKeysSet = useMemo(() => new Set(selectedItemKeys), [selectedItemKeys]);
 
-  const { checkoutData } = useCheckoutStore();
-  const [addressEditing, setAddressEditing] = useState(true);
   const [couponCode, setCouponCode] = useState('');
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
 
-  const form = useForm({
-    mode: 'onBlur',
-    defaultValues: checkoutData,
-  });
+  const { addresses, isLoading: isLoadingAddresses, addMutation, updateMutation } = useAddresses();
 
   const {
     checkout: {
@@ -34,7 +32,7 @@ export default function CheckoutPage() {
       serviceFee,
     },
     clearMutation,
-  } = useCart({ form });
+  } = useCart();
 
   const items = useMemo(
     () => allItems.filter((item) => selectedKeysSet.has(item.cartKey || String(item.id))),
@@ -45,6 +43,19 @@ export default function CheckoutPage() {
   const total = Math.max(0, subtotal + shipping + serviceFee - discount);
 
   const { orderMutation } = useOrders({ clearMutation });
+
+  // MODIFICATION ICI — Auto-sélection de l'adresse par défaut
+  useEffect(() => {
+    if (!addresses?.length) return;
+    if (selectedAddressId) return;
+    const defaultAddr = addresses.find((a) => a.is_default) || addresses[0];
+    if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+  }, [addresses, selectedAddressId]);
+
+  const selectedAddress = useMemo(
+    () => addresses?.find((a) => a.id === selectedAddressId) || null,
+    [addresses, selectedAddressId],
+  );
 
   const handleApplyCoupon = (code) => {
     const nextCode = code?.trim();
@@ -57,21 +68,43 @@ export default function CheckoutPage() {
     });
   };
 
-  const handleCheckoutSubmit = form.handleSubmit((values) => {
+  const handleCheckoutSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedAddress) return;
+
     const payload = {
       payment_method: paymentMethod?.id,
-      phone_number: values.phone_number || '',
+      phone_number: selectedAddress.phone_number || '',
       coupon_code: couponResult?.valid ? couponCode.trim() : '',
       shipping_address: {
-        full_address: values.full_address,
-        city: values.city,
-        postal_code: values.postal_code || '',
-        country: values.country,
+        full_address: selectedAddress.street_address || '',
+        city: selectedAddress.city || '',
+        postal_code: selectedAddress.postal_code || '',
+        country: selectedAddress.country || 'SN',
       },
     };
 
     orderMutation.mutate(payload);
-  });
+  };
+
+  const handleOpenAdd = () => {
+    setEditingAddress(null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (address) => {
+    setEditingAddress(address);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEditingAddress(null);
+  };
+
+  const handleAddressSelected = (address) => {
+    setSelectedAddressId(address.id);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 pb-12">
@@ -114,12 +147,48 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            <CheckoutForm
-              form={form}
-              addressEditing={addressEditing}
-              setAddressEditing={setAddressEditing}
-              showPhone={paymentMethod?.requiresPhone || false}
-            />
+            {/* MODIFICATION ICI — Section sélection adresse de livraison */}
+            <section className="bg-white rounded-lg shadow-sm p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <MapPin size={18} className="text-orange-500" />
+                  <h2 className="text-[18px] font-black text-[#0d1b2a]">Adresse de livraison</h2>
+                </div>
+                <Button size="sm" type="button" onClick={handleOpenAdd}>
+                  <Plus size={14} /> Ajouter
+                </Button>
+              </div>
+
+              {isLoadingAddresses && (
+                <div className="text-center py-8 text-[13px] text-gray-400">Chargement des adresses...</div>
+              )}
+
+              {!isLoadingAddresses && addresses?.length === 0 && (
+                <div className="text-center py-8">
+                  <MapPin size={32} className="mx-auto text-gray-300 mb-2" />
+                  <p className="text-[13px] text-gray-400">Aucune adresse enregistrée</p>
+                  <Button size="sm" className="mt-3" type="button" onClick={handleOpenAdd}>
+                    <Plus size={14} /> Ajouter une adresse
+                  </Button>
+                </div>
+              )}
+
+              {!isLoadingAddresses && addresses?.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {addresses.map((addr) => (
+                    <AddressCard
+                      key={addr.id}
+                      address={addr}
+                      selected={addr.id === selectedAddressId}
+                      onSelect={() => handleAddressSelected(addr)}
+                      showRadio
+                      showActions={addr.id === selectedAddressId}
+                      onEdit={() => handleOpenEdit(addr)}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
 
             <section className="bg-white rounded-lg shadow-sm p-5">
               <div className="flex items-center gap-2 mb-4">
@@ -204,7 +273,7 @@ export default function CheckoutPage() {
 
               <button
                 type="submit"
-                disabled={orderMutation.isPending || items.length === 0}
+                disabled={orderMutation.isPending || items.length === 0 || !selectedAddress}
                 className="mt-4 w-full rounded bg-orange-500 py-3.5 text-[15px] font-black text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300 flex items-center justify-center gap-2"
               >
                 {orderMutation.isPending ? (
@@ -226,6 +295,16 @@ export default function CheckoutPage() {
           </aside>
         </div>
       </form>
+
+      {/* MODIFICATION ICI — Modale ajout/édition adresse */}
+      {modalOpen && (
+        <ModalAddressForm
+          address={editingAddress}
+          onClose={handleCloseModal}
+          addMutation={addMutation}
+          updateMutation={updateMutation}
+        />
+      )}
     </div>
   );
 }

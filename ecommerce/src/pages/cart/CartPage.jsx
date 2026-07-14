@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { cartRecommendations } from '@/data/data.js';
+import { useRecommendations } from '@/features/product/hooks/useProduct';
 import CartItemList from '@/features/cart/components/CartItemList';
 import CartRecommendations from '@/features/cart/components/CartRecommendations';
 import VariantModal from '@/components/VariantModal';
@@ -25,6 +25,11 @@ export default function CartPage() {
   const [selectedPayment, setSelectedPayment] = useState('wave');
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantSelection, setVariantSelection] = useState({});
+
+  // MODIFICATION ICI — Recommandations dynamiques (context: cart)
+  const { data: recomRes } = useRecommendations({ context: 'cart' });
+  const recommendedProducts = (recomRes?.data?.items || recomRes?.data || [])
+    .map(item => item.product || item);
 
   const items = cartItems;
   const itemKeys = useMemo(() => items.map((item) => item.cartKey || String(item.id)), [items]);
@@ -163,7 +168,7 @@ export default function CartPage() {
               </div>
               <span className="rounded bg-orange-50 px-3 py-1 text-[12px] font-black text-orange-500">Ajout rapide</span>
             </div>
-            <CartRecommendations products={cartRecommendations} onProductClick={(id) => navigate(`/product/${id}`)} onAddToCart={addRecommendedProduct} />
+            <CartRecommendations products={recommendedProducts} onProductClick={(id) => navigate(`/product/${id}`)} onAddToCart={addRecommendedProduct} />
           </section>
         </main>
 

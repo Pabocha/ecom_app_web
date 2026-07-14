@@ -1,7 +1,41 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { profileService } from '@/features/profile/services/profileService';
+
+// MODIFICATION ICI — Query key centralisée pour les adresses
+export const ADDRESSES_QUERY_KEY = ['addresses'];
+
+// MODIFICATION ICI — Hook CRUD adresses via React Query
+export function useAddresses() {
+  const queryClient = useQueryClient();
+
+  const { data: addresses = [], isLoading } = useQuery({
+    queryKey: ADDRESSES_QUERY_KEY,
+    queryFn: async () => {
+      const resp = await profileService.getAddressUser();
+      const data = resp?.data ?? resp;
+      return data?.results || data || [];
+    },
+  });
+
+  const addMutation = useMutation({
+    mutationFn: profileService.addAddressUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADDRESSES_QUERY_KEY }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }) => profileService.updateAddressUser(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADDRESSES_QUERY_KEY }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => profileService.deleteAddressUser(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADDRESSES_QUERY_KEY }),
+  });
+
+  return { addresses, isLoading, addMutation, updateMutation, deleteMutation };
+}
 
 export function useProfileForm(user) {
   const [editing, setEditing] = useState(false);
@@ -14,8 +48,6 @@ export function useProfileForm(user) {
       email: user?.email || '',
       phone_number: user?.phone_number || '',
       full_address: user?.full_address || '',
-      city: user?.city || '',
-      postal_code: user?.postal_code || '',
     },
   });
 
@@ -27,6 +59,25 @@ export function useProfileForm(user) {
   return { editing, setEditing, form, updateMutation };
 }
 
+export function useAddressForm(address) {
+  const form = useForm({
+    mode: 'onBlur',
+    defaultValues: {
+      first_name: address?.first_name || '',
+      last_name: address?.last_name || '',
+      phone_number: address?.phone_number || '',
+      street_address: address?.street_address || '',
+      city: address?.city || '',
+      state_region: address?.state_region || '',
+      postal_code: address?.postal_code || '',
+      country: address?.country || 'SN',
+      address_type: address?.address_type || 'shipping',
+      is_default: address?.is_default || false,
+    },
+  });
+
+  return { form };
+}
 export function usePasswordForm() {
   const [changingPassword, setChangingPassword] = useState(false);
   const [showCurrentPwd, setShowCurrentPwd] = useState(false);

@@ -8,9 +8,10 @@ export function extractVariantData(tree) {
 
   const findLeaf = (n) => n.children?.length ? findLeaf(n.children[0]) : n;
   const leaf = tree.variants.length ? findLeaf(tree.variants[0]) : null;
-
+  
   const attrInfo = (tree.structure || []).map(code => {
     const attr = leaf?.attributes?.find(a => a.attribute_code === code);
+    console.log(`trouvaille : ${leaf?.attributes}`)
     return {
       code,
       name: attr?.attribute_name || code,

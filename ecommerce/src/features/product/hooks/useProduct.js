@@ -17,10 +17,12 @@ export function useProduct(id) {
   });
 }
 
-export function useRecommendations(params = {}) {
+// MODIFICATION ICI — options: enabled, staleTime, etc. (backwards-compatible)
+export function useRecommendations(params = {}, options = {}) {
   return useQuery({
     queryKey: ["product-recommendations", params],
     queryFn: () => productService.getRecommendations(params),
+    ...options,
   });
 }
 

@@ -66,7 +66,7 @@
         "quantity": 1,
         "unit_price": 35000.0,
         "currency": "XOF"
-    },
+    }, 
     "pricing_display": {
         "type": "base",
         "display_text": "35000 XOF",

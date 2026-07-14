@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { featuredProducts } from '@/data/data.js';
 import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount } from '@/utils/helpers.js';
 import { buildDetailFromApi, getOptionsAtLevel, getHexForOption, getLeafVariant, updateLevelSelection } from '@/features/product/utils/helpers.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import ProductSkeleton from '@/features/product/components/ProductSkeleton.jsx';
 import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
-import { useProductGallery, useProductDetailShop } from '@/features/product/hooks/useProduct';
+import { useProductGallery, useProductDetailShop, useRecommendations } from '@/features/product/hooks/useProduct';
 
 const TABS = ["Description", "Caractéristiques", "Prix volume", "Avis", "Questions"];
 const RATING_BG = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-500"];
@@ -30,6 +29,14 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   
   const productGallery = productGalleryRes?.data?.results || productGalleryRes?.data || [];
   const detailShop = detailShopRes?.data?.results || detailShopRes?.data || {};
+
+  // MODIFICATION ICI — Recommandations dynamiques (context: product_detail)
+  const { data: recomRes, isLoading: recomLoading } = useRecommendations(
+    { context: 'product_detail', seed_product_id: product?.id },
+    { enabled: !!product?.id },
+  );
+  const recommendedProducts = (recomRes?.data?.items || recomRes?.data || [])
+    .map(item => item.product || item);
 
   // MODIFICATION ICI — Arbre de variantes dynamique (N niveaux)
   const variantDepth = product?.variant_tree?.structure?.length || 0;
@@ -334,13 +341,13 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
         </div>
       </div>
 
-      {/* Related - full width */}
-      {featuredProducts.length > 0 && (
+      {/* MODIFICATION ICI — Recommandations dynamiques (context: product_detail) */}
+      {recommendedProducts.length > 0 && (
         <div className="max-w-[1300px] mx-auto px-4 pb-5">
           <div className="bg-white rounded-lg shadow-sm p-5">
             <div className="font-['Barlow_Condensed'] text-[20px] font-black text-[#0d1b2a] mb-4">Vous aimerez aussi</div>
             <div className="grid grid-cols-5 gap-2.5">
-              {featuredProducts.slice(0, 5).map(p => <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} />)}
+              {recommendedProducts.slice(0, 5).map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} />)}
             </div>
           </div>
         </div>

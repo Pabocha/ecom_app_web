@@ -1,10 +1,10 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, CreditCard, Tag, MapPin, Plus } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, CreditCard, Tag, MapPin, Plus, Truck } from 'lucide-react';
 import { formatPrice } from '@/utils/helpers';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { useOrders } from '@/features/order/hooks/useOrders';
 import { useAddresses } from '@/features/profile/hooks/useProfile';
+import { useOrderCheckout } from '@/features/order/hooks/useOrderCheckout';
 import AddressCard from '@/components/shared/AddressCard';
 import ModalAddressForm from '@/features/profile/components/ModalAddressForm';
 import Button from '@/components/ui/Button';
@@ -25,11 +25,12 @@ export default function CheckoutPage() {
     checkout: {
       items: allItems,
       paymentMethod,
+      shippingMethod,
+      setShippingMethod,
+      shippingMethods,
       couponMutation,
       couponResult,
       subtotal,
-      shipping,
-      serviceFee,
     },
     clearMutation,
   } = useCart();
@@ -40,9 +41,29 @@ export default function CheckoutPage() {
   );
 
   const discount = couponResult?.valid ? Number(couponResult.discount || 0) : 0;
-  const total = Math.max(0, subtotal + shipping + serviceFee - discount);
 
-  const { orderMutation } = useOrders({ clearMutation });
+  // MODIFICATION ICI — Hook checkout commande (preview → create → pay)
+  const {
+    previewMutation,
+    previewData,
+    submitMutation,
+    submitOrder,
+    error: checkoutError,
+  } = useOrderCheckout({
+    cartItems: items,
+    selectedAddress: addresses?.find((a) => a.id === selectedAddressId),
+    paymentMethod,
+    shippingMethod,
+    couponCode: couponResult?.valid ? couponCode.trim() : '',
+    couponDiscount: discount,
+    clearMutation,
+  });
+
+  // MODIFICATION ICI — Totaux depuis le preview backend (pas de fallback local pour la livraison)
+  const deliveryCost = previewData?.shipping?.delivery_cost ?? previewData?.delivery_cost ?? null;
+  const total = previewData?.total_amount ?? null;
+  const isPreviewLoading = previewMutation.isPending;
+  const hasPreviewData = !!previewData;
 
   // MODIFICATION ICI — Auto-sélection de l'adresse par défaut
   useEffect(() => {
@@ -52,6 +73,13 @@ export default function CheckoutPage() {
     if (defaultAddr) setSelectedAddressId(defaultAddr.id);
   }, [addresses, selectedAddressId]);
 
+  // MODIFICATION ICI — Preview proactif : appeler quand l'adresse ou la méthode de livraison change
+  useEffect(() => {
+    if (!selectedAddressId || !items.length) return;
+    previewMutation.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAddressId, shippingMethod]);
+
   const selectedAddress = useMemo(
     () => addresses?.find((a) => a.id === selectedAddressId) || null,
     [addresses, selectedAddressId],
@@ -60,31 +88,25 @@ export default function CheckoutPage() {
   const handleApplyCoupon = (code) => {
     const nextCode = code?.trim();
     if (!nextCode) return;
-
     couponMutation.mutate({
       couponCode: nextCode,
-      deliveryCost: shipping,
       cartItemIds: items.map((item) => item.lineId || item.id),
     });
   };
 
-  const handleCheckoutSubmit = (e) => {
+  // MODIFICATION ICI — Flux 3 étapes : preview → create → pay
+  const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedAddress) return;
+    if (!selectedAddress || !items.length) return;
 
-    const payload = {
-      payment_method: paymentMethod?.id,
-      phone_number: selectedAddress.phone_number || '',
-      coupon_code: couponResult?.valid ? couponCode.trim() : '',
-      shipping_address: {
-        full_address: selectedAddress.street_address || '',
-        city: selectedAddress.city || '',
-        postal_code: selectedAddress.postal_code || '',
-        country: selectedAddress.country || 'SN',
-      },
-    };
-
-    orderMutation.mutate(payload);
+    try {
+      // Étape 1 — Preview (validation backend avant création)
+      await previewMutation.mutateAsync();
+      // Étape 2+3 — Create + Pay
+      submitOrder();
+    } catch {
+      // L'erreur est gérée par previewMutation.error
+    }
   };
 
   const handleOpenAdd = () => {
@@ -105,6 +127,9 @@ export default function CheckoutPage() {
   const handleAddressSelected = (address) => {
     setSelectedAddressId(address.id);
   };
+
+  const isProcessing = submitMutation.isPending;
+  const displayError = previewMutation.error?.response?.data?.detail || checkoutError;
 
   return (
     <div className="min-h-screen bg-gray-100 pb-12">
@@ -190,6 +215,34 @@ export default function CheckoutPage() {
               )}
             </section>
 
+            {/* MODIFICATION ICI — Section méthode de livraison */}
+            <section className="bg-white rounded-lg shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Truck size={18} className="text-orange-500" />
+                <h2 className="text-[18px] font-black text-[#0d1b2a]">Méthode de livraison</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {shippingMethods.map((method) => (
+                  <button
+                    key={method.id}
+                    type="button"
+                    onClick={() => setShippingMethod(method.id)}
+                    className={`flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-all ${
+                      shippingMethod === method.id
+                        ? 'border-orange-500 bg-orange-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                  >
+                    <Truck size={20} className={shippingMethod === method.id ? 'text-orange-500' : 'text-gray-400'} />
+                    <div>
+                      <div className="text-[14px] font-black text-[#0d1b2a]">{method.label}</div>
+                      <div className="text-[11px] text-gray-400">{method.description}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+
             <section className="bg-white rounded-lg shadow-sm p-5">
               <div className="flex items-center gap-2 mb-4">
                 <CreditCard size={18} className="text-orange-500" />
@@ -219,20 +272,42 @@ export default function CheckoutPage() {
                   <span className="font-bold text-[#0d1b2a]">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-500">
-                  <span>Livraison</span>
-                  <span className="font-bold text-[#0d1b2a]">{shipping === 0 ? 'Gratuite' : formatPrice(shipping)}</span>
+                  <span>Livraison{previewData?.shipping?.estimated_days ? ` (${previewData.shipping.estimated_days})` : ''}</span>
+                  {/* MODIFICATION ICI — Affichage dynamique selon état du preview */}
+                  <span className="font-bold text-[#0d1b2a]">
+                    {isPreviewLoading ? (
+                      <span className="text-gray-400 italic">Calcul...</span>
+                    ) : deliveryCost === null ? (
+                      <span className="text-gray-400 italic">—</span>
+                    ) : deliveryCost === 0 ? (
+                      'Gratuite'
+                    ) : (
+                      formatPrice(deliveryCost)
+                    )}
+                  </span>
                 </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>Frais service</span>
-                  <span className="font-bold text-[#0d1b2a]">{formatPrice(serviceFee)}</span>
-                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Réduction</span>
+                    <span className="font-bold">-{formatPrice(discount)}</span>
+                  </div>
+                )}
               </div>
 
               <div className="my-4 border-t border-gray-100" />
 
               <div className="flex justify-between items-end">
                 <span className="text-[14px] font-black text-[#0d1b2a]">Total à payer</span>
-                <span className="font-['Barlow_Condensed'] text-[32px] font-black text-orange-500">{formatPrice(total)}</span>
+                {/* MODIFICATION ICI — Total depuis le preview backend */}
+                <span className="font-['Barlow_Condensed'] text-[32px] font-black text-orange-500">
+                  {isPreviewLoading ? (
+                    <span className="text-[20px] text-gray-400 italic">Calcul...</span>
+                  ) : total !== null ? (
+                    formatPrice(total)
+                  ) : (
+                    <span className="text-[20px] text-gray-400">—</span>
+                  )}
+                </span>
               </div>
 
               {/* MODIFICATION ICI — Code promo sous le prix total */}
@@ -263,20 +338,15 @@ export default function CheckoutPage() {
                     {couponResult.message}
                   </div>
                 )}
-                {couponResult?.valid && (
-                  <div className="mt-2 flex justify-between text-[13px] text-green-600">
-                    <span>Réduction</span>
-                    <span className="font-bold">-{formatPrice(discount)}</span>
-                  </div>
-                )}
               </div>
 
+              {/* MODIFICATION ICI — Bouton avec preview puis création */}
               <button
                 type="submit"
-                disabled={orderMutation.isPending || items.length === 0 || !selectedAddress}
+                disabled={isProcessing || items.length === 0 || !selectedAddress}
                 className="mt-4 w-full rounded bg-orange-500 py-3.5 text-[15px] font-black text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300 flex items-center justify-center gap-2"
               >
-                {orderMutation.isPending ? (
+                {submitMutation.isPending ? (
                   'Traitement en cours...'
                 ) : (
                   <>
@@ -286,9 +356,10 @@ export default function CheckoutPage() {
                 )}
               </button>
 
-              {orderMutation.error && (
+              {/* MODIFICATION ICI — Erreur du preview ou de la création/paiement */}
+              {displayError && (
                 <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                  {orderMutation.error?.response?.data?.detail || 'Erreur lors de la création de la commande. Veuillez réessayer.'}
+                  {displayError}
                 </div>
               )}
             </section>

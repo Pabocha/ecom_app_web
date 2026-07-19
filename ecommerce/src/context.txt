@@ -1,49 +1,63 @@
-class RecommendationsView(APIView):
-    def get(self, request):
-        params = parse_recommendation_params(request)
-
-        promoted_ids = _active_promotion_product_ids()
-        params["exclude_ids"].update(promoted_ids)
-
-        if params["context"] == "product_detail" and not params["seed_product_id"]:
-            return Response(
-                {"error": "seed_product_id est requis pour context=product_detail"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if params["seed_product_id"] and not Products.objects.filter(id=params["seed_product_id"]).exists():
-            return Response({"error": "Produit seed introuvable"}, status=status.HTTP_404_NOT_FOUND)
-
-        service = RecommendationService(request.user, params)
-        payload = service.build()
-
-        product_ids = [item["product_id"] for item in payload["items"]]
-        products_map = {
-            product.id: product
-            for product in _base_product_queryset().filter(id__in=product_ids)
-        }
-
-        items = []
-        for item in payload["items"]:
-            product_obj = products_map.get(item["product_id"])
-            if product_obj is None:
-                continue
-            row = {
-                "product_id": item["product_id"],
-                "score": item["score"],
-                "reason": item["reason"],
-                "product": ProductListSerializer(product_obj, context={"request": request}).data,
-            }
-            if params["debug"] and "score_breakdown" in item:
-                row["score_breakdown"] = item["score_breakdown"]
-            items.append(row)
-
-        return Response(
-            {
-                "count": len(items),
-                "context": payload["context"],
-                "generated_at": payload["generated_at"],
-                "items": items,
-            },
-            status=status.HTTP_200_OK,
-        )
+Voici comment les données sont renvoyées lors de la récupération des commandes d'un utilisateur.
+Endpoint : GET /api/v1/orders/
+Le viewset utilise OrderSerializer (sauf pour create qui utilise OrderCreateSerializer). La réponse est une liste paginée avec ces champs par commande :
+Champs de base
+Champ
+id
+order_number
+customer
+customer_name
+order_date
+Infos livraison
+Champ
+shipping_first_name
+shipping_last_name
+shipping_phone_number
+shipping_street_address
+shipping_city
+shipping_state_region
+shipping_postal_code
+shipping_country
+Montants
+Champ
+delivery_cost
+discount
+total_amount
+Statuts
+Champ
+status
+payment_status
+payment_method
+payment_method_name
+Paiement
+Champ
+payment_first_name
+payment_last_name
+payment_phone_number
+Coupon
+Champ
+applied_coupon_code
+Produit (aperçu)
+Champ
+preview_image_url
+preview_product_name
+Origine
+Champ
+is_discussed_order
+source_type
+source_quote_id
+Lignes de commande (order_lines)
+Chaque ligne contient :
+{
+    "id": 1,
+    "variant": 5,
+    "product": null,
+    "variant_sku": "SKU-001",
+    "product_name": "T-shirt",
+    "quantity": 2,
+    "unit_price": "15000.00",
+    "total_price": "30000.00",
+    "shop_name": "Ma Boutique",
+    "product_image": "http://...",
+    "shop": 1
+}

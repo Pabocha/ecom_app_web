@@ -1,6 +1,7 @@
 export const paymentMethods = [
   {
     id: 'wave',
+    apiId: 1, // MODIFICATION ICI — ID entier côté backend
     name: 'Wave',
     type: 'Mobile Money Afrique',
     logo: 'https://www.wave.com/img/nav-logo.svg',
@@ -10,6 +11,7 @@ export const paymentMethods = [
   },
   {
     id: 'orange-money',
+    apiId: 2, // MODIFICATION ICI
     name: 'Orange Money',
     type: 'Mobile Money Afrique',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Logo_Orange_Money.svg',
@@ -19,15 +21,17 @@ export const paymentMethods = [
   },
   {
     id: 'mtn-momo',
+    apiId: 3, // MODIFICATION ICI
     name: 'MTN MoMo',
     type: 'Mobile Money Afrique',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/9/93/MTN_2022_logo.svg',
-    badge: 'Afrique de l’Ouest',
+    badge: 'Afrique de l\'Ouest',
     tone: 'border-yellow-200 bg-yellow-50',
     requiresPhone: true,
   },
   {
     id: 'moov-money',
+    apiId: 4, // MODIFICATION ICI
     name: 'Moov Money',
     type: 'Mobile Money Afrique',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a8/Moov_Money_Flooz.png',
@@ -37,6 +41,7 @@ export const paymentMethods = [
   },
   {
     id: 'free-money',
+    apiId: 5, // MODIFICATION ICI
     name: 'Free Money',
     type: 'Mobile Money Sénégal',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Free_logo.svg',
@@ -46,6 +51,7 @@ export const paymentMethods = [
   },
   {
     id: 'paydunya',
+    apiId: 6, // MODIFICATION ICI
     name: 'PayDunya',
     type: 'Agrégateur local',
     logo: 'https://logo.clearbit.com/paydunya.com',
@@ -55,6 +61,7 @@ export const paymentMethods = [
   },
   {
     id: 'visa',
+    apiId: 7, // MODIFICATION ICI
     name: 'Visa',
     type: 'Carte bancaire',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg',
@@ -64,6 +71,7 @@ export const paymentMethods = [
   },
   {
     id: 'mastercard',
+    apiId: 8, // MODIFICATION ICI
     name: 'Mastercard',
     type: 'Carte bancaire',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg',
@@ -73,6 +81,7 @@ export const paymentMethods = [
   },
   {
     id: 'paypal',
+    apiId: 9, // MODIFICATION ICI
     name: 'PayPal',
     type: 'Portefeuille digital',
     logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg',

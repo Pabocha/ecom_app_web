@@ -1,25 +1,22 @@
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { paymentMethods } from '@/data/paymentMethod';
+import { shippingMethods } from '@/data/shippingMethods'; // MODIFICATION ICI
 import { cartService } from '@/features/cart/services/cartService';
 import { useMutation } from '@tanstack/react-query';
 
 export function useCheckout({ cartItems = [] } = {}) {
   const [couponResult, setCouponResult] = useState(null);
+  const [shippingMethod, setShippingMethod] = useState('standard'); // MODIFICATION ICI
   const location = useLocation();
   const selectedPayment = location.state?.selectedPayment || 'wave';
   const paymentMethod = paymentMethods.find(method => method.id === selectedPayment) || paymentMethods[0];
 
+  // MODIFICATION ICI — Supprimé shipping/serviceFee locaux (calculés par le backend via preview)
   const checkoutTotals = useMemo(() => {
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-    const shipping = subtotal >= 50000 || subtotal === 0 ? 0 : 2500;
-    const serviceFee = subtotal > 0 ? Math.round(subtotal * 0.012) : 0;
-
     return {
       subtotal,
-      shipping,
-      serviceFee,
-      total: Math.max(0, subtotal + shipping + serviceFee),
       totalQty: cartItems.reduce((sum, item) => sum + item.qty, 0),
     };
   }, [cartItems]);
@@ -61,6 +58,9 @@ export function useCheckout({ cartItems = [] } = {}) {
     items: cartItems,
     selectedPayment,
     paymentMethod,
+    shippingMethod, // MODIFICATION ICI
+    setShippingMethod, // MODIFICATION ICI
+    shippingMethods, // MODIFICATION ICI
     couponMutation,
     couponResult,
     ...checkoutTotals,

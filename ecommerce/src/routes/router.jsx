@@ -1,9 +1,11 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useProduct } from "@/features/product/hooks/useProduct";
 import { useUIStore } from "@/stores/uiStore";
 import { USER_ROLES } from "@/types";
+import { orderService } from "@/features/order/services/orderService";
 
 // Layouts
 import { BasicLayout, SimpleLayout } from "@/layouts";
@@ -34,9 +36,6 @@ import HelpPage from "@/pages/help/HelpPage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 import OrdersPage from "@/pages/order/OrdersPage";
 import OrderDetailPage from "@/pages/order/OrderDetailPage";
-
-// Data
-import { getOrderById } from "@/features/order/data/orderData";
 
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
@@ -72,9 +71,30 @@ function ProductDetailRoute() {
 
 function OrderDetailRoute() {
   const { id } = useParams();
-  const order = getOrderById(id);
 
-  if (!order) return <Navigate to="/profile/orders" replace />;
+  const { data: order, isLoading, error } = useQuery({
+    queryKey: ['order', id],
+    queryFn: async () => {
+      const res = await orderService.getOrderDetails(id);
+      return res?.data || null;
+    },
+    enabled: !!id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[13px] text-gray-400">Chargement de la commande...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !order) {
+    return <Navigate to="/profile/orders" replace />;
+  }
 
   return <OrderDetailPage order={order} />;
 }

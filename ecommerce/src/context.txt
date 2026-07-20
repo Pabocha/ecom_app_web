@@ -1,63 +1,264 @@
-Voici comment les données sont renvoyées lors de la récupération des commandes d'un utilisateur.
-Endpoint : GET /api/v1/orders/
-Le viewset utilise OrderSerializer (sauf pour create qui utilise OrderCreateSerializer). La réponse est une liste paginée avec ces champs par commande :
-Champs de base
+Documentation Front — Système de Commandes
+URL de base
+https://your-domain.com/api/v1/orders
+Headers pour toutes les requêtes :
+Authorization: Token <user_token>
+Content-Type: application/json
+1. PREVIEW — Aperçu avant création
+POST /api/v1/orders/preview/
+Permet d'afficher le récapitulatif (prix, livraison, réductions) avant de confirmer la commande. Ne crée rien en base.
+Body
+{
+    "origin_address": 1,
+    "shipping_method": "standard",
+    "transport_mode": "road",
+    "discount": 0,
+    "coupon_code": "",
+    "order_lines": [
+        {"product": 23, "quantity": 1},
+        {"variant": 5, "quantity": 2}
+    ]
+}
+Réponse 200
+{
+    "lines": [
+        {
+            "variant": null,
+            "product": 23,
+            "product_name": "Ensemble Wax Africain Femme",
+            "quantity": 1,
+            "unit_price": 28000.0,
+            "line_total": 28000.0,
+            "shop_id": 1,
+            "shop_name": "NG SOMBA"
+        },
+        {
+            "variant": 5,
+            "product": null,
+            "product_name": "AirPods Pro 2ème Gen",
+            "quantity": 2,
+            "unit_price": 129000.0,
+            "line_total": 258000.0,
+            "shop_id": 3,
+            "shop_name": "Apple Partner"
+        }
+    ],
+    "subtotal": 286000.0,
+    "discount": 0.0,
+    "delivery_cost": 3000.0,
+    "total_amount": 289000.0,
+    "shipping": {
+        "method": "standard",
+        "transport_mode": "road",
+        "delivery_cost": 3000.0,
+        "estimated_days": "1-7 jours",
+        "is_international": false
+    },
+    "coupon": null
+}
+Champs de la réponse
 Champ
-id
-order_number
-customer
-customer_name
-order_date
-Infos livraison
-Champ
-shipping_first_name
-shipping_last_name
-shipping_phone_number
-shipping_street_address
-shipping_city
-shipping_state_region
-shipping_postal_code
-shipping_country
-Montants
-Champ
-delivery_cost
+lines
+lines[].product_name
+lines[].quantity
+lines[].unit_price
+lines[].line_total
+lines[].shop_id
+lines[].shop_name
+subtotal
 discount
+delivery_cost
 total_amount
-Statuts
-Champ
-status
-payment_status
-payment_method
-payment_method_name
-Paiement
-Champ
-payment_first_name
-payment_last_name
-payment_phone_number
-Coupon
-Champ
-applied_coupon_code
-Produit (aperçu)
-Champ
-preview_image_url
-preview_product_name
-Origine
-Champ
-is_discussed_order
-source_type
-source_quote_id
-Lignes de commande (order_lines)
-Chaque ligne contient :
+shipping.method
+shipping.transport_mode
+shipping.delivery_cost
+shipping.estimated_days
+shipping.is_international
+coupon
+2. CREATE — Création de commande
+POST /api/v1/orders/create/
+Crée la commande, décrémente le stock, calcule le shipping, applique le coupon.
+Body
+{
+    "origin_address": 1,
+    "shipping_method": "standard",
+    "transport_mode": "road",
+    "discount": 0,
+    "coupon_code": "",
+    "order_lines": [
+        {"product": 23, "quantity": 1},
+        {"variant": 5, "quantity": 2}
+    ]
+}
+Identique au body du preview. Le front peut envoyer le même payload aux deux endpoints.
+Réponse 201
 {
     "id": 1,
-    "variant": 5,
-    "product": null,
-    "variant_sku": "SKU-001",
-    "product_name": "T-shirt",
-    "quantity": 2,
-    "unit_price": "15000.00",
-    "total_price": "30000.00",
-    "shop_name": "Ma Boutique",
-    "product_image": "http://...",
-    "shop": 1
+    "order_number": "76AFA584",
+    "origin_address": 1,
+    "shipping_method": "standard",
+    "transport_mode": "road",
+    "discount": "0.00",
+    "delivery_cost": "3000.00",
+    "total_amount": "289000.00",
+    "status": "pending"
 }
+3. GET ORDERS — Récupérer les commandes
+3a. Mes commandes (client)
+GET /api/v1/orders/my-orders/
+Réponse : tableau de commandes au format OrderSerializer (voir ci-dessous).
+3b. Détail d'une commande
+GET /api/v1/orders/{id}/
+Format de réponse (OrderSerializer)
+{
+    "id": 1,
+    "order_number": "76AFA584",
+    "customer": 2,
+    "customer_name": "client@email.com",
+    "order_date": "2026-07-19T16:30:00Z",
+    "shipping_first_name": "Jean",
+    "shipping_last_name": "Dupont",
+    "shipping_phone_number": "+221756301234",
+    "shipping_street_address": "Rue 12, Point E",
+    "shipping_city": "Dakar",
+    "shipping_state_region": "Dakar",
+    "shipping_postal_code": "11000",
+    "shipping_country": "SN",
+    "shipping_method": "standard",
+    "transport_mode": "road",
+    "delivery_cost": "3000.00",
+    "discount": "0.00",
+    "total_amount": "289000.00",
+    "status": "pending",
+    "payment_method": [1],
+    "payment_method_name": ["Wave"],
+    "payment_status": "pending",
+    "payment_first_name": null,
+    "payment_last_name": null,
+    "payment_phone_number": null,
+    "applied_coupon_code": null,
+    "preview_image_url": "http://...",
+    "preview_product_name": "Ensemble Wax Africain Femme",
+    "is_discussed_order": false,
+    "source_type": "standard",
+    "source_quote_id": null,
+    "order_lines": [
+        {
+            "id": 1,
+            "variant": null,
+            "product": 23,
+            "variant_sku": "SKU-001",
+            "product_name": "Ensemble Wax Africain Femme",
+            "quantity": 1,
+            "unit_price": "28000.00",
+            "total_price": "28000.00",
+            "shop_name": "NG SOMBA",
+            "product_image": "http://...",
+            "shop": 1
+        }
+    ]
+}
+4. GUIDE D'AFFICHAGE CÔTÉ FRONT
+Page Preview / Récapitulatif (avant paiement)
+┌─────────────────────────────────────────┐
+│  RÉCAPITULATIF DE LA COMMANDE           │
+├─────────────────────────────────────────┤
+│  📦 Produits                            │
+│  ┌───────────────────────────────────┐  │
+│  │ 28 000 FCFA  Ensemble Wax x1     │  │
+│  │ Boutique: NG SOMBA                │  │
+│  ├───────────────────────────────────┤  │
+│  │ 258 000 FCFA  AirPods Pro x2     │  │
+│  │ Boutique: Apple Partner           │  │
+│  └───────────────────────────────────┘  │
+│                                         │
+│  Sous-total          286 000 FCFA       │
+│  Réduction                 0 FCFA       │
+│  Livraison              3 000 FCFA      │
+│  ─────────────────────────────────      │
+│  TOTAL                289 000 FCFA      │
+│                                         │
+│  🚚 Livraison                           │
+│  Mode: Route | Standard                 │
+│  Délai estimé: 1-7 jours                │
+│                                         │
+│  [Confirmer et payer]                   │
+└─────────────────────────────────────────┘
+Champs à afficher
+Élément	Champ API
+Nom produit	lines[].product_name
+Prix unitaire	lines[].unit_price
+Quantité	lines[].quantity
+Sous-total ligne	lines[].line_total
+Boutique	lines[].shop_name
+Sous-total	subtotal
+Réduction	discount
+Livraison	delivery_cost
+Total	total_amount
+Délai livraison	shipping.estimated_days
+Livraison internationale	shipping.is_international
+Transport	shipping.transport_mode
+Logique conditionnelle transport_mode
+Si is_international == true:
+    → Afficher choix: "Mer 🚢" (value: "sea") | "Air ✈️" (value: "air")
+    → Par défaut: "Mer"
+Sinon:
+    → transport_mode = "road" (pas d'affichage, pas de choix)
+Liste des commandes (my-orders)
+┌──────────────────────────────────────────────┐
+│  MES COMMANDES                               │
+├──────────────────────────────────────────────┤
+│  #76AFA584  │  19 Juil 2026  │  En attente  │
+│  289 000 FCFA  │  2 articles                  │
+│  🖼️ Ensemble Wax Africain Femme              │
+│  [Voir détails]                              │
+├──────────────────────────────────────────────┤
+│  #A1B2C3D4  │  18 Juil 2026  │  Payée       │
+│  15 500 FCFA  │  1 article                    │
+│  🖼️ T-shirt Classique                        │
+│  [Voir détails]                              │
+└──────────────────────────────────────────────┘
+Champ	Usage
+order_number	ID affiché de la commande
+order_date	Date (formatée côté front)
+status	Badge couleur: pending = orange, paid = vert, shipped = bleu, delivered = vert foncé, cancelled = rouge
+total_amount	Montant total
+preview_product_name	Nom du 1er produit (aperçu)
+preview_image_url	Image du 1er produit (aperçu)
+Valeurs de status et couleurs
+Valeur
+pending
+processing
+shipped
+in_transit
+delivered
+cancelled
+returned
+Valeurs de payment_status
+Valeur
+pending
+paid
+failed
+refunded
+5. FLUX COMPLET CÔTÉ FRONT
+1. Client ajoute des produits au panier
+2. Client choisit une adresse de livraison
+   → GET /api/v1/addresses/ (pour lister ses adresses)
+3. Client choisit transport_mode (si international)
+   → GET preview pour savoir si is_international
+   → Si is_international: afficher choix Mer/Air
+4. Client clique "Voir récapitulatif"
+   → POST /orders/preview/ (avec transport_mode sélectionné)
+   → Afficher: produits, sous-total, livraison, total
+5. Client applique un coupon (optionnel)
+   → Ré-POST /orders/preview/ avec coupon_code
+   → Le discount se met à jour dans la réponse
+6. Client confirme la commande
+   → POST /orders/create/ (même body que preview)
+   → Rediriger vers page de confirmation avec order_number
+7. Client paie
+   → POST /orders/{id}/pay/
+   → Body: { "payment_method": [1], "first_name": "...", "last_name": "...", "phone_number": "..." }
+8. Client suit ses commandes
+   → GET /orders/my-orders/
+   → GET /orders/{id}/ (détail)

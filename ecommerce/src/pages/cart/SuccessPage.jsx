@@ -1,8 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, Package, Home } from 'lucide-react';
 
 export default function SuccessPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const orderNumber = location.state?.orderNumber;
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
@@ -12,6 +14,11 @@ export default function SuccessPage() {
         </div>
 
         <h1 className="text-[24px] font-black text-[#0d1b2a]">Commande confirmée !</h1>
+        {orderNumber && (
+          <p className="mt-2 text-[16px] font-black text-orange-500">
+            Commande #{orderNumber}
+          </p>
+        )}
         <p className="mt-2 text-[14px] text-gray-500 leading-relaxed">
           Merci pour votre achat. Votre commande a été reçue et est en cours de traitement.
         </p>

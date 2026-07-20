@@ -156,6 +156,14 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             {tab === 'Description' && (
               <div className="text-[14px] text-gray-600 leading-relaxed">
                 <p className="mb-4">{detail.description}</p>
+                {detail.features.length > 0 && (
+                  <div className="mb-4">
+                    <div className="text-[13px] font-bold text-gray-700 mb-2">Points forts</div>
+                    <ul className="space-y-1.5">
+                      {detail.features.map((line, i) => <li key={i} className="flex items-start gap-2"><CheckCircle size={16} className="mt-0.5 shrink-0 text-orange-500" />{line}</li>)}
+                    </ul>
+                  </div>
+                )}
                 <ul className="space-y-1.5">
                   {detail.descLines.map((line, i) => <li key={i} className="flex items-start gap-2"><CheckCircle size={16} className="mt-0.5 shrink-0 text-green-500" />{line}</li>)}
                 </ul>

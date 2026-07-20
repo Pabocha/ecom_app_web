@@ -37,6 +37,8 @@ export function useCheckout({ cartItems = [] } = {}) {
         discount: Number(discount),
         couponCode: data?.coupon_code ?? '',
         couponId: data?.coupon_id ?? null,
+        discountType: data?.discount_type ?? null,
+        discountValue: data?.discount_value ?? null,
         scope: data?.scope ?? null,
         discountOnItems: data?.discount_on_items ?? null,
         discountOnShipping: data?.discount_on_shipping ?? null,

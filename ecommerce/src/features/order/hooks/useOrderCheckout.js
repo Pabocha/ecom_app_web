@@ -3,8 +3,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { orderService } from '@/features/order/services/orderService';
 
-// MODIFICATION ICI — Helper pour construire les order_lines depuis les items panier
-// Uniquement variant OU product, jamais les deux (le backend rejette null)
 function buildOrderLines(items = []) {
   return items.map((item) => {
     if (item.is_variant_item) {
@@ -19,8 +17,10 @@ export function useOrderCheckout({
   selectedAddress,
   paymentMethod,
   shippingMethod = 'standard',
+  transportMode = 'road',
   couponCode = '',
   couponDiscount = 0,
+  paymentDetails = {},
   clearMutation,
 } = {}) {
   const queryClient = useQueryClient();
@@ -28,14 +28,14 @@ export function useOrderCheckout({
 
   const orderLines = useMemo(() => buildOrderLines(cartItems), [cartItems]);
 
-  // MODIFICATION ICI — Preview mutation (étape 1 : valider et récupérer les totaux backend)
   const previewMutation = useMutation({
     mutationFn: () => {
       if (!selectedAddress?.id || !orderLines.length) return Promise.reject(new Error('Adresse ou articles manquants'));
       return orderService.previewOrder({
         origin_address: selectedAddress.id,
         shipping_method: shippingMethod,
-        discount: couponDiscount || 0,
+        transport_mode: transportMode,
+        discount: couponCode ? 0 : (couponDiscount || 0),
         coupon_code: couponCode || '',
         order_lines: orderLines,
       });
@@ -43,35 +43,42 @@ export function useOrderCheckout({
   });
 
   const previewData = previewMutation?.data?.data || previewMutation?.data || null;
+  const isInternational = previewData?.shipping?.is_international ?? false;
 
-  // MODIFICATION ICI — Submit mutation (étape 2+3 : créer la commande puis payer)
+  const effectiveTransportMode = useMemo(() => {
+    if (isInternational && transportMode === 'road') return 'sea';
+    if (!isInternational && transportMode !== 'road') return 'road';
+    return transportMode;
+  }, [isInternational, transportMode]);
+
   const submitMutation = useMutation({
     mutationFn: async () => {
       if (!selectedAddress?.id) throw new Error('Veuillez sélectionner une adresse de livraison');
       if (!paymentMethod?.apiId) throw new Error('Veuillez sélectionner un moyen de paiement');
       if (!orderLines.length) throw new Error('Aucun article à commander');
+      if (!paymentDetails.first_name?.trim()) throw new Error('Le prénom est requis pour le paiement');
+      if (!paymentDetails.last_name?.trim()) throw new Error('Le nom est requis pour le paiement');
+      if (!paymentDetails.phone_number?.trim()) throw new Error('Le numéro de téléphone est requis pour le paiement');
 
       const createPayload = {
         origin_address: selectedAddress.id,
-        shipping_method: shippingMethod,
-        discount: couponDiscount || 0,
+        shipping_method: isInternational ? null : shippingMethod,
+        transport_mode: transportMode,
+        discount: couponCode ? 0 : (couponDiscount || 0),
         coupon_code: couponCode || '',
         order_lines: orderLines,
       };
 
-      // Étape 2 — Créer la commande
-      console.log(createPayload);
       const createResp = await orderService.placeOrder(createPayload);
       const order = createResp?.data || createResp;
 
       if (!order?.id) throw new Error('Réponse invalide du serveur lors de la création');
 
-      // Étape 3 — Payer la commande
       const payPayload = {
         payment_method: [paymentMethod.apiId],
-        first_name: selectedAddress.first_name || '',
-        last_name: selectedAddress.last_name || '',
-        phone_number: selectedAddress.phone_number || '',
+        first_name: paymentDetails.first_name.trim(),
+        last_name: paymentDetails.last_name.trim(),
+        phone_number: paymentDetails.phone_number.trim(),
       };
 
       await orderService.payOrder(order.id, payPayload);
@@ -79,7 +86,6 @@ export function useOrderCheckout({
       return order;
     },
     onSuccess: async (order) => {
-      // Vider le panier
       if (clearMutation) {
         try {
           await clearMutation.mutateAsync();
@@ -90,12 +96,21 @@ export function useOrderCheckout({
       queryClient.invalidateQueries({ queryKey: ['cart-items'] });
       navigate('/order-success', { replace: true, state: { orderId: order.id, orderNumber: order.order_number } });
     },
+    onError: async (error, _variables, context) => {
+      if (context?.orderId) {
+        navigate('/profile/orders/' + context.orderId, {
+          replace: true,
+          state: { error: 'Le paiement a échoué. Veuillez réessayer depuis la page de la commande.' },
+        });
+      }
+    },
   });
 
   return {
     orderLines,
     previewMutation,
     previewData,
+    effectiveTransportMode,
     submitMutation,
     submitOrder: submitMutation.mutate,
     isPending: submitMutation.isPending,

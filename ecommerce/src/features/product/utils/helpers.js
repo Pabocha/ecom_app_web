@@ -246,7 +246,7 @@ export function buildSpecs(p) {
   if (p.brand) s.push(['Marque', p.brand]);
   if (p.country_origin) s.push(['Origine', p.country_origin]);
   if (p.min_order_quantity && p.min_order_quantity > 1) s.push(['Quantité min.', p.min_order_quantity]);
-  if (p.specific_fields_display) Object.entries(p.specific_fields_display).forEach(([k, v]) => { if (v) s.push([k, v]); });
+  if (p.attribute_display) Object.entries(p.attribute_display).forEach(([k, v]) => { if (v) s.push([k, v]); });
   if (p.status) s.push(['Statut', p.status === 'available' ? 'Disponible' : p.status]);
   return s;
 }
@@ -271,10 +271,12 @@ export function buildDetailFromApi(productDetail) {
   const volumePricing = buildVolumePricing(productDetail.price_tiers, productDetail.pricing_display);
   const specs = buildSpecs(productDetail);
   const stock = productDetail.stock_quantity ?? productDetail.total_stock ?? 0;
+  const features = Array.isArray(productDetail.features) ? productDetail.features : [];
 
   return {
     description: productDetail.description || '',
     descLines: (productDetail.description || '').split('\n').filter(Boolean),
+    features,
     specs,
     volumePricing,
     ratingDist: [0, 0, 0, 0, 0],

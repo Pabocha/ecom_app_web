@@ -1,14 +1,17 @@
-import { Clock, CheckCircle, XCircle, Package, Truck, MapPin, CreditCard } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Package, Truck, RotateCcw, Send } from 'lucide-react';
 
 export const ORDER_STATUS = {
-  pending: { label: 'En cours', color: 'bg-amber-100 text-amber-700', icon: Clock },
+  pending: { label: 'En attente', color: 'bg-amber-100 text-amber-700', icon: Clock },
+  processing: { label: 'En traitement', color: 'bg-blue-100 text-blue-700', icon: Package },
+  shipped: { label: 'Expédiée', color: 'bg-indigo-100 text-indigo-700', icon: Send },
+  in_transit: { label: 'En transit', color: 'bg-purple-100 text-purple-700', icon: Truck },
   delivered: { label: 'Livrée', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   cancelled: { label: 'Annulée', color: 'bg-red-100 text-red-700', icon: XCircle },
+  returned: { label: 'Retournée', color: 'bg-orange-100 text-orange-700', icon: RotateCcw },
+  partially_returned: { label: 'Partiellement retournée', color: 'bg-orange-100 text-orange-700', icon: RotateCcw },
 };
 
-export const ORDER_TABS = ['Toutes', 'En cours', 'Livrées', 'Annulées'];
-
-const now = '2025-06-19T10:00:00Z';
+export const ORDER_TABS = ['Toutes', 'En cours', 'Expédiées', 'Livrées', 'Annulées'];
 
 export const mockOrders = [
   {

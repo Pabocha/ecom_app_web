@@ -4,9 +4,11 @@ import { useProducts } from '@/features/product/hooks/useProduct';
 import { formatPrice } from '@/utils/helpers.js';
 import { Sparkles } from 'lucide-react';
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
 export default function NewProductsPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
 
   const { data: res, isLoading } = useProducts({ tab: "recent" });
   const products = res?.data?.results || res?.data || [];
@@ -63,8 +65,8 @@ export default function NewProductsPage() {
                       <div className="font-['Barlow_Condensed'] text-[22px] font-black text-green-600">{formatPrice(product.price)}</div>
                       {product.oldPrice && <div className="text-[11px] text-gray-400 line-through">{formatPrice(product.oldPrice)}</div>}
                     </div>
-                    <button onClick={e => { e.stopPropagation(); addToCart(product); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[11px] font-bold text-white hover:bg-green-600">
-                      Ajouter
+                    <button onClick={e => { e.stopPropagation(); addToCart(product); }} disabled={addingId === product.id} className="rounded bg-[#0d1b2a] px-3 py-2 text-[11px] font-bold text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      {addingId === product.id ? <LoadingSpinner size={12} className="text-white" /> : 'Ajouter'}
                     </button>
                   </div>
                 </div>

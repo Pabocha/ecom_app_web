@@ -13,9 +13,11 @@ const b2bIcons = {
   headset: Headphones,
 };
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
 export default function B2BPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
   const [selectedQuantity, setSelectedQuantity] = useState({});
   const [quoteModal, setQuoteModal] = useState(false);
   const [quoteData, setQuoteData] = useState({ email: '', company: '', phone: '', product: null });
@@ -27,7 +29,7 @@ export default function B2BPage() {
 
   const handleOpenProduct = (product) => navigate(`/product/${product.id}`);
   const handleOpenFlashDeals = () => navigate('/flash-deals');
-  const handleOpenCategory = (category) => navigate(`/category/${category?.name || category}`);
+  const handleOpenCategory = (category) => navigate(`/category/${category?.slug || category}`);
 
   const submitQuote = () => {
     if (quoteData.email && quoteData.company && quoteData.phone) {
@@ -173,9 +175,10 @@ export default function B2BPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => addToCart(product)}
-                    className="flex-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm flex items-center justify-center gap-1"
+                    disabled={addingId === product.id}
+                    className="flex-1 px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg transition-colors text-sm flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <ShoppingCart size={14} /> Ajouter
+                    {addingId === product.id ? <LoadingSpinner size={14} className="text-white" /> : <><ShoppingCart size={14} /> Ajouter</>}
                   </button>
                   <button
                     onClick={() => handleQuoteSubmit(product)}

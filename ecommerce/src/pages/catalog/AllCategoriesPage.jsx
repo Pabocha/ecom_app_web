@@ -91,7 +91,7 @@ export default function AllCategoriesPage() {
           {filtered.map((cat, i) => (
             <div
               key={cat.name}
-              onClick={() => navigate(`/category/${cat.name}`)}
+              onClick={() => navigate(`/category/${cat.slug}`)}
               className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer group"
               style={{ animationDelay: `${i * 60}ms` }}
             >

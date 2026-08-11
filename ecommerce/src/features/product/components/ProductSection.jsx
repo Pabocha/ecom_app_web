@@ -1,7 +1,7 @@
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import SectionHeader from '@/features/home/components/SectionHeader.jsx';
 
-export default function ProductSection({ title, products, loading, link, to, sectionBadge, onAddToCart, onOpenProduct }) {
+export default function ProductSection({ title, products, loading, link, to, sectionBadge, onAddToCart, onOpenProduct, addingId }) {
   const displayProducts = (products || []);
 
   if (loading) {
@@ -31,7 +31,7 @@ export default function ProductSection({ title, products, loading, link, to, sec
       <SectionHeader title={title} link={link} to={to} />
       <div className="grid grid-cols-5 gap-2.5">
         {displayProducts.map(p => (
-          <ProductCard key={p.id} product={p} sectionBadge={sectionBadge} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} />
+          <ProductCard key={p.id} product={p} sectionBadge={sectionBadge} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} addingId={addingId} />
         ))}
       </div>
     </div>

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, ChevronRight, Heart, Box, Search, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useCart } from '@/features/cart/hooks/useCart';
 import CategorySelectorModal from '@/layouts/CategorySelectorModal.jsx';
+import SearchDropdown from '@/components/search/SearchDropdown';
 
 const actionIconMap = { heart: Heart, box: Box };
 
@@ -32,20 +33,23 @@ export default function TopBar({ backTo, backLabel = 'Retour', onBack }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { cartCount, cartOpen, setCartOpen } = useCart();
+  const { cartCount } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}&type=Produits`);
+  const handleSearch = (e, forcedQuery) => {
+    if (e?.preventDefault) e.preventDefault();
+    const q = forcedQuery || searchQuery;
+    if (q.trim()) {
+      navigate(`/search?q=${encodeURIComponent(q.trim())}`);
       setSearchQuery('');
+      setSearchDropdownOpen(false);
     }
   };
 
   const handleSelectCategory = (subcat) => {
-    navigate(`/search?q=${encodeURIComponent(subcat)}&type=Produits`);
+    navigate(`/search?q=${encodeURIComponent(subcat)}`);
   };
 
   // const handleBack = () => {
@@ -64,30 +68,40 @@ export default function TopBar({ backTo, backLabel = 'Retour', onBack }) {
         </div>
 
         <div className="flex-1 max-w-[680px]">
-          <form
-            onSubmit={handleSearch}
-            className="flex bg-white rounded overflow-hidden"
-          >
-            <button
-              type="button"
-              onClick={() => setCategoryModalOpen(true)}
-              className="px-3 text-[13px] text-gray-700 border-r border-gray-200 flex items-center gap-1 bg-gray-100 whitespace-nowrap cursor-pointer hover:bg-gray-200 transition-colors"
+          <div className="relative">
+            <form
+              onSubmit={handleSearch}
+              className="flex bg-white rounded overflow-hidden"
             >
-              Toutes catégories <ChevronDown size={12} />
-            </button>
-            <input
-              className="flex-1 border-none outline-none px-3.5 py-2.5 text-[14px] text-gray-800"
-              placeholder="Rechercher des produits..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              <button
+                type="button"
+                onClick={() => setCategoryModalOpen(true)}
+                className="px-3 text-[13px] text-gray-700 border-r border-gray-200 flex items-center gap-1 bg-gray-100 whitespace-nowrap cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                Toutes catégories <ChevronDown size={12} />
+              </button>
+              <input
+                className="flex-1 border-none outline-none px-3.5 py-2.5 text-[14px] text-gray-800"
+                placeholder="Rechercher des produits..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchDropdownOpen(true)}
+              />
+              <button
+                type="submit"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-5 text-[15px] transition-colors"
+              >
+                <Search size={16} />
+              </button>
+            </form>
+            <SearchDropdown
+              query={searchQuery}
+              onQueryChange={(q) => setSearchQuery(q)}
+              onSubmit={(q) => handleSearch(null, q)}
+              isOpen={searchDropdownOpen}
+              onClose={() => setSearchDropdownOpen(false)}
             />
-            <button
-              type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white px-5 text-[15px] transition-colors"
-            >
-              <Search size={16} />
-            </button>
-          </form>
+          </div>
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
@@ -239,7 +253,7 @@ export default function TopBar({ backTo, backLabel = 'Retour', onBack }) {
           })}
 
           <button
-            onClick={() => setCartOpen(!cartOpen)}
+            onClick={() => navigate('/cart')}
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-white rounded hover:bg-white/10 transition-colors relative"
           >
             <ShoppingCart size={18} className="text-orange-300" />

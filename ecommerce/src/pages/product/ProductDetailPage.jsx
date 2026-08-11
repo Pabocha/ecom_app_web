@@ -3,9 +3,10 @@ import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount } fr
 import { buildDetailFromApi, getOptionsAtLevel, getHexForOption, getLeafVariant, updateLevelSelection } from '@/features/product/utils/helpers.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import ProductSkeleton from '@/features/product/components/ProductSkeleton.jsx';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
-import { useProductGallery, useProductDetailShop, useRecommendations } from '@/features/product/hooks/useProduct';
+import { useProductDetailShop, useRecommendations } from '@/features/product/hooks/useProduct';
 
 const TABS = ["Description", "Caractéristiques", "Prix volume", "Avis", "Questions"];
 const RATING_BG = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-500"];
@@ -14,7 +15,7 @@ function RatingStars({ rating }) {
   return <span className="flex items-center gap-0.5">{Array.from({ length: 5 }, (_, i) => <Star key={i} size={15} className={i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-200'} fill={i < Math.floor(rating) ? 'currentColor' : 'none'} />)}</span>;
 }
 
-export default function ProductDetailPage({ product, onClose, onAddToCart, onOpenProduct, onOpenShop }) {
+export default function ProductDetailPage({ product, onClose, onAddToCart, addingId, onOpenProduct, onOpenShop }) {
   const [tab, setTab] = useState(TABS[0]);
   const [selImg, setSelImg] = useState(null);
   const [selIndices, setSelIndices] = useState([0]);
@@ -23,11 +24,12 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   const [favorite, setFavorite] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // MODIFICATION ICI — product est maintenant le produit dynamique (API) passé par le routeur
-  const { data: productGalleryRes, isPending: productGalleryLoading } = useProductGallery(product?.id)
+  useEffect(() => {
+    setSelImg(null);
+  }, [product?.id]);
+
   const { data: detailShopRes, isPending: detailShopLoading } = useProductDetailShop(product?.shop)
-  
-  const productGallery = productGalleryRes?.data?.results || productGalleryRes?.data || [];
+
   const detailShop = detailShopRes?.data?.results || detailShopRes?.data || {};
 
   // MODIFICATION ICI — Recommandations dynamiques (context: product_detail)
@@ -72,7 +74,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
   };
 
   const mainImage = selImg !== null 
-  ? productGallery[selImg]?.image 
+  ? product?.galerie_images?.[selImg]?.image 
   : (product?.image);
 
   const afterAdd = () => {
@@ -130,17 +132,15 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
             )}
 
             {/* 2. LES IMAGES SECONDAIRES DE LA GALERIE */}
-            {productGalleryLoading ? (
-              Array.from({ length: 4 }, (_, i) => <div key={i} className="bg-gray-200 rounded-lg h-20 animate-pulse" />)
-            ) : (Array.isArray(productGallery) && productGallery.slice(0, 4).map((img, i) => (
+            {Array.isArray(product?.galerie_images) && product.galerie_images.slice(0, 4).map((img, i) => (
               <button 
-                key={img.id || i} 
+                key={i} 
                 onClick={() => setSelImg(i)}
                 className={`rounded-lg overflow-hidden border-2 transition-all ${selImg === i ? 'border-orange-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
                 <img src={img.image} alt="" className="w-full h-20 object-cover" />
               </button>
-            )))}
+            ))}
           </div>
 
           {/* Tabs */}
@@ -280,8 +280,8 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
                 <span className="px-4 py-2.5 text-[14px] font-black border-x border-gray-200">{qty}</span>
                 <button onClick={() => setQty(qty + 1)} className="px-3 py-2.5 text-gray-500 hover:text-orange-500 font-bold">+</button>
               </div>
-              <button onClick={afterAdd} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded text-[14px] font-black transition-colors flex items-center justify-center gap-2" disabled={detail.stock === 0}>
-                <ShoppingCart size={16} /> Ajouter
+              <button onClick={afterAdd} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded text-[14px] font-black transition-colors flex items-center justify-center gap-2" disabled={detail.stock === 0 || addingId === product?.id}>
+                {addingId === product?.id ? <LoadingSpinner size={16} className="text-white" /> : <><ShoppingCart size={16} /> Ajouter</>}
               </button>
               <button onClick={handleBuyNow} className="bg-[#0d1b2a] hover:bg-[#1a2e45] text-white py-3 px-5 rounded text-[14px] font-black transition-colors flex items-center justify-center gap-2 shrink-0" disabled={detail.stock === 0}>
                 <Zap size={16} /> Acheter
@@ -355,7 +355,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, onOpe
           <div className="bg-white rounded-lg shadow-sm p-5">
             <div className="font-['Barlow_Condensed'] text-[20px] font-black text-[#0d1b2a] mb-4">Vous aimerez aussi</div>
             <div className="grid grid-cols-5 gap-2.5">
-              {recommendedProducts.slice(0, 5).map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} />)}
+              {recommendedProducts.slice(0, 5).map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} addingId={addingId} />)}
             </div>
           </div>
         </div>

@@ -18,7 +18,7 @@ import ProductRecommended from "@/features/product/components/ProductRecommended
 import TrustStrip from "@/features/home/components/TrustStrip.jsx";
 
 export default function HomePage() {
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
   const navigate = useNavigate();
 
   const { data: popularRes, isLoading: popularLoading } = useProducts({
@@ -36,7 +36,7 @@ export default function HomePage() {
   const handleOpenProduct = (product) => navigate(`/product/${product.id}`);
   const handleOpenFlashDeals = () => navigate("/flash-deals");
   const handleOpenCategory = (category) =>
-    navigate(`/category/${category?.name || category}`);
+    navigate(`/category/${category?.slug || category}`);
 
   return (
     <div className="max-w-[1300px] mx-auto px-4 py-3 space-y-3">
@@ -59,12 +59,14 @@ export default function HomePage() {
         sectionBadge="hot"
         onAddToCart={handleAddToCart}
         onOpenProduct={handleOpenProduct}
+        addingId={addingId}
       />
       <ProductRecommended
         products={recommendedProducts}
         loading={recomLoading}
         onAddToCart={handleAddToCart}
         onOpenProduct={handleOpenProduct}
+        addingId={addingId}
       />
       <B2BSection />
       <TrustStrip />

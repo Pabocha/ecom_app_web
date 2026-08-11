@@ -21,7 +21,7 @@ function defaultVariantSelection(product) {
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { cartItems, changeQty, removeItem, addToCart, isPending } = useCart();
+  const { cartItems, changeQty, removeItem, addToCart, isPending, addingId } = useCart();
   const [selectedPayment, setSelectedPayment] = useState('wave');
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantSelection, setVariantSelection] = useState({});
@@ -68,7 +68,7 @@ export default function CartPage() {
       setVariantSelection(defaultVariantSelection(product));
       return;
     }
-    addToCart(product, false);
+    addToCart(product);
   };
 
   const toggleSelectAll = () => {
@@ -114,7 +114,7 @@ export default function CartPage() {
       cartKey: `${variantProduct.id}-${Object.values(variantSelection).join('-')}`,
       name: `${variantProduct.name} (${label})`,
       selectedVariants: variantSelection,
-    }, false);
+    });
     setVariantProduct(null);
     setVariantSelection({});
   };
@@ -168,7 +168,7 @@ export default function CartPage() {
               </div>
               <span className="rounded bg-orange-50 px-3 py-1 text-[12px] font-black text-orange-500">Ajout rapide</span>
             </div>
-            <CartRecommendations products={recommendedProducts} onProductClick={(id) => navigate(`/product/${id}`)} onAddToCart={addRecommendedProduct} />
+            <CartRecommendations products={recommendedProducts} onProductClick={(id) => navigate(`/product/${id}`)} onAddToCart={addRecommendedProduct} addingId={addingId} />
           </section>
         </main>
 

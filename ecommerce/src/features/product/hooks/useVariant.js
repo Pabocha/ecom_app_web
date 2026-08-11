@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { productService } from '@/features/product/services/productService';
 import { cartService } from '@/features/cart/services/cartService';
-import { useCartStore } from '@/stores/cartStore';
 import { useVariantStore } from '@/stores/variantStore';
 import { collectVariantMap, findLeafBySelection } from '@/features/product/utils/helpers';
 import { CART_ITEMS_QUERY_KEY } from '@/features/cart/hooks/cartQueryKeys';
@@ -59,7 +58,6 @@ export function useVariantActions() {
     // Appel API pour ajouter au panier
     cartService.addCartItems({ variant: leaf?.id, quantity: 1 });
     queryClient.invalidateQueries({ queryKey: CART_ITEMS_QUERY_KEY });
-    useCartStore.getState().setCartOpen(true);
     state.close();
   }, [queryClient]);
 

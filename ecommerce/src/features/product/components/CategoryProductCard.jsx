@@ -12,6 +12,7 @@ export default function CategoryProductCard({ product, onProductClick, onAddToCa
       <div className="pt-3">
         <div className="mb-1 text-[11px] font-bold text-orange-500">{product.subcat}</div>
         <h3 className="min-h-[40px] text-[14px] font-black leading-tight text-[#0d1b2a]">{product.name}</h3>
+        <p className="text-[12px] text-gray-400 line-clamp-2 mt-1 leading-snug">{product.description}</p>
         <div className="mt-2 flex items-center gap-1 text-[11px] text-gray-400">
           <span className="text-yellow-400">{'★'.repeat(Math.floor(product.rating))}</span>
           <span>({product.reviews?.toLocaleString()})</span>

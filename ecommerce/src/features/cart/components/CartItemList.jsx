@@ -1,5 +1,6 @@
 import { formatPrice } from '@/utils/helpers';
-import { Loader, ShoppingCart, Trash2 } from 'lucide-react';
+import { ShoppingCart, Trash2 } from 'lucide-react';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 function variantLabel(selection) {
   return Object.entries(selection).map(([key, value]) => `${key}: ${value}`).join(' · ');
@@ -49,7 +50,7 @@ export default function CartItemList({ items, totalQty, onQty, onRemove, onItemC
             <div className="mt-3 flex items-center gap-2">
               <button onClick={() => onQty(itemKey, -1)} disabled={isLoading} className="h-8 w-8 rounded border border-gray-200 font-black hover:border-orange-400 hover:text-orange-500 disabled:opacity-40">−</button>
               {isLoading ? (
-                <Loader size={16} className="animate-spin text-orange-500 mx-3" />
+                <LoadingSpinner size={16} className="mx-3" />
               ) : (
                 <span className="h-8 min-w-10 rounded bg-gray-50 px-3 text-center text-[14px] font-black leading-8">{item.qty}</span>
               )}

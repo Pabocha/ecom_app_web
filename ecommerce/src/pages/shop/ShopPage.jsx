@@ -9,7 +9,7 @@ import { BadgeCheck, Building2, Package, ShoppingBag, Users, Star, Mail, Phone, 
 export default function ShopPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
 
   const { data: shopRes } = useProductDetailShop(id);
   const shop = shopRes?.data?.results || shopRes?.data || {};
@@ -112,8 +112,9 @@ export default function ShopPage() {
                 <ProductCard
                   key={p.id}
                   product={p}
-                  onAddToCart={(prod) => addToCart(prod, false)}
+                  onAddToCart={(prod) => addToCart(prod)}
                   onOpenProduct={(prod) => navigate(`/product/${prod.id}`)}
+                  addingId={addingId}
                 />
               ))}
             </div>

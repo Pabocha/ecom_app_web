@@ -1,5 +1,6 @@
 import { BadgeCheck, Heart, ShoppingCart, Star } from 'lucide-react';
 import * as helpers from '@/utils/helpers.js';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const badgeStyles = {
   sale: 'bg-red-500',
@@ -20,10 +21,11 @@ function getStarFill(rating, index) {
   return Math.min(Math.max(rating - index, 0), 1) * 100;
 }
 
-export default function ProductCard({ product, sectionBadge, onAddToCart, onOpenProduct }) {
+export default function ProductCard({ product, sectionBadge, onAddToCart, onOpenProduct, addingId }) {
   const rating = getRating(product.average_rating);
   const pricing = helpers.getProductPricing(product);
   const badges = helpers.getProductBadges(product, sectionBadge);
+  const isAdding = addingId === product.id;
 
   return (
     <div
@@ -59,6 +61,7 @@ export default function ProductCard({ product, sectionBadge, onAddToCart, onOpen
       {/* Info */}
       <div className="p-2.5 flex-1 flex flex-col">
         <div title={product.name} className="text-[13px] font-semibold text-[#0d1b2a] leading-tight mb-1 truncate">{product.name}</div>
+        <p className="text-[12px] text-gray-400 line-clamp-2 mb-1 leading-snug">{product.description}</p>
         <div className="flex items-baseline gap-1.5 mb-1">
           <span className={`font-['Barlow_Condensed'] font-black text-orange-500 ${pricing.type === 'tiers' ? 'text-[15px]' : 'text-[17px]'}`}>
             {pricing.mainPrice}
@@ -92,9 +95,14 @@ export default function ProductCard({ product, sectionBadge, onAddToCart, onOpen
       {/* Add to cart - appears on hover */}
       <button
         onClick={e => { e.stopPropagation(); onAddToCart(product); }}
-        className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white text-[12px] font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1.5"
+        disabled={isAdding}
+        className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white text-[12px] font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <ShoppingCart size={14} /> Ajouter au panier
+        {isAdding ? (
+          <LoadingSpinner size={14} className="text-white" />
+        ) : (
+          <><ShoppingCart size={14} /> Ajouter au panier</>
+        )}
       </button>
     </div>
   );

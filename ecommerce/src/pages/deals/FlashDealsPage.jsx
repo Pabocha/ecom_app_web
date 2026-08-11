@@ -5,9 +5,11 @@ import { allFlashDeals, flashDealCategories } from '@/data/data.js';
 import { formatPrice, filterAndSortDeals, normalizeDeal } from '@/utils/helpers';
 import { Bolt } from 'lucide-react';
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
 export default function FlashDealsPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('urgent');
 
@@ -73,8 +75,8 @@ export default function FlashDealsPage() {
                       <div className="font-['Barlow_Condensed'] text-[26px] font-black text-red-600">{formatPrice(deal.price)}</div>
                       <div className="text-[12px] text-gray-400 line-through">{formatPrice(deal.oldPrice)}</div>
                     </div>
-                    <button onClick={e => { e.stopPropagation(); addToCart(product); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-red-600">
-                      Ajouter
+                    <button onClick={e => { e.stopPropagation(); addToCart(deal); }} disabled={addingId === deal.id} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      {addingId === deal.id ? <LoadingSpinner size={12} className="text-white" /> : 'Ajouter'}
                     </button>
                   </div>
                   <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">

@@ -1,8 +1,9 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useCart } from "@/features/cart/hooks/useCart";
-import { useProduct } from "@/features/product/hooks/useProduct";
+import { useProduct, useAddRecentlyViewed } from "@/features/product/hooks/useProduct";
 import { useUIStore } from "@/stores/uiStore";
 import { USER_ROLES } from "@/types";
 import { orderService } from "@/features/order/services/orderService";
@@ -53,16 +54,24 @@ function PrivateRoute({ children, role }) {
 function ProductDetailRoute() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
+  const { mutate: addRecentlyViewed } = useAddRecentlyViewed();
 
   const { data: productRes } = useProduct(id);
   const product = productRes?.data?.results || productRes?.data || null;
+
+  useEffect(() => {
+    if (product?.id) {
+      addRecentlyViewed(product.id);
+    }
+  }, [product?.id, addRecentlyViewed]);
 
   return (
     <ProductDetailPage
       product={product}
       onClose={() => navigate(-1)}
-      onAddToCart={(p) => addToCart(p, true)}
+      onAddToCart={(p) => addToCart(p)}
+      addingId={addingId}
       onOpenProduct={(p) => navigate(`/product/${p.id}`)}
       onOpenShop={(shopId) => navigate(`/shop/${shopId}`)}
     />
@@ -111,7 +120,6 @@ export const routes = [
       { path: "/seller-center", element: <PrivateRoute role={USER_ROLES.CUSTOMER}><SellerCenterPage /></PrivateRoute> },
       { path: "/seller-registration", element: <PrivateRoute><SellerRegistrationPage /></PrivateRoute> },
 
-      { path: "/search", element: <SearchResultsPage /> },
       { path: "/all-products", element: <AllProductsPage /> },
       { path: "/b2b", element: <B2BPage /> },
 
@@ -135,7 +143,8 @@ export const routes = [
       { path: "/checkout", element: <PrivateRoute><CheckoutPage /></PrivateRoute> },
       { path: "/order-success", element: <SuccessPage /> },
       { path: "/categories", element: <AllCategoriesPage /> },
-      { path: "/category/:id", element: <CategoryProductsPage /> },
+      { path: "/category/:slug", element: <CategoryProductsPage /> },
+      { path: "/search", element: <SearchResultsPage /> },
       { path: "/product/:id", element: <ProductDetailRoute /> },
       { path: "/shop/:id", element: <ShopPage /> },
 

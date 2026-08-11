@@ -10,7 +10,7 @@ const categories = ['Tous', ...new Set(Object.keys(categoryProducts))];
 
 export default function AllProductsPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('popular');
   const [view, setView] = useState('grid');
@@ -88,6 +88,7 @@ export default function AllProductsPage() {
                 product={p}
                 onAddToCart={() => addToCart(p)}
                 onOpenProduct={() => navigate(`/product/${p.id}`)}
+                addingId={addingId}
               />
             ))}
           </div>
@@ -122,9 +123,10 @@ export default function AllProductsPage() {
                   </div>
                   <button
                     onClick={e => { e.stopPropagation(); addToCart(p); }}
-                    className="mt-2 w-fit rounded bg-orange-500 hover:bg-orange-600 px-4 py-1.5 text-[12px] font-bold text-white transition-colors"
+                    disabled={addingId === p.id}
+                    className="mt-2 w-fit rounded bg-orange-500 hover:bg-orange-600 px-4 py-1.5 text-[12px] font-bold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Ajouter au panier
+                    {addingId === p.id ? 'Ajout...' : 'Ajouter au panier'}
                   </button>
                 </div>
               </div>

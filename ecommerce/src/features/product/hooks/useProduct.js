@@ -61,12 +61,25 @@ export function useProductDetailShop(shopId) {
   })
 }
 
-// # ---------------- praties images product
-
-export function useProductGallery(id) {
+export function useRecentlyViewed() {
   return useQuery({
-    queryKey: ["product-gallery", id],
-    queryFn: () => productService.getProductGallery(id),
-    enabled: !!id,
-  })
+    queryKey: ["recently-viewed"],
+    queryFn: () => productService.getRecentlyViewed(),
+    staleTime: 1000 * 60 * 2,
+    retry: 1,
+  });
+}
+
+export function useAddRecentlyViewed() {
+  return useMutation({
+    mutationFn: (productId) => productService.addRecentlyViewed(productId),
+  });
+}
+
+export function useProductsByCategorySlug(slug) {
+  return useQuery({
+    queryKey: ["products-by-category-slug", slug],
+    queryFn: () => productService.getProductsByCategorySlug(slug),
+    enabled: !!slug,
+  });
 }

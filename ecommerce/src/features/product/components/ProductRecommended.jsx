@@ -4,7 +4,7 @@ import ProductCard from '@/features/product/components/ProductCard.jsx';
 
 const BATCH_SIZE = 10;
 
-export default function ProductRecommended({ products, loading, onAddToCart, onOpenProduct }) {
+export default function ProductRecommended({ products, loading, onAddToCart, onOpenProduct, addingId }) {
   const [page, setPage] = useState(1);
   const sentinelRef = useRef(null);
 
@@ -82,6 +82,7 @@ export default function ProductRecommended({ products, loading, onAddToCart, onO
             product={p}
             onAddToCart={onAddToCart}
             onOpenProduct={onOpenProduct}
+            addingId={addingId}
           />
         ))}
       </div>

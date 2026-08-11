@@ -4,9 +4,11 @@ import { allFlashDeals } from '@/data/data.js';
 import { formatPrice } from '@/utils/helpers';
 import { Tag } from 'lucide-react';
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
 export default function DealsPage() {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, addingId } = useCart();
 
   return (
     <div className="min-h-screen bg-gray-100 pb-12">
@@ -36,8 +38,8 @@ export default function DealsPage() {
                     <div className="font-['Barlow_Condensed'] text-[26px] font-black text-blue-600">{formatPrice(deal.price)}</div>
                     <div className="text-[12px] text-gray-400 line-through">{formatPrice(deal.oldPrice || deal.price * 1.45)}</div>
                   </div>
-                  <button onClick={e => { e.stopPropagation(); addToCart({ ...deal, badges: ['sale'] }); }} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-blue-600">
-                    Ajouter
+                  <button onClick={e => { e.stopPropagation(); addToCart({ ...deal, badges: ['sale'] }); }} disabled={addingId === deal.id} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                    {addingId === deal.id ? <LoadingSpinner size={12} className="text-white" /> : 'Ajouter'}
                   </button>
                 </div>
               </div>

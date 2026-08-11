@@ -46,7 +46,7 @@ export const sideBanners = [
 
 export const categories = [
   {
-    name: "Électronique", icon: "microchip", bg: "#e8f0ff", color: "#1677ff",
+    name: "Électronique", icon: "microchip", bg: "#e8f0ff", color: "#1677ff", slug: "electronique",
     img: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=600&q=80",
     desc: "Smartphones, laptops, TV, audio & accessoires tech",
     badge: "Hot", badgeColor: "bg-orange-500",
@@ -54,7 +54,7 @@ export const categories = [
     subcats: ["Smartphones", "Laptops", "TV & Écrans", "Audio", "Accessoires", "Caméras"],
   },
   {
-    name: "Mode & Vêtements", icon: "shirt", bg: "#fff0f5", color: "#e02080",
+    name: "Mode & Vêtements", icon: "shirt", bg: "#fff0f5", color: "#e02080", slug: "mode-vetements",
     img: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=600&q=80",
     desc: "Homme, femme, enfant — Collections locales et importées",
     badge: "Tendance", badgeColor: "bg-pink-500",
@@ -62,7 +62,7 @@ export const categories = [
     subcats: ["Homme", "Femme", "Enfant", "Chaussures", "Sacs", "Bijoux"],
   },
   {
-    name: "Maison & Jardin", icon: "house", bg: "#f0fff4", color: "#00a046",
+    name: "Maison & Jardin", icon: "house", bg: "#f0fff4", color: "#00a046", slug: "maison-jardin",
     img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
     desc: "Mobilier, déco, literie, cuisine et jardin",
     badge: "Nouveau", badgeColor: "bg-green-600",
@@ -70,7 +70,7 @@ export const categories = [
     subcats: ["Mobilier", "Décoration", "Cuisine", "Literie", "Jardin", "Éclairage"],
   },
   {
-    name: "Auto & Moto", icon: "car", bg: "#fff8e8", color: "#f5a623",
+    name: "Auto & Moto", icon: "car", bg: "#fff8e8", color: "#f5a623", slug: "auto-moto",
     img: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&q=80",
     desc: "Pièces détachées, accessoires et équipements auto",
     badge: "", badgeColor: "",
@@ -78,7 +78,7 @@ export const categories = [
     subcats: ["Pièces détachées", "Accessoires", "Pneus", "Entretien", "GPS", "Motos"],
   },
   {
-    name: "Beauté & Santé", icon: "heartPulse", bg: "#fef0f0", color: "#e02020",
+    name: "Beauté & Santé", icon: "heartPulse", bg: "#fef0f0", color: "#e02020", slug: "beaute-sante",
     img: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80",
     desc: "Soins, cosmétiques, bien-être et produits de santé",
     badge: "", badgeColor: "",
@@ -86,7 +86,7 @@ export const categories = [
     subcats: ["Soins visage", "Parfums", "Maquillage", "Cheveux", "Santé", "Sport"],
   },
   {
-    name: "Industrie & B2B", icon: "industry", bg: "#f0f4ff", color: "#2d5be3",
+    name: "Industrie & B2B", icon: "industry", bg: "#f0f4ff", color: "#2d5be3", slug: "industrie-b2b",
     img: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=80",
     desc: "Machines, outillage, matières premières en gros",
     badge: "B2B", badgeColor: "bg-blue-600",
@@ -94,7 +94,7 @@ export const categories = [
     subcats: ["Machines", "Outillage", "Emballage", "Matières premières", "BTP", "Énergie"],
   },
   {
-    name: "Alimentation", icon: "shoppingBasket", bg: "#f5fff0", color: "#3aa300",
+    name: "Alimentation", icon: "shoppingBasket", bg: "#f5fff0", color: "#3aa300", slug: "alimentation",
     img: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80",
     desc: "Produits locaux, importés, bio et épicerie en gros",
     badge: "Local", badgeColor: "bg-green-500",
@@ -102,7 +102,7 @@ export const categories = [
     subcats: ["Épicerie", "Frais", "Bio", "Boissons", "Surgelés", "Gros"],
   },
   {
-    name: "Sports & Loisirs", icon: "dumbbell", bg: "#fff5e8", color: "#ff6a00",
+    name: "Sports & Loisirs", icon: "dumbbell", bg: "#fff5e8", color: "#ff6a00", slug: "sports-loisirs",
     img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600&q=80",
     desc: "Équipements sportifs, fitness, plein air et loisirs",
     badge: "", badgeColor: "",

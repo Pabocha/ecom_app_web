@@ -7,23 +7,18 @@ import AnnouncementBar from '@/layouts/AnnouncementBar';
 import TopNav from '@/layouts/TopNav';
 import SubNav from '@/layouts/SubNav';
 import Footer from '@/layouts/Footer';
-import CartSidebar from '@/features/cart/components/CartSidebar';
 import VariantModal from '@/components/VariantModal';
 import LoginModal from '@/features/auth/components/LoginModal';
 import { useVariantStore } from '@/stores/variantStore';
 
 export function BasicLayout() {
   const navigate = useNavigate();
-  const { cartCount, cartOpen, setCartOpen, cartItems, changeQty, removeItem, isPending } = useCart();
+  const { cartCount } = useCart();
   const { user } = useAuth();
 
-  // AJOUT — Vérifier session au load via cookie HttpOnly
   useCheckAuth();
 
-  // MODIFICATION ICI — Logout via API pour supprimer le cookie HttpOnly
   const { logout } = useLogout();
-
-  // MODIFICATION ICI — Hook pour la confimation variante (logique métier)
   const { confirmVariant } = useVariantActions();
 
   return (
@@ -31,7 +26,6 @@ export function BasicLayout() {
       <AnnouncementBar />
       <TopNav
         cartCount={cartCount}
-        onCartOpen={() => setCartOpen(true)}
         user={user}
         onLogout={logout}
       />
@@ -43,20 +37,6 @@ export function BasicLayout() {
 
       <Footer />
 
-      <CartSidebar
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        items={cartItems}
-        onQty={changeQty}
-        onRemove={removeItem}
-        isPending={isPending}
-        onOpenCartPage={() => {
-          setCartOpen(false);
-          navigate('/cart');
-        }}
-      />
-
-      {/* MODIFICATION ICI — Modal globale avec raw (arbre dynamique) + loading */}
       {
         (() => {
           const variantProduct = useVariantStore(state => state.product);
@@ -89,7 +69,6 @@ export function BasicLayout() {
         })()
       }
 
-      {/* AJOUT — Modal de connexion */}
       <LoginModal />
     </div>
   );

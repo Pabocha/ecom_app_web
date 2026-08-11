@@ -10,7 +10,8 @@ export const productService = {
     getProductVariant: (id) => api.get(`/v1/products/${id}/variants-list/`),
     getProductDetailShop: (shopId) => api.get(`/v1/shop/${shopId}/public-detail/`),
 
-    // # ---------------- praties images product
-    getProductGallery: (id) => api.get(`/v1/products/${id}/gallery/`)
+    getRecentlyViewed: () => api.get('/v1/products/recently-viewed/'),
+    addRecentlyViewed: (productId) => api.post('/v1/products/recently-viewed/', { product: productId }),
 
+    getProductsByCategorySlug: (slug) => api.get(`/v1/products/by-category-slug/${slug}/`),
 }

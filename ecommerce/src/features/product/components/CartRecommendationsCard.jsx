@@ -1,10 +1,11 @@
 import { getProductPricing } from '@/utils/helpers';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 function hasVariants(product) {
   return product.has_variant || (product.variants && Object.keys(product.variants).length > 0);
 }
 
-export default function CartRecommendationsCard({ product, onProductClick, onAddToCart }) {
+export default function CartRecommendationsCard({ product, onProductClick, onAddToCart, addingId }) {
   const pricing = getProductPricing(product);
 
   return (
@@ -24,8 +25,8 @@ export default function CartRecommendationsCard({ product, onProductClick, onAdd
             <div className="font-['Barlow_Condensed'] text-[22px] font-black text-orange-500">{pricing.mainPrice}</div>
             {pricing.oldPrice && <div className="text-[11px] text-gray-400 line-through">{pricing.oldPrice}</div>}
           </div>
-          <button onClick={() => onAddToCart(product)} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-orange-500">
-            Ajouter
+          <button onClick={() => onAddToCart(product)} disabled={addingId === product.id} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            {addingId === product.id ? <LoadingSpinner size={12} className="text-white" /> : 'Ajouter'}
           </button>
         </div>
       </div>

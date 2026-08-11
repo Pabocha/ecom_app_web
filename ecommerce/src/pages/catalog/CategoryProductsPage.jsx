@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { categories, categoryProducts, featuredProducts } from '@/data/data.js';
-import { Car, Dumbbell, Factory, HeartPulse, House, Microchip, Shirt, ShoppingBasket } from 'lucide-react';
+import { categories } from '@/data/data.js';
+import { useProductsByCategorySlug } from '@/features/product/hooks/useProduct';
+import { Car, Dumbbell, Factory, HeartPulse, House, Microchip, Shirt, ShoppingBasket, Loader2 } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
 import CategoryProductCard from '@/features/product/components/CategoryProductCard';
 import { filterAndSortProducts } from '@/utils/helpers';
@@ -19,31 +20,28 @@ const catIcons = {
 };
 
 export default function CategoryProductsPage() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [activeSubcat, setActiveSubcat] = useState('Tous');
   const [sort, setSort] = useState('popular');
-  const currentCategory = categories.find(c => c.name === id) || categories[0];
+
+  const currentCategory = categories.find(c => c.slug === slug) || categories[0];
+  const { data: apiProducts, isLoading } = useProductsByCategorySlug(slug);
 
   const handleClose = () => navigate('/');
-  const handleOpenCategory = (category) => navigate(`/category/${category?.name || category}`);
+  const handleOpenCategory = (category) => navigate(`/category/${category.slug}`);
   const handleOpenProduct = (product) => navigate(`/product/${product.id}`);
 
   const CurrentCategoryIcon = catIcons[currentCategory.icon] || Microchip;
 
-  const products = useMemo(() => {
-    const base = categoryProducts[currentCategory.name] || fallbackProducts(currentCategory);
-    return filterAndSortProducts(base, { activeSubcat, sort });
-  }, [activeSubcat, currentCategory, sort]);
+  const products = apiProducts?.data
+    ? filterAndSortProducts(apiProducts.data, { activeSubcat, sort })
+    : [];
 
-  function fallbackProducts(category) {
-    return featuredProducts.map((product, index) => ({
-      ...product,
-      id: Number(`${category.name.length}${product.id}${index}`),
-      subcat: category.subcats[index % category.subcats.length],
-    }));
-  }
+  const handleSubcatClick = (subcat) => {
+    setActiveSubcat(subcat);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 pb-14">
@@ -54,7 +52,7 @@ export default function CategoryProductsPage() {
           <div className="bg-white rounded-lg p-3 shadow-sm">
             <div className="text-[12px] font-black text-[#0d1b2a] mb-2 uppercase">Rayons</div>
             {['Tous', ...currentCategory.subcats].map(subcat => (
-              <button key={subcat} onClick={() => setActiveSubcat(subcat)} className={`w-full text-left px-3 py-2 rounded text-[13px] font-semibold transition-colors ${activeSubcat === subcat ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-orange-50 hover:text-orange-500'}`}>
+              <button key={subcat} onClick={() => handleSubcatClick(subcat)} className={`w-full text-left px-3 py-2 rounded text-[13px] font-semibold transition-colors ${activeSubcat === subcat ? 'bg-orange-500 text-white' : 'text-gray-600 hover:bg-orange-50 hover:text-orange-500'}`}>
                 {subcat}
               </button>
             ))}
@@ -63,10 +61,10 @@ export default function CategoryProductsPage() {
           <div className="bg-white rounded-lg p-3 shadow-sm">
             <div className="text-[12px] font-black text-[#0d1b2a] mb-2 uppercase">Autres catégories</div>
             <div className="grid gap-1">
-              {categories.filter(c => c.name !== currentCategory.name).slice(0, 5).map(c => {
+              {categories.filter(c => c.slug !== slug).slice(0, 5).map(c => {
                 const SideIcon = catIcons[c.icon] || Microchip;
                 return (
-                  <button key={c.name} onClick={() => handleOpenCategory(c)} className="flex items-center gap-2 px-2 py-2 rounded text-[12px] font-bold text-gray-500 hover:bg-gray-50 hover:text-orange-500">
+                  <button key={c.slug} onClick={() => handleOpenCategory(c)} className="flex items-center gap-2 px-2 py-2 rounded text-[12px] font-bold text-gray-500 hover:bg-gray-50 hover:text-orange-500">
                     <SideIcon size={14} style={{ color: c.color }} /> {c.name}
                   </button>
                 );
@@ -96,11 +94,19 @@ export default function CategoryProductsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            {products.map(product => (
-              <CategoryProductCard key={product.id} product={product} onProductClick={handleOpenProduct} onAddToCart={addToCart} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="animate-spin text-orange-500" size={32} />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-20 text-gray-500 font-semibold">Aucun produit trouvé</div>
+          ) : (
+            <div className="grid grid-cols-3 gap-4">
+              {products.map(product => (
+                <CategoryProductCard key={product.id} product={product} onProductClick={handleOpenProduct} onAddToCart={addToCart} />
+              ))}
+            </div>
+          )}
         </main>
       </div>
     </div>

@@ -141,14 +141,6 @@ export const featuredProducts = [
   { id: 10, name: "Casque Audio Sony WH-1000XM5 ANC", price: 199000, oldPrice: 259000, img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80", rating: 4.9, reviews: 3456, supplier: "AudioPro Africa", verified: true, badges: ["hot"], discount: "-23%" },
 ];
 
-export const flashDeals = [
-  { id: 101, name: "Climatiseur Inverter 1.5T", price: 189000, img: "https://images.unsplash.com/photo-1581275326027-70a63f1a5b58?w=300&q=80", discount: "-45%", sold: 72 },
-  { id: 102, name: "TV 55\" 4K QLED Samsung", price: 399000, img: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&q=80", discount: "-38%", sold: 85 },
-  { id: 103, name: "KitchenAid Artisan 4.8L", price: 299000, img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&q=80", discount: "-30%", sold: 60 },
-  { id: 104, name: "Imprimante HP LaserJet Pro", price: 89000, img: "https://images.unsplash.com/photo-1612198527481-c2f7e8fc0e7c?w=300&q=80", discount: "-52%", sold: 91 },
-  { id: 105, name: "Trottinette Électrique Xiaomi", price: 169000, img: "https://images.unsplash.com/photo-1621671282019-c3d04e2db0e3?w=300&q=80", discount: "-35%", sold: 78 },
-];
-
 export const b2bProducts = [
   { id: 201, name: "Machines à Coudre Industrielles x50", company: "Textilab China", price: "1 200 000 FCFA", moq: "MOQ: 10 unités", img: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=200&q=80", tags: ["Certifié ISO", "Livraison DDP", "Échantillon"] },
   { id: 202, name: "Panneaux Solaires 400W Mono PERC", company: "SolarTech Guangzhou", price: "85 000 FCFA/u", moq: "MOQ: 20 panneaux", img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=200&q=80", tags: ["CE/IEC Certifié", "Garantie 25ans"] },
@@ -219,25 +211,6 @@ export const buildDefaultDetail = (p) => ({
   supplier: { name: p.supplier, logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&q=80", location: "🇸🇳 Dakar, Sénégal", since: "2020", transactions: "3 200+", responseRate: "95%", responseTime: "< 4h", rating: p.rating },
 });
 
-// ── Extended Flash Deals (all deals page) ────────────────────
-export const allFlashDeals = [
-  { id: 101, name: "Climatiseur Inverter 1.5 Tonnes", price: 189000, oldPrice: 345000, img: "https://images.unsplash.com/photo-1581275326027-70a63f1a5b58?w=400&q=80", discount: "-45%", sold: 72, cat: "Maison", timeLeft: "02:14:38", rating: 4.6, reviews: 312 },
-  { id: 102, name: "TV Samsung 55\" 4K QLED", price: 399000, oldPrice: 645000, img: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400&q=80", discount: "-38%", sold: 85, cat: "Électronique", timeLeft: "01:08:22", rating: 4.8, reviews: 541 },
-  { id: 103, name: "KitchenAid Artisan 4.8L Rouge", price: 299000, oldPrice: 428000, img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80", discount: "-30%", sold: 60, cat: "Maison", timeLeft: "03:42:10", rating: 4.7, reviews: 198 },
-  { id: 104, name: "Imprimante HP LaserJet Pro M404", price: 89000, oldPrice: 185000, img: "https://images.unsplash.com/photo-1612198527481-c2f7e8fc0e7c?w=400&q=80", discount: "-52%", sold: 91, cat: "Électronique", timeLeft: "00:55:44", rating: 4.5, reviews: 267 },
-  { id: 105, name: "Trottinette Électrique Xiaomi Pro 2", price: 169000, oldPrice: 261000, img: "https://images.unsplash.com/photo-1621671282019-c3d04e2db0e3?w=400&q=80", discount: "-35%", sold: 78, cat: "Sports", timeLeft: "04:22:17", rating: 4.6, reviews: 422 },
-  { id: 106, name: "AirPods Pro 2ème Génération", price: 129000, oldPrice: 215000, img: "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400&q=80", discount: "-40%", sold: 94, cat: "Électronique", timeLeft: "00:33:05", rating: 4.9, reviews: 1832 },
-  { id: 107, name: "Nike Air Force 1 Homme — Blanc", price: 62000, oldPrice: 95000, img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80", discount: "-35%", sold: 68, cat: "Mode", timeLeft: "05:10:00", rating: 4.7, reviews: 934 },
-  { id: 108, name: "Cafetière De'Longhi Magnifica Evo", price: 349000, oldPrice: 549000, img: "https://images.unsplash.com/photo-1510017803434-a899398421b3?w=400&q=80", discount: "-36%", sold: 52, cat: "Maison", timeLeft: "02:58:30", rating: 4.8, reviews: 276 },
-  { id: 109, name: "Tablette Samsung Galaxy Tab S9", price: 299000, oldPrice: 459000, img: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&q=80", discount: "-35%", sold: 71, cat: "Électronique", timeLeft: "01:45:20", rating: 4.6, reviews: 388 },
-  { id: 110, name: "Parfum Dior Sauvage 100ml EDP", price: 89000, oldPrice: 148000, img: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=400&q=80", discount: "-40%", sold: 83, cat: "Beauté", timeLeft: "03:15:44", rating: 4.9, reviews: 1204 },
-  { id: 111, name: "Mixeur Blender Vitamix A3500", price: 219000, oldPrice: 365000, img: "https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=400&q=80", discount: "-40%", sold: 47, cat: "Maison", timeLeft: "06:20:00", rating: 4.8, reviews: 156 },
-  { id: 112, name: "Veste Bomber Cuir Homme — Noir", price: 45000, oldPrice: 89000, img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80", discount: "-49%", sold: 76, cat: "Mode", timeLeft: "02:05:18", rating: 4.5, reviews: 512 },
-  { id: 113, name: "Écouteurs Sony WF-1000XM5", price: 149000, oldPrice: 239000, img: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&q=80", discount: "-38%", sold: 89, cat: "Électronique", timeLeft: "01:22:05", rating: 4.8, reviews: 724 },
-  { id: 114, name: "Tapis Berbère 200×300cm", price: 95000, oldPrice: 189000, img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80", discount: "-50%", sold: 43, cat: "Maison", timeLeft: "07:44:10", rating: 4.4, reviews: 89 },
-  { id: 115, name: "Appareil Photo Sony Alpha 7 IV", price: 1299000, oldPrice: 1899000, img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80", discount: "-32%", sold: 31, cat: "Électronique", timeLeft: "00:48:55", rating: 4.9, reviews: 267 },
-];
- 
 // ── Category products (per category) ────────────────────────
 export const categoryProducts = {
   "Électronique": [
@@ -273,8 +246,6 @@ export const categoryProducts = {
     { id: 406, name: "Tondeuse Robot Bosch Indego", price: 459000, oldPrice: 599000, img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&q=80", rating: 4.6, reviews: 98, supplier: "GardenPro SN", verified: false, badge: "Promo", isNew: false, subcat: "Jardin" },
   ],
 };
- 
-export const flashDealCategories = ["Tous", "Électronique", "Mode", "Maison", "Beauté", "Sports"];
 
 export const cartRecommendations = [
   {

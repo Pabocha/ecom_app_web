@@ -61,7 +61,7 @@ export default function ProductCard({ product, sectionBadge, onAddToCart, onOpen
       {/* Info */}
       <div className="p-2.5 flex-1 flex flex-col">
         <div title={product.name} className="text-[13px] font-semibold text-[#0d1b2a] leading-tight mb-1 truncate">{product.name}</div>
-        <p className="text-[12px] text-gray-400 line-clamp-2 mb-1 leading-snug">{product.description}</p>
+        {/* <p className="text-[12px] text-gray-400 line-clamp-2 mb-1 leading-snug">{product.description}</p> */}
         <div className="flex items-baseline gap-1.5 mb-1">
           <span className={`font-['Barlow_Condensed'] font-black text-orange-500 ${pricing.type === 'tiers' ? 'text-[15px]' : 'text-[17px]'}`}>
             {pricing.mainPrice}

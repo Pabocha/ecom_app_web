@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { allFlashDeals, flashDealCategories } from '@/data/data.js';
+import { useFlashSales } from '@/features/marketing/hooks/useMarketing';
 import { formatPrice, filterAndSortDeals, normalizeDeal } from '@/utils/helpers';
 import { Bolt } from 'lucide-react';
 
@@ -10,10 +10,26 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 export default function FlashDealsPage() {
   const navigate = useNavigate();
   const { addToCart, addingId } = useCart();
+  const { data: sales = [], isLoading } = useFlashSales(100);
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('urgent');
 
-  const deals = filterAndSortDeals(allFlashDeals, { activeCat, sort });
+  const deals = useMemo(() => {
+    const seen = new Set();
+    const all = [];
+    sales.forEach(sale =>
+      (sale.products || []).forEach(p => {
+        if (seen.has(p.id)) return;
+        seen.add(p.id);
+        all.push(normalizeDeal(p, sale));
+      })
+    );
+    return all;
+  }, [sales]);
+
+  const categories = useMemo(() => ['Tous', ...new Set(deals.map(d => d.cat).filter(Boolean))], [deals]);
+
+  const filtered = useMemo(() => filterAndSortDeals(deals, { activeCat, sort }), [deals, activeCat, sort]);
 
   return (
     <div className="min-h-screen bg-gray-100 pb-12">
@@ -47,22 +63,36 @@ export default function FlashDealsPage() {
         </div>
 
         <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-          {flashDealCategories.map(cat => (
+          {categories.map(cat => (
             <button key={cat} onClick={() => setActiveCat(cat)} className={`px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-colors ${activeCat === cat ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
               {cat}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          {deals.map(deal => {
-            const product = normalizeDeal(deal);
-            return (
-              <div key={deal.id} onClick={() => navigate(`/product/${product.id}`)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
+        {isLoading ? (
+          <div className="grid grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse rounded-lg bg-white p-4 shadow">
+                <div className="h-52 rounded bg-gray-200 mb-3" />
+                <div className="h-4 rounded bg-gray-200 mb-2 w-3/4" />
+                <div className="h-4 rounded bg-gray-200 w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-lg bg-white py-16 text-center shadow">
+            <div className="text-5xl mb-4">⚡</div>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Aucune vente flash en cours</h2>
+            <p className="text-gray-500">Revenez bientôt, de nouvelles offres arrivent !</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-4">
+            {filtered.map(deal => (
+              <div key={deal.id} onClick={() => navigate(`/product/${deal.id}`)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
                 <div className="relative h-52 overflow-hidden bg-gray-100">
                   <img src={deal.img} alt={deal.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <span className="absolute left-3 top-3 rounded bg-red-600 px-2.5 py-1 text-[13px] font-black text-white">{deal.discount}</span>
-                  <span className="absolute right-3 top-3 rounded bg-black/70 px-2.5 py-1 text-[12px] font-black text-white">{deal.timeLeft}</span>
                 </div>
                 <div className="p-4">
                   <div className="mb-2 flex items-center justify-between gap-2">
@@ -85,9 +115,9 @@ export default function FlashDealsPage() {
                   <div className="mt-1 text-[11px] font-bold text-gray-400">{deal.sold}% du stock vendu</div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

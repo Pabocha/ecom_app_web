@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { featuredProducts, categoryProducts, allFlashDeals } from '@/data/data.js';
+import { featuredProducts, categoryProducts } from '@/data/data.js';
+import { useFlashSales } from '@/features/marketing/hooks/useMarketing';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { Grid3X3, LayoutList, SlidersHorizontal } from 'lucide-react';
 import { buildAllProducts, filterAllProducts } from '@/utils/helpers';
@@ -15,7 +16,22 @@ export default function AllProductsPage() {
   const [sort, setSort] = useState('popular');
   const [view, setView] = useState('grid');
 
-  const allProducts = useMemo(() => buildAllProducts(featuredProducts, allFlashDeals, categoryProducts), []);
+  const { data: sales = [] } = useFlashSales(100);
+
+  const flashProducts = useMemo(() => {
+    const seen = new Set();
+    const all = [];
+    sales.forEach(sale =>
+      (sale.products || []).forEach(p => {
+        if (seen.has(p.id)) return;
+        seen.add(p.id);
+        all.push(p);
+      })
+    );
+    return all;
+  }, [sales]);
+
+  const allProducts = useMemo(() => buildAllProducts(featuredProducts, flashProducts, categoryProducts), [flashProducts]);
 
   const filtered = useMemo(() => filterAllProducts(allProducts, { activeCat, sort, categoryProducts }), [activeCat, sort, allProducts]);
 

@@ -177,14 +177,53 @@ export function normalizeProduct(product) {
   };
 }
 
-// Normalise un deal flash pour l'affichage
-export function normalizeDeal(deal) {
+// Normalise un deal flash (produit issu de l'API /v1/marketing/flash-sales/products/)
+export function normalizeDeal(deal, flashSale) {
+  const pricing = deal.pricing_display || {};
+  const price = toPriceNumber(pricing.promo_price ?? pricing.price ?? deal.base_price);
+  const oldPrice = pricing.should_strike_base
+    ? toPriceNumber(pricing.base_price)
+    : deal.oldPrice || Math.round(price * 1.45);
+
   return {
     ...deal,
-    oldPrice: deal.oldPrice || Math.round(deal.price * 1.45),
-    supplier: 'TradeHub Flash',
-    verified: true,
+    price,
+    oldPrice,
+    discount: getPromoDiscount(pricing) || deal.discount,
+    sold: getSoldPercentage(deal),
+    timeLeft: flashSale?.remaining_time || deal.remaining_time || null,
+    endAt: flashSale?.end_at || deal.end_at || null,
+    cat: deal.category_name || deal.cat,
+    rating: toPriceNumber(deal.average_rating) || 4.5,
+    reviews: deal.numbers_reviews || 0,
+    img: deal.image,
+    flashSale,
+    supplier: deal.shop_name || 'TradeHub Flash',
+    verified: !!deal.shop_is_verified,
     badges: ['sale', 'hot'],
+  };
+}
+
+// Pourcentage "vendu" inventé mais déterministe (stable par produit, cohérent sur toutes les pages)
+export function getSoldPercentage(product) {
+  const id = toPriceNumber(product?.id) || 1;
+  return 5 + (id * 37) % 90;
+}
+
+// Décompte du temps restant (jours inclus si > 24h), recalculé à chaque tick
+export function getCountdownParts(endAt, now = Date.now()) {
+  const total = endAt ? Math.max(Math.round((new Date(endAt).getTime() - now) / 1000), 0) : 0;
+  const d = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = n => String(n).padStart(2, '0');
+  return {
+    d,
+    h: pad(h),
+    m: pad(m),
+    s: pad(s),
+    text: d > 0 ? `${d}j ${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(h)}:${pad(m)}:${pad(s)}`,
   };
 }
 
@@ -226,16 +265,24 @@ export function normalizeCatProduct(p) {
 export function buildAllProducts(featuredItems, flashDeals, catProducts) {
   return [
     ...featuredItems.map(p => ({ ...p, cartKey: 'featured' })),
-    ...flashDeals.map(d => ({
-      ...d,
-      supplier: d.supplier || 'TradeHub Flash',
-      rating: d.rating || 4.5,
-      reviews: d.reviews || 100,
-      verified: true,
-      badges: ['sale'],
-      oldPrice: d.oldPrice || Math.round(d.price * 1.4),
-      cartKey: 'flash',
-    })),
+    ...flashDeals.map(d => {
+      const pricing = d.pricing_display || {};
+      const price = toPriceNumber(pricing.promo_price ?? pricing.price ?? d.base_price);
+      const oldPrice = pricing.should_strike_base
+        ? toPriceNumber(pricing.base_price)
+        : d.oldPrice || Math.round(price * 1.4);
+      return {
+        ...d,
+        supplier: d.shop_name || 'TradeHub Flash',
+        rating: toPriceNumber(d.average_rating) || 4.5,
+        reviews: d.numbers_reviews || 100,
+        verified: !!d.shop_is_verified,
+        badges: ['sale'],
+        price,
+        oldPrice,
+        cartKey: 'flash',
+      };
+    }),
     ...Object.values(catProducts).flat().map(normalizeCatProduct),
   ];
 }
@@ -272,7 +319,7 @@ export function filterAndSortDeals(deals, { activeCat, sort } = {}) {
     .filter(deal => !activeCat || activeCat === 'Tous' || deal.cat === activeCat)
     .sort((a, b) => {
       if (sort === 'discount') return Math.abs(Number.parseInt(b.discount)) - Math.abs(Number.parseInt(a.discount));
-      if (sort === 'sold') return b.sold - a.sold;
-      return (a.timeLeft || '').localeCompare(b.timeLeft || '');
+      if (sort === 'sold') return (b.sold || 0) - (a.sold || 0);
+      return (a.timeLeft?.total_seconds ?? 0) - (b.timeLeft?.total_seconds ?? 0);
     });
 }

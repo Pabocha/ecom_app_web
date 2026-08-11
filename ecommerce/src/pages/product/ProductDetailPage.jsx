@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount } from '@/utils/helpers.js';
+import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount, getSoldPercentage, getCountdownParts } from '@/utils/helpers.js';
 import { buildDetailFromApi, getOptionsAtLevel, getHexForOption, getLeafVariant, updateLevelSelection } from '@/features/product/utils/helpers.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import ProductSkeleton from '@/features/product/components/ProductSkeleton.jsx';
@@ -7,6 +7,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
 import { useProductDetailShop, useRecommendations } from '@/features/product/hooks/useProduct';
+import { useFlashSaleByProduct } from '@/features/marketing/hooks/useMarketing';
 
 const TABS = ["Description", "Caractéristiques", "Prix volume", "Avis", "Questions"];
 const RATING_BG = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-500"];
@@ -23,10 +24,18 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
   const [expanded, setExpanded] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const [toast, setToast] = useState(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     setSelImg(null);
   }, [product?.id]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const { data: flashSales = [] } = useFlashSaleByProduct(product?.id);
 
   const { data: detailShopRes, isPending: detailShopLoading } = useProductDetailShop(product?.shop)
 
@@ -68,6 +77,12 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
   const badges = getProductBadges(product);
   const discountPct = getPromoDiscount(product.pricing_display);
   const detail = buildDetailFromApi(product);
+
+  const flashSale = flashSales[0] || null;
+  const isFlash = !!flashSale;
+  const promoEndAt = product?.pricing_display?.promo_details?.end_at || flashSale?.end_at || null;
+  const countdown = getCountdownParts(promoEndAt, now);
+  const soldPct = getSoldPercentage(product);
 
   const handleLevelClick = (level, idx) => {
     setSelIndices(updateLevelSelection(selIndices, level, idx));
@@ -270,8 +285,34 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
               );
             })}
 
-            {/* Stock */}
-            <div className="mb-4"><div className="flex justify-between text-[12px] mb-1"><span className="text-gray-500">Disponibilité</span><span className="font-bold text-green-600">{detail.stock > 0 ? `${detail.stock} en stock` : 'Épuisé'}</span></div>{detail.stock > 0 && <div className="h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full" style={{ width: `${Math.min((detail.stock / 100) * 100, 100)}%` }} /></div>}</div>
+            {/* Vente Flash */}
+            {isFlash ? (
+              <div className="mb-4 rounded-xl border-2 border-red-500 bg-red-50 p-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white"><Zap size={15} /></span>
+                  <div>
+                    <div className="text-[13px] font-black text-red-600 uppercase tracking-wide">Vente Flash</div>
+                    {flashSale?.name && <div className="text-[11px] font-bold text-red-500">{flashSale.name}</div>}
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2 text-[12px]">
+                  <span className="font-bold text-gray-600">Promo se termine dans</span>
+                  <span className="font-['Barlow_Condensed'] text-[16px] font-black text-red-600">{countdown.text}</span>
+                </div>
+                <div className="mt-2">
+                  <div className="flex justify-between text-[11px] font-bold text-gray-600">
+                    <span>Déjà vendu</span>
+                    <span>{soldPct}%</span>
+                  </div>
+                  <div className="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" style={{ width: `${soldPct}%` }} />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Stock */
+              <div className="mb-4"><div className="flex justify-between text-[12px] mb-1"><span className="text-gray-500">Disponibilité</span><span className="font-bold text-green-600">{detail.stock > 0 ? `${detail.stock} en stock` : 'Épuisé'}</span></div>{detail.stock > 0 && <div className="h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full" style={{ width: `${Math.min((detail.stock / 100) * 100, 100)}%` }} /></div>}</div>
+            )}
 
             {/* Qty + Add to Cart + Buy Now */}
             <div className="flex items-center gap-3 mb-3">

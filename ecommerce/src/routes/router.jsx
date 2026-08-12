@@ -37,6 +37,8 @@ import HelpPage from "@/pages/help/HelpPage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 import OrdersPage from "@/pages/order/OrdersPage";
 import OrderDetailPage from "@/pages/order/OrderDetailPage";
+import FavoritesPage from "@/pages/favorites/FavoritesPage";
+import FollowedShopsPage from "@/pages/favorites/FollowedShopsPage";
 
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
@@ -138,6 +140,8 @@ export const routes = [
       { path: "/profile", element: <PrivateRoute><ProfilePage /></PrivateRoute> },
       { path: "/profile/orders", element: <PrivateRoute><OrdersPage /></PrivateRoute> },
       { path: "/profile/orders/:id", element: <PrivateRoute><OrderDetailRoute /></PrivateRoute> },
+      { path: "/favorites", element: <PrivateRoute><FavoritesPage /></PrivateRoute> },
+      { path: "/favorites/shops", element: <PrivateRoute><FollowedShopsPage /></PrivateRoute> },
 
       { path: "/cart", element: <CartPage /> },
       { path: "/checkout", element: <PrivateRoute><CheckoutPage /></PrivateRoute> },

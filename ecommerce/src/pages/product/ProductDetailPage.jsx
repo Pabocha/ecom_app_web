@@ -8,6 +8,9 @@ import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw
 import TopBar from '@/components/shared/TopBar';
 import { useProductDetailShop, useRecommendations } from '@/features/product/hooks/useProduct';
 import { useFlashSaleByProduct } from '@/features/marketing/hooks/useMarketing';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useFavoriteState, useToggleFavorite, useFavoriteCards } from '@/features/favorites/hooks/useFavorites';
+import { useUIStore } from '@/stores/uiStore';
 
 const TABS = ["Description", "Caractéristiques", "Prix volume", "Avis", "Questions"];
 const RATING_BG = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-500"];
@@ -22,7 +25,6 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
   const [selIndices, setSelIndices] = useState([0]);
   const [qty, setQty] = useState(1);  
   const [expanded, setExpanded] = useState(false);
-  const [favorite, setFavorite] = useState(false);
   const [toast, setToast] = useState(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -35,7 +37,21 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
     return () => clearInterval(t);
   }, []);
 
-  const { data: flashSales = [] } = useFlashSaleByProduct(product?.id);
+  const { data: flashSales = [], isPending } = useFlashSaleByProduct(product?.id);
+
+  // MODIFICATION ICI — Favoris branché sur le backend
+  const { isAuthenticated } = useAuth();
+  const { data: favorited = false } = useFavoriteState(product?.id);
+  const { mutate: toggleFavorite, isPending: favoriting } = useToggleFavorite();
+  const { isFavorited, toggleFavorite: toggleFavoriteCard } = useFavoriteCards();
+
+  const handleToggleFavorite = () => {
+    if (!isAuthenticated) {
+      useUIStore.getState().openLoginModal();
+      return;
+    }
+    toggleFavorite(product?.id);
+  };
 
   const { data: detailShopRes, isPending: detailShopLoading } = useProductDetailShop(product?.shop)
 
@@ -227,8 +243,8 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
                 })}</div>}
                 <h1 className="text-[20px] font-black text-[#0d1b2a] leading-tight">{product.name}</h1>
               </div>
-              <button onClick={() => setFavorite(!favorite)} className="p-2 rounded-full hover:bg-gray-100 transition-colors shrink-0">
-                <Heart size={20} className={favorite ? 'text-red-500 fill-red-500' : 'text-gray-400'} />
+              <button onClick={handleToggleFavorite} disabled={favoriting} className="p-2 rounded-full hover:bg-gray-100 transition-colors shrink-0">
+                <Heart size={20} className={favorited ? 'text-red-500 fill-red-500' : 'text-gray-400'} />
               </button>
             </div>
             <div className="flex items-center gap-2 mb-2"><RatingStars rating={product.average_rating} /><span className="text-[12px] text-gray-500">{(product.average_rating || 0).toFixed(1)} ({(product.numbers_reviews || 0).toLocaleString()} avis)</span></div>
@@ -286,26 +302,34 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
             })}
 
             {/* Vente Flash */}
-            {isFlash ? (
-              <div className="mb-4 rounded-xl border-2 border-red-500 bg-red-50 p-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white"><Zap size={15} /></span>
+            {isPending ? (
+              <div className="mb-4 rounded-xl bg-gray-100 p-3">
+                <div className="h-6 w-40 animate-pulse rounded bg-gray-300" />
+                <div className="mt-2 h-4 w-52 animate-pulse rounded bg-gray-200" />
+                <div className="mt-2 h-2 rounded-full bg-gray-200" />
+              </div>
+            ) : isFlash ? (
+              <div className="mb-4 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-2 bg-red-500 px-3 py-2.5">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-red-500"><Zap size={14} /></span>
                   <div>
-                    <div className="text-[13px] font-black text-red-600 uppercase tracking-wide">Vente Flash</div>
-                    {flashSale?.name && <div className="text-[11px] font-bold text-red-500">{flashSale.name}</div>}
+                    <div className="text-[13px] font-black text-white uppercase tracking-wide leading-none">Vente Flash</div>
+                    {flashSale?.name && <div className="text-[11px] font-bold text-red-100 leading-tight">{flashSale.name}</div>}
                   </div>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-2 text-[12px]">
-                  <span className="font-bold text-gray-600">Promo se termine dans</span>
-                  <span className="font-['Barlow_Condensed'] text-[16px] font-black text-red-600">{countdown.text}</span>
-                </div>
-                <div className="mt-2">
-                  <div className="flex justify-between text-[11px] font-bold text-gray-600">
-                    <span>Déjà vendu</span>
-                    <span>{soldPct}%</span>
+                <div className="bg-white px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-2 text-[12px]">
+                    <span className="font-bold text-gray-600">Promo se termine dans</span>
+                    <span className="font-['Barlow_Condensed'] text-[16px] font-black text-red-600">{countdown.text}</span>
                   </div>
-                  <div className="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" style={{ width: `${soldPct}%` }} />
+                  <div className="mt-2">
+                    <div className="flex justify-between text-[11px] font-bold text-gray-600">
+                      <span>Déjà vendu</span>
+                      <span>{soldPct}%</span>
+                    </div>
+                    <div className="mt-1 h-2 rounded-full bg-gray-200 overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" style={{ width: `${soldPct}%` }} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -396,7 +420,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
           <div className="bg-white rounded-lg shadow-sm p-5">
             <div className="font-['Barlow_Condensed'] text-[20px] font-black text-[#0d1b2a] mb-4">Vous aimerez aussi</div>
             <div className="grid grid-cols-5 gap-2.5">
-              {recommendedProducts.slice(0, 5).map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} addingId={addingId} />)}
+              {recommendedProducts.slice(0, 5).map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} addingId={addingId} favorited={isFavorited(p.id)} onToggleFavorite={toggleFavoriteCard} />)}
             </div>
           </div>
         </div>

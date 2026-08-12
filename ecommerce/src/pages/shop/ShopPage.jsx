@@ -4,12 +4,20 @@ import { useProducts } from '@/features/product/hooks/useProduct';
 import { useCart } from '@/features/cart/hooks/useCart';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import TopBar from '@/components/shared/TopBar';
-import { BadgeCheck, Building2, Package, ShoppingBag, Users, Star, Mail, Phone, MapPin, Clock, Truck, RotateCcw } from 'lucide-react';
+import { BadgeCheck, Building2, Package, ShoppingBag, Users, Star, Mail, Phone, MapPin, Clock, Truck, RotateCcw, Bell, BellRing } from 'lucide-react';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useFavoriteCards } from '@/features/favorites/hooks/useFavorites';
+import { useFollowState, useToggleFollow } from '@/features/shop/hooks/useShopFollow';
+import { useUIStore } from '@/stores/uiStore';
 
 export default function ShopPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart, addingId } = useCart();
+  const { isAuthenticated } = useAuth();
+  const { isFavorited, toggleFavorite } = useFavoriteCards();
+  const { data: followState } = useFollowState(id);
+  const { mutate: toggleFollow, isPending: following } = useToggleFollow();
 
   const { data: shopRes } = useProductDetailShop(id);
   const shop = shopRes?.data?.results || shopRes?.data || {};
@@ -17,10 +25,21 @@ export default function ShopPage() {
   const { data: productsRes } = useProducts({ shop: id });
   const products = productsRes?.data?.results || productsRes?.data || [];
 
+  const followed = followState?.followed ?? false;
+  const totalFollowers = followState?.total ?? shop.total_followers ?? 0;
+
+  const handleToggleFollow = () => {
+    if (!isAuthenticated) {
+      useUIStore.getState().openLoginModal();
+      return;
+    }
+    toggleFollow(id);
+  };
+
   const stats = [
     { icon: Package, label: 'Produits', value: shop.total_products || 0 },
     { icon: ShoppingBag, label: 'Ventes', value: (shop.number_sale || 0).toLocaleString() },
-    { icon: Users, label: 'Abonnés', value: (shop.total_followers || 0).toLocaleString() },
+    { icon: Users, label: 'Abonnés', value: totalFollowers.toLocaleString() },
     { icon: Clock, label: 'Membre depuis', value: shop.date_created ? new Date(shop.date_created).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' }) : '-' },
   ];
 
@@ -38,14 +57,24 @@ export default function ShopPage() {
               className="w-24 h-24 rounded-xl object-cover border border-gray-200 shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-[22px] font-black text-[#0d1b2a] truncate">{shop.name}</h1>
-                {shop.is_verifted && (
-                  <span className="text-green-600 flex items-center gap-0.5 text-[13px] font-bold"><BadgeCheck size={16} /> Vérifié</span>
-                )}
-                {shop.is_top_seller && (
-                  <span className="bg-orange-100 text-orange-600 text-[10px] font-black px-1.5 py-0.5 rounded uppercase">Top Vendeur</span>
-                )}
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-[22px] font-black text-[#0d1b2a] truncate">{shop.name}</h1>
+                  {shop.is_verifted && (
+                    <span className="text-green-600 flex items-center gap-0.5 text-[13px] font-bold"><BadgeCheck size={16} /> Vérifié</span>
+                  )}
+                  {shop.is_top_seller && (
+                    <span className="bg-orange-100 text-orange-600 text-[10px] font-black px-1.5 py-0.5 rounded uppercase">Top Vendeur</span>
+                  )}
+                </div>
+                <button
+                  onClick={handleToggleFollow}
+                  disabled={following}
+                  className={`flex shrink-0 items-center gap-1.5 rounded px-4 py-2 text-[12px] font-black transition-colors ${followed ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-orange-500 text-white hover:bg-orange-600'}`}
+                >
+                  {followed ? <BellRing size={14} /> : <Bell size={14} />}
+                  {followed ? 'Abonné' : 'Suivre'}
+                </button>
               </div>
               {shop.description && (
                 <p className="text-[13px] text-gray-600 leading-relaxed mb-3 line-clamp-2">{shop.description}</p>
@@ -115,6 +144,8 @@ export default function ShopPage() {
                   onAddToCart={(prod) => addToCart(prod)}
                   onOpenProduct={(prod) => navigate(`/product/${prod.id}`)}
                   addingId={addingId}
+                  favorited={isFavorited(p.id)}
+                  onToggleFavorite={toggleFavorite}
                 />
               ))}
             </div>

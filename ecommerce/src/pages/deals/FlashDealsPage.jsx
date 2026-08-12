@@ -2,14 +2,14 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useFlashSales } from '@/features/marketing/hooks/useMarketing';
-import { formatPrice, filterAndSortDeals, normalizeDeal } from '@/utils/helpers';
+import { filterAndSortDeals, normalizeDeal } from '@/utils/helpers';
 import { Bolt } from 'lucide-react';
 
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import FlashDealCard from '@/features/product/components/FlashDealCard';
 
 export default function FlashDealsPage() {
   const navigate = useNavigate();
-  const { addToCart, addingId } = useCart();
+  const { addToCart } = useCart();
   const { data: sales = [], isLoading } = useFlashSales(100);
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('urgent');
@@ -71,8 +71,8 @@ export default function FlashDealsPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse rounded-lg bg-white p-4 shadow">
                 <div className="h-52 rounded bg-gray-200 mb-3" />
                 <div className="h-4 rounded bg-gray-200 mb-2 w-3/4" />
@@ -87,34 +87,14 @@ export default function FlashDealsPage() {
             <p className="text-gray-500">Revenez bientôt, de nouvelles offres arrivent !</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             {filtered.map(deal => (
-              <div key={deal.id} onClick={() => navigate(`/product/${deal.id}`)} className="group cursor-pointer overflow-hidden rounded-lg bg-white text-[#0d1b2a] shadow-lg shadow-black/20 transition-transform hover:-translate-y-1">
-                <div className="relative h-52 overflow-hidden bg-gray-100">
-                  <img src={deal.img} alt={deal.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <span className="absolute left-3 top-3 rounded bg-red-600 px-2.5 py-1 text-[13px] font-black text-white">{deal.discount}</span>
-                </div>
-                <div className="p-4">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="rounded bg-orange-50 px-2 py-0.5 text-[11px] font-black text-orange-600">{deal.cat}</span>
-                    <span className="text-[12px] text-gray-400">{deal.reviews} avis</span>
-                  </div>
-                  <h3 className="min-h-[40px] text-[15px] font-black leading-tight">{deal.name}</h3>
-                  <div className="mt-3 flex items-end justify-between">
-                    <div>
-                      <div className="font-['Barlow_Condensed'] text-[26px] font-black text-red-600">{formatPrice(deal.price)}</div>
-                      <div className="text-[12px] text-gray-400 line-through">{formatPrice(deal.oldPrice)}</div>
-                    </div>
-                    <button onClick={e => { e.stopPropagation(); addToCart(deal); }} disabled={addingId === deal.id} className="rounded bg-[#0d1b2a] px-3 py-2 text-[12px] font-black text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                      {addingId === deal.id ? <LoadingSpinner size={12} className="text-white" /> : 'Ajouter'}
-                    </button>
-                  </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
-                    <div className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-400" style={{ width: `${deal.sold}%` }} />
-                  </div>
-                  <div className="mt-1 text-[11px] font-bold text-gray-400">{deal.sold}% du stock vendu</div>
-                </div>
-              </div>
+              <FlashDealCard
+                key={deal.id}
+                product={deal}
+                onProductClick={(p) => navigate(`/product/${p.id}`)}
+                onAddToCart={addToCart}
+              />
             ))}
           </div>
         )}

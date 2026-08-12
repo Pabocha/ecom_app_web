@@ -268,6 +268,10 @@ export default function TopNav({ cartCount, user, onLogout }) {
                         <button onClick={() => navigate('/profile/orders')} className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
                           {primary}
                         </button>
+                      ) : label === 'Favoris' ? (
+                        <button onClick={() => navigate('/favorites')} className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
+                          {primary}
+                        </button>
                       ) : (
                       <button className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
                         {primary}
@@ -279,16 +283,33 @@ export default function TopNav({ cartCount, user, onLogout }) {
                     </div>
 
                     <div className="grid divide-y divide-gray-100 border-t border-gray-100">
-                      {links.map((link) => (
-                        <a
-                          key={link}
-                          href="#"
-                          className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
-                        >
-                          {link}
-                          <ChevronRight size={12} />
-                        </a>
-                      ))}
+                      {label === 'Favoris' ? (
+                        <>
+                          <button
+                            onClick={() => navigate('/favorites')}
+                            className="flex items-center justify-between px-4 py-2.5 text-left text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                          >
+                            {links[0]} <ChevronRight size={12} />
+                          </button>
+                          <button
+                            onClick={() => navigate('/favorites/shops')}
+                            className="flex items-center justify-between px-4 py-2.5 text-left text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                          >
+                            {links[1]} <ChevronRight size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        links.map((link) => (
+                          <a
+                            key={link}
+                            href="#"
+                            className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                          >
+                            {link}
+                            <ChevronRight size={12} />
+                          </a>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>

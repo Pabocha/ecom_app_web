@@ -1,8 +1,10 @@
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import SectionHeader from '@/features/home/components/SectionHeader.jsx';
+import { useFavoriteCards } from '@/features/favorites/hooks/useFavorites';
 
 export default function ProductSection({ title, products, loading, link, to, sectionBadge, onAddToCart, onOpenProduct, addingId }) {
   const displayProducts = (products || []);
+  const { isFavorited, toggleFavorite } = useFavoriteCards();
 
   if (loading) {
     return (
@@ -31,7 +33,7 @@ export default function ProductSection({ title, products, loading, link, to, sec
       <SectionHeader title={title} link={link} to={to} />
       <div className="grid grid-cols-5 gap-2.5">
         {displayProducts.map(p => (
-          <ProductCard key={p.id} product={p} sectionBadge={sectionBadge} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} addingId={addingId} />
+          <ProductCard key={p.id} product={p} sectionBadge={sectionBadge} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} addingId={addingId} favorited={isFavorited(p.id)} onToggleFavorite={toggleFavorite} />
         ))}
       </div>
     </div>

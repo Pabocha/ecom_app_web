@@ -6,12 +6,14 @@ import { useFlashSales } from '@/features/marketing/hooks/useMarketing';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import { Grid3X3, LayoutList, SlidersHorizontal } from 'lucide-react';
 import { buildAllProducts, filterAllProducts } from '@/utils/helpers';
+import { useFavoriteCards } from '@/features/favorites/hooks/useFavorites';
 
 const categories = ['Tous', ...new Set(Object.keys(categoryProducts))];
 
 export default function AllProductsPage() {
   const navigate = useNavigate();
   const { addToCart, addingId } = useCart();
+  const { isFavorited, toggleFavorite } = useFavoriteCards();
   const [activeCat, setActiveCat] = useState('Tous');
   const [sort, setSort] = useState('popular');
   const [view, setView] = useState('grid');
@@ -105,6 +107,8 @@ export default function AllProductsPage() {
                 onAddToCart={() => addToCart(p)}
                 onOpenProduct={() => navigate(`/product/${p.id}`)}
                 addingId={addingId}
+                favorited={isFavorited(p.id)}
+                onToggleFavorite={toggleFavorite}
               />
             ))}
           </div>

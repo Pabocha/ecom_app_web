@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useAuth, useCheckAuth, useLogout } from '@/features/auth/hooks/useAuth';
 import { useVariantActions } from '@/features/product/hooks/useVariant';
@@ -8,6 +8,7 @@ import TopNav from '@/layouts/TopNav';
 import SubNav from '@/layouts/SubNav';
 import Footer from '@/layouts/Footer';
 import VariantModal from '@/components/VariantModal';
+import CategoriesDrawer from '@/components/shared/CategoriesDrawer';
 import LoginModal from '@/features/auth/components/LoginModal';
 import { useVariantStore } from '@/stores/variantStore';
 
@@ -15,6 +16,7 @@ export function BasicLayout() {
   const navigate = useNavigate();
   const { cartCount } = useCart();
   const { user } = useAuth();
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   useCheckAuth();
 
@@ -29,11 +31,13 @@ export function BasicLayout() {
         user={user}
         onLogout={logout}
       />
-      <SubNav onOpenCategories={() => navigate('/categories')} />
+      <SubNav onOpenCategories={() => setCategoriesOpen(true)} />
 
       <main>
         <Outlet />
       </main>
+
+      <CategoriesDrawer open={categoriesOpen} onClose={() => setCategoriesOpen(false)} />
 
       <Footer />
 

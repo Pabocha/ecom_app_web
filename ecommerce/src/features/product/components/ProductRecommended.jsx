@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
+import { useFavoriteCards } from '@/features/favorites/hooks/useFavorites';
 
 const BATCH_SIZE = 10;
 
 export default function ProductRecommended({ products, loading, onAddToCart, onOpenProduct, addingId }) {
   const [page, setPage] = useState(1);
   const sentinelRef = useRef(null);
+  const { isFavorited, toggleFavorite } = useFavoriteCards();
 
   const allProducts = products || [];
   const totalBatches = Math.ceil(allProducts.length / BATCH_SIZE);
@@ -83,6 +85,8 @@ export default function ProductRecommended({ products, loading, onAddToCart, onO
             onAddToCart={onAddToCart}
             onOpenProduct={onOpenProduct}
             addingId={addingId}
+            favorited={isFavorited(p.id)}
+            onToggleFavorite={toggleFavorite}
           />
         ))}
       </div>

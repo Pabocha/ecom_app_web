@@ -21,11 +21,16 @@ function getStarFill(rating, index) {
   return Math.min(Math.max(rating - index, 0), 1) * 100;
 }
 
-export default function ProductCard({ product, sectionBadge, onAddToCart, onOpenProduct, addingId }) {
+export default function ProductCard({ product, sectionBadge, onAddToCart, onOpenProduct, addingId, favorited, onToggleFavorite }) {
   const rating = getRating(product.average_rating);
   const pricing = helpers.getProductPricing(product);
   const badges = helpers.getProductBadges(product, sectionBadge);
   const isAdding = addingId === product.id;
+
+  const handleFavorite = (e) => {
+    e.stopPropagation();
+    onToggleFavorite?.(product);
+  };
 
   return (
     <div
@@ -51,10 +56,10 @@ export default function ProductCard({ product, sectionBadge, onAddToCart, onOpen
         )}
         {/* Wishlist */}
         <button
-          onClick={e => e.stopPropagation()}
-          className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+          onClick={handleFavorite}
+          className={`absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow transition-all ${onToggleFavorite ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} ${favorited ? 'text-red-500' : 'text-gray-300 hover:text-red-500'}`}
         >
-          <Heart size={13} />
+          <Heart size={13} fill={favorited ? 'currentColor' : 'none'} />
         </button>
       </div>
 

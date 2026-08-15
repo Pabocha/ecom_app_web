@@ -40,7 +40,6 @@ export default function ShopPage() {
   const productReviews = useMemo(() => reviewsByShop.reviews || [], [reviewsByShop.reviews]);
 
   const reviewSummary = shop.review_summary || {};
-  const shopReviews = shop.reviews || [];
   const ratingsBreakdown = reviewSummary.ratings_breakdown || {};
 
   const groupedProductReviews = useMemo(() => {
@@ -116,6 +115,15 @@ export default function ShopPage() {
             </div>
           </div>
 
+          {/* Note de la boutique — 100% dérivée des notes produits */}
+          <div className="flex items-center gap-4 mt-5 pt-5 border-t border-gray-100">
+            <span className="font-['Barlow_Condensed'] text-[44px] font-black text-[#0d1b2a] leading-none">{(reviewSummary.average_rating || 0).toFixed(1)}</span>
+            <div>
+              <RatingStars rating={reviewSummary.average_rating || 0} size={22} />
+              <div className="text-[12px] text-gray-400 mt-1">{(reviewSummary.total_reviews || 0).toLocaleString()} avis</div>
+            </div>
+          </div>
+
           {/* Stats */}
           <div className="grid grid-cols-4 gap-4 mt-5 pt-5 border-t border-gray-100">
             {stats.map(({ icon: Icon, label, value }) => (
@@ -183,10 +191,12 @@ export default function ShopPage() {
           )}
         </div>
 
-        {/* Shop Reviews */}
+        {/* Avis des produits de la boutique */}
         <div className="bg-white rounded-lg shadow-sm p-5">
-          <h2 className="text-[15px] font-black text-[#0d1b2a] mb-4">Avis sur la boutique</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr] gap-6">
+          <h2 className="text-[15px] font-black text-[#0d1b2a] mb-4">Avis des produits de la boutique</h2>
+
+          {/* Résumé de la note — dérivée des notes produits */}
+          <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr] gap-6 mb-6 pb-5 border-b border-gray-100">
             <div>
               <div className="flex items-end gap-1 mb-1">
                 <span className="font-['Barlow_Condensed'] text-[44px] font-black text-[#0d1b2a] leading-none">{(reviewSummary.average_rating || 0).toFixed(1)}</span>
@@ -194,52 +204,27 @@ export default function ShopPage() {
               </div>
               <RatingStars rating={reviewSummary.average_rating || 0} size={18} />
               <div className="text-[12px] text-gray-400 mt-2">{(reviewSummary.total_reviews || 0).toLocaleString()} avis</div>
-              <div className="text-[12px] text-gray-400 mt-1">{totalFollowers.toLocaleString()} abonnés</div>
-
-              <div className="mt-4 space-y-1.5">
-                {[5, 4, 3, 2, 1].map((star) => {
-                  const count = ratingsBreakdown[star] || 0;
-                  const total = reviewSummary.total_reviews || 0;
-                  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                  return (
-                    <div key={star} className="flex items-center gap-2 text-[11px] text-gray-500">
-                      <span className="w-2 shrink-0 text-right">{star}</span>
-                      <Star size={11} className="text-yellow-400 fill-yellow-400 shrink-0" />
-                      <div className="flex-1 h-1.5 bg-gray-100 rounded overflow-hidden">
-                        <div className="h-full bg-orange-500 rounded" style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className="w-5 text-right shrink-0">{count}</span>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
 
-            <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
-              {shopReviews.length > 0 ? (
-                shopReviews.map((r) => (
-                  <div key={r.id} className="pb-4 border-b border-gray-50 last:border-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <RatingStars rating={r.rating} size={13} />
-                      <span className="text-[13px] font-bold text-[#0d1b2a]">{r.user?.first_name} {r.user?.last_name}</span>
-                      {r.is_edited && (
-                        <span className="text-[10px] bg-gray-100 text-gray-500 font-black px-1.5 py-0.5 rounded">Modifié</span>
-                      )}
-                      <span className="ml-auto text-[11px] text-gray-400">{r.date_added ? formatDate(r.date_added) : ''}</span>
+            <div className="space-y-1.5">
+              {[5, 4, 3, 2, 1].map((star) => {
+                const count = ratingsBreakdown[star] || 0;
+                const total = reviewSummary.total_reviews || 0;
+                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                return (
+                  <div key={star} className="flex items-center gap-2 text-[11px] text-gray-500">
+                    <span className="w-2 shrink-0 text-right">{star}</span>
+                    <Star size={11} className="text-yellow-400 fill-yellow-400 shrink-0" />
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded overflow-hidden">
+                      <div className="h-full bg-yellow-400 rounded" style={{ width: `${pct}%` }} />
                     </div>
-                    {r.comment && <p className="text-[13px] text-gray-600 leading-relaxed">{r.comment}</p>}
+                    <span className="w-5 text-right shrink-0">{count}</span>
                   </div>
-                ))
-              ) : (
-                <p className="text-[13px] text-gray-400 text-center py-8">Aucun avis sur cette boutique pour le moment</p>
-              )}
+                );
+              })}
             </div>
           </div>
-        </div>
 
-        {/* Product Reviews of the shop */}
-        <div className="bg-white rounded-lg shadow-sm p-5">
-          <h2 className="text-[15px] font-black text-[#0d1b2a] mb-4">Avis des produits de la boutique</h2>
           {loadingProductReviews && productReviews.length === 0 ? (
             <p className="text-[13px] text-gray-400 text-center py-8">Chargement des avis...</p>
           ) : groupedProductReviews.length > 0 ? (

@@ -4,8 +4,9 @@ import { ArrowLeft, ShoppingBag, CreditCard, Tag, MapPin, Plus, Truck, Ship, Pla
 import { formatPrice } from '@/utils/helpers';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useAddresses } from '@/features/profile/hooks/useProfile';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useOrderCheckout } from '@/features/order/hooks/useOrderCheckout';
-import { paymentMethods } from '@/data/paymentMethod';
+import { resolveCountry } from '@/features/payment/utils/helpers';
 import AddressCard from '@/components/shared/AddressCard';
 import ModalAddressForm from '@/features/profile/components/ModalAddressForm';
 import Button from '@/components/ui/Button';
@@ -25,26 +26,8 @@ export default function CheckoutPage() {
   const [paymentLastName, setPaymentLastName] = useState('');
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState('');
 
+  const { user } = useAuth();
   const { addresses, isLoading: isLoadingAddresses, addMutation, updateMutation } = useAddresses();
-
-  const {
-    checkout: {
-      items: allItems,
-      paymentMethod: defaultPaymentMethod,
-      shippingMethod,
-      setShippingMethod,
-      shippingMethods,
-      couponMutation,
-      couponResult,
-      subtotal,
-    },
-    clearMutation,
-  } = useCart();
-
-  const items = useMemo(
-    () => allItems.filter((item) => selectedKeysSet.has(item.cartKey || String(item.id))),
-    [allItems, selectedKeysSet],
-  );
 
   const selectedAddress = useMemo(
     () => addresses?.find((a) => a.id === selectedAddressId) || null,
@@ -57,9 +40,38 @@ export default function CheckoutPage() {
     return addresses.find((a) => a.is_default) || addresses[0];
   }, [selectedAddress, addresses]);
 
+  // AJOUT — Pays pour filtrer les moyens de paiement (adresse de livraison prioritaire)
+  const country = resolveCountry(user?.country, displayAddress?.country);
+
+  const {
+    checkout: {
+      items: allItems,
+      paymentMethod: defaultPaymentMethod,
+      paymentMethods,
+      shippingMethod,
+      setShippingMethod,
+      shippingMethods,
+      couponMutation,
+      couponResult,
+      subtotal,
+    },
+    clearMutation,
+  } = useCart({ country });
+
+  const items = useMemo(
+    () => allItems.filter((item) => selectedKeysSet.has(item.cartKey || String(item.id))),
+    [allItems, selectedKeysSet],
+  );
+
+  // AJOUT — Sélection effective : si la liste change (pays différent), on retombe sur la première méthode
+  const effectiveSelectedPaymentId =
+    selectedPaymentId && paymentMethods.some((m) => m.id === selectedPaymentId)
+      ? selectedPaymentId
+      : (paymentMethods[0]?.id ?? null);
+
   const paymentMethod = useMemo(
-    () => paymentMethods.find((m) => m.id === selectedPaymentId) || defaultPaymentMethod,
-    [selectedPaymentId, defaultPaymentMethod],
+    () => paymentMethods.find((m) => m.id === effectiveSelectedPaymentId) || defaultPaymentMethod,
+    [effectiveSelectedPaymentId, defaultPaymentMethod, paymentMethods],
   );
 
   const discount = couponResult?.valid ? Number(couponResult.discount || 0) : 0;
@@ -310,7 +322,13 @@ export default function CheckoutPage() {
                     }`}
                   >
                     <span className="h-8 w-12 rounded bg-white border border-gray-100 flex items-center justify-center shrink-0">
-                      <img src={method.logo} alt={method.name} className="max-h-5 max-w-10 object-contain" />
+                      {method.logo ? (
+                        <img src={method.logo} alt={method.name} className="max-h-5 max-w-10 object-contain" />
+                      ) : (
+                        <span className="font-['Barlow_Condensed'] text-[16px] font-black text-gray-300">
+                          {method.name?.charAt(0)?.toUpperCase()}
+                        </span>
+                      )}
                     </span>
                     <div className="min-w-0">
                       <div className="text-[12px] font-black text-[#0d1b2a] truncate">{method.name}</div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { categories, trendingSubcats, b2bCategories } from '@/data/data.js';
-import { ArrowRight, Building2, ChevronRight, LayoutGrid, Search } from 'lucide-react';
+import { categories, trendingSubcats } from '@/data/data.js';
+import { ArrowRight, ChevronRight, LayoutGrid, Search } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
 
 export default function AllCategoriesPage() {
@@ -9,7 +9,7 @@ export default function AllCategoriesPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('Tous');
 
-  const filters = ['Tous', 'B2C', 'B2B', 'Tendance', 'Nouveau'];
+  const filters = ['Tous', 'B2C', 'Tendance', 'Nouveau'];
 
   const filtered = categories.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
@@ -34,7 +34,7 @@ export default function AllCategoriesPage() {
           <h1 className="font-['Barlow_Condensed'] text-[52px] font-black text-white leading-tight mb-2">
             Explorez nos <span className="text-orange-500">Catégories</span>
           </h1>
-          <p className="text-[14px] text-white/60 mb-6">+100 000 produits répartis en {categories.length} grandes catégories B2C & B2B</p>
+          <p className="text-[14px] text-white/60 mb-6">+100 000 produits répartis en {categories.length} grandes catégories</p>
 
           {/* Search */}
           <div className="flex max-w-[520px] bg-white rounded overflow-hidden shadow-xl shadow-black/25">
@@ -55,7 +55,7 @@ export default function AllCategoriesPage() {
               { val: '100 000+', label: 'Produits' },
               { val: '8 500+', label: 'Vendeurs' },
               { val: '48', label: 'Pays livrés' },
-              { val: '2 400+', label: 'Fournisseurs B2B' },
+              { val: '2 400+', label: 'Boutiques' },
             ].map(s => (
               <div key={s.label} className="text-white/70 text-[12px]">
                 <strong className="font-['Barlow_Condensed'] text-[20px] font-black text-white block leading-none">{s.val}</strong>
@@ -184,27 +184,6 @@ export default function AllCategoriesPage() {
               En savoir plus
             </button>
           </div>
-        </div>
-
-        {/* === B2B CATEGORIES === */}
-        <div className="mb-3 font-['Barlow_Condensed'] text-[20px] font-black text-[#0d1b2a] flex items-center gap-2.5">
-          <span className="w-1 h-5 bg-blue-600 rounded block" />
-          Catégories B2B & Gros
-        </div>
-        <div className="grid grid-cols-5 gap-3 mb-8">
-          {b2bCategories.map((b, i) => (
-            <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-250 cursor-pointer group border-[1.5px] border-transparent hover:border-blue-500">
-              <div className="relative overflow-hidden" style={{ paddingTop: '56%' }}>
-                <img src={b.img} alt={b.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div className="p-3">
-                <div className="text-[13px] font-black text-[#0d1b2a] mb-1">{b.name}</div>
-                <div className="text-[11px] text-blue-600 font-semibold flex items-center gap-1">
-                   <Building2 size={12} /> {b.suppliers}
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* All subcats alphabetical A-Z */}

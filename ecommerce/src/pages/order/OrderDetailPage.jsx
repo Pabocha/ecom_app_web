@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, CreditCard, MapPin, Package } from 'lucide-react';
-import { ORDER_STATUS } from '@/features/order/data/orderData';
+import { ChevronRight, CreditCard, MapPin, Package, RotateCcw } from 'lucide-react';
+import { ORDER_STATUS, RETURN_STATUS, RETURN_REASON_LABELS } from '@/features/order/data/orderData';
 import OrderTrackingModal from '@/features/order/components/OrderTrackingModal';
+import OrderReviewSection from '@/features/reviews/components/OrderReviewSection';
 import TopBar from '@/components/shared/TopBar';
 import { formatPrice, formatDate } from '@/utils/helpers';
 
@@ -59,6 +60,33 @@ export default function OrderDetailPage({ order }) {
             <ChevronRight size={16} className="text-gray-400" />
           </button>
         </div>
+
+        {order.return_requests?.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm p-5">
+            <h3 className="text-[14px] font-black text-[#0d1b2a] mb-4 flex items-center gap-2">
+              <RotateCcw size={16} className="text-orange-500" /> Demandes de retour
+            </h3>
+            <div className="space-y-3">
+              {order.return_requests.map((r) => {
+                const status = RETURN_STATUS[r.status] || RETURN_STATUS.pending;
+                const reasonLabel = RETURN_REASON_LABELS[r.reason] || r.reason;
+                return (
+                  <div key={r.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-gray-100">
+                    <div className="min-w-0">
+                      <div className="text-[13px] font-bold text-[#0d1b2a]">Retour #{r.id} — {reasonLabel}</div>
+                      <div className="text-[11px] text-gray-400">
+                        {r.items?.length || 0} article(s) · {r.created_at ? formatDate(r.created_at) : ''}
+                      </div>
+                    </div>
+                    <span className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-black ${status.color}`}>
+                      {status.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow-sm p-5">
           <h3 className="text-[14px] font-black text-[#0d1b2a] mb-4 flex items-center gap-2">
@@ -148,6 +176,11 @@ export default function OrderDetailPage({ order }) {
             </div>
           </div>
         </div>
+
+        {/* MODIFICATION ICI — Avis possible uniquement quand la commande est livrée */}
+        {order.status === 'delivered' && (
+          <OrderReviewSection orderId={order.id} />
+        )}
       </div>
 
       {showTracking && (

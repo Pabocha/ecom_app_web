@@ -1,16 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { orderService } from '@/features/order/services/orderService';
-
-const STATUS_MAP = {
-  'En cours': ['pending', 'processing', 'shipped', 'in_transit'],
-  'Expédiées': ['shipped', 'in_transit'],
-  'Livrées': ['delivered'],
-  'Annulées': ['cancelled', 'returned', 'partially_returned'],
-};
+import { ORDER_TABS } from '@/features/order/data/orderData';
 
 export function useOrders() {
-  const [activeTab, setActiveTab] = useState('Toutes');
+  const [activeTab, setActiveTab] = useState(ORDER_TABS[0].label);
 
   const { data: orders, isLoading, error } = useQuery({
     queryKey: ['orders'],
@@ -22,10 +16,11 @@ export function useOrders() {
 
   const allOrders = useMemo(() => orders || [], [orders]);
 
+  // MODIFICATION ICI — Filtrage exact par statut (un onglet = un statut)
   const filteredOrders = useMemo(() => {
-    if (activeTab === 'Toutes') return allOrders;
-    const allowedStatuses = STATUS_MAP[activeTab] || [];
-    return allOrders.filter((o) => allowedStatuses.includes(o.status));
+    const tab = ORDER_TABS.find((t) => t.label === activeTab);
+    if (!tab?.status) return allOrders;
+    return allOrders.filter((o) => o.status === tab.status);
   }, [activeTab, allOrders]);
 
   const countByStatus = useMemo(() => {

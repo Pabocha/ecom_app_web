@@ -1,7 +1,6 @@
-import { paymentMethods } from '@/data/paymentMethod';
 import { formatPrice } from '@/utils/helpers';
 
-export default function CartSummary({ subtotal, shipping, serviceFee, total, selectedPayment, hasItems, onPay }) {
+export default function CartSummary({ subtotal, selectedPayment, paymentMethods = [], hasItems, onPay }) {
   const selected = paymentMethods.find(method => method.id === selectedPayment);
 
   return (
@@ -12,19 +11,11 @@ export default function CartSummary({ subtotal, shipping, serviceFee, total, sel
           <span>Sous-total</span>
           <span className="font-bold text-[#0d1b2a]">{formatPrice(subtotal)}</span>
         </div>
-        <div className="flex justify-between text-gray-500">
-          <span>Livraison</span>
-          <span className="font-bold text-[#0d1b2a]">{shipping === 0 ? 'Gratuite' : formatPrice(shipping)}</span>
-        </div>
-        <div className="flex justify-between text-gray-500">
-          <span>Frais service</span>
-          <span className="font-bold text-[#0d1b2a]">{formatPrice(serviceFee)}</span>
-        </div>
       </div>
       <div className="my-4 border-t border-gray-100" />
       <div className="flex justify-between items-end">
         <span className="text-[14px] font-black text-[#0d1b2a]">Total à payer</span>
-        <span className="font-['Barlow_Condensed'] text-[32px] font-black text-orange-500">{formatPrice(total)}</span>
+        <span className="font-['Barlow_Condensed'] text-[32px] font-black text-orange-500">{formatPrice(subtotal)}</span>
       </div>
 
       {selected && (
@@ -32,7 +23,13 @@ export default function CartSummary({ subtotal, shipping, serviceFee, total, sel
           <div className="text-[11px] uppercase tracking-wide text-gray-400 font-black mb-2">Paiement choisi</div>
           <div className="flex items-center gap-3">
             <span className="h-10 w-16 rounded bg-white border border-gray-100 flex items-center justify-center">
-              <img src={selected.logo} alt={selected.name} className="max-h-6 max-w-12 object-contain" />
+              {selected.logo ? (
+                <img src={selected.logo} alt={selected.name} className="max-h-6 max-w-12 object-contain" />
+              ) : (
+                <span className="font-['Barlow_Condensed'] text-[18px] font-black text-gray-300">
+                  {selected.name?.charAt(0)?.toUpperCase()}
+                </span>
+              )}
             </span>
             <div>
               <div className="text-[13px] font-black text-[#0d1b2a]">{selected.name}</div>

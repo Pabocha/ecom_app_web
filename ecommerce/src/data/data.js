@@ -1,6 +1,5 @@
 export const announcements = [
   { badge: "PROMO", badgeClass: "bg-orange-500", text: "LIVRAISON GRATUITE dès 50 000 FCFA d'achat — Valable jusqu'au 31 Mai" },
-  { badge: "B2B", badgeClass: "bg-blue-600", text: "Commandes en gros : jusqu'à 40% de réduction sur les achats en volume" },
   { badge: "NOUVEAU", badgeClass: "bg-green-600", text: "Dakar Expo 2025 — TradeHub sera présent au CICAD du 15 au 20 Juin" },
   { badge: "FLASH", badgeClass: "bg-orange-500", text: "Vente Flash à -70% tous les vendredis de 18h à 22h — Ne ratez pas ça !" },
   { badge: "PRO", badgeClass: "bg-amber-500", text: "Programme Partenaires Fournisseurs — Inscrivez-vous et vendez à l'international" },
@@ -23,7 +22,7 @@ export const slides = [
     img: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=900&q=80",
   },
   {
-    tag: "🏭 B2B",
+    tag: "🏭 Industrie",
     title: "Sourcing Industriel",
     desc: "Matériaux, machines, équipements. Contactez directement les fabricants.",
     cta: "Trouver des fournisseurs",
@@ -86,10 +85,10 @@ export const categories = [
     subcats: ["Soins visage", "Parfums", "Maquillage", "Cheveux", "Santé", "Sport"],
   },
   {
-    name: "Industrie & B2B", icon: "industry", bg: "#f0f4ff", color: "#2d5be3", slug: "industrie-b2b",
+    name: "Industrie", icon: "industry", bg: "#f0f4ff", color: "#2d5be3", slug: "industrie-b2b",
     img: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=80",
     desc: "Machines, outillage, matières premières en gros",
-    badge: "B2B", badgeColor: "bg-blue-600",
+    badge: "Industrie", badgeColor: "bg-blue-600",
     count: "6 400+ produits",
     subcats: ["Machines", "Outillage", "Emballage", "Matières premières", "BTP", "Énergie"],
   },
@@ -118,14 +117,6 @@ export const trendingSubcats = [
   { name: "Mobilier Bureau", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80", count: "1 800+", hot: false },
   { name: "Panneaux Solaires", img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80", count: "900+", hot: true },
   { name: "Cosmétiques", img: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80", count: "5 200+", hot: false },
-];
-
-export const b2bCategories = [
-  { name: "Textile & Confection", img: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&q=80", suppliers: "340 fournisseurs" },
-  { name: "Énergie Solaire", img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80", suppliers: "120 fournisseurs" },
-  { name: "BTP & Construction", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80", suppliers: "210 fournisseurs" },
-  { name: "Agro-alimentaire", img: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80", suppliers: "180 fournisseurs" },
-  { name: "Emballage & Print", img: "https://images.unsplash.com/photo-1558618048-fbd1c35f26a5?w=400&q=80", suppliers: "95 fournisseurs" },
 ];
 
 export const featuredProducts = [
@@ -176,7 +167,7 @@ export const productDetails = {
     reviews: [
       { author: "Moussa D.", rating: 5, date: "12 Avr 2025", text: "Produit authentique, livraison ultra rapide à Dakar. L'appareil photo est bluffant, je photograph mes produits artisanaux et la qualité est professionnelle.", verified: true, helpful: 34 },
       { author: "Aïssatou S.", rating: 5, date: "8 Avr 2025", text: "Emballage d'origine Apple, IMEI vérifié, tout est parfait. La différence avec mon ancien iPhone 13 est énorme surtout sur les photos de nuit.", verified: true, helpful: 21 },
-      { author: "Ibrahima F.", rating: 4, date: "1 Avr 2025", text: "Très bon smartphone, la commande B2B de 10 unités s'est déroulée sans problème. Seul bémol : le délai de 5 jours au lieu des 3 annoncés.", verified: false, helpful: 15 },
+      { author: "Ibrahima F.", rating: 4, date: "1 Avr 2025", text: "Très bon smartphone, la commande de 10 unités s'est déroulée sans problème. Seul bémol : le délai de 5 jours au lieu des 3 annoncés.", verified: false, helpful: 15 },
     ],
     ratingDist: [78, 13, 5, 2, 2],
     questions: [
@@ -187,7 +178,7 @@ export const productDetails = {
   },
 };
 
-export const navLinks = ["Deals du Jour", "B2B & Gros", "Nouveautés", "Import Direct", "Top Vendeurs", "Ventes Flash", "Programme Pro", "Aide"];
+export const navLinks = ["Deals du Jour", "Boutiques", "Nouveautés", "Import Direct", "Top Vendeurs", "Ventes Flash", "Programme Pro", "Aide"];
 
 export { formatPrice } from '@/utils/helpers';
 

@@ -142,29 +142,6 @@ export const throttle = (fn, limit) => {
 };
 
 // ============================
-// Helpers B2B / prix par paliers
-// ============================
-
-// Génère les paliers de prix dégressifs B2B à partir d'un prix de base
-export function getPricingTiers(basePrice) {
-  return [
-    { min: 1, max: 9, discount: 0, price: basePrice },
-    { min: 10, max: 49, discount: 10, price: basePrice * 0.9 },
-    { min: 50, max: 99, discount: 15, price: basePrice * 0.85 },
-    { min: 100, max: 249, discount: 20, price: basePrice * 0.8 },
-    { min: 250, max: 499, discount: 25, price: basePrice * 0.75 },
-    { min: 500, max: null, discount: 30, price: basePrice * 0.7 },
-  ];
-}
-
-// Calcule le prix appliqué selon la quantité pour les tarifs B2B
-export function getAppliedPrice(basePrice, qty) {
-  const tiers = getPricingTiers(basePrice);
-  const tier = tiers.find(t => qty >= t.min && (!t.max || qty <= t.max));
-  return tier ? tier.price : basePrice;
-}
-
-// ============================
 // Helpers catalogue / produits
 // ============================
 

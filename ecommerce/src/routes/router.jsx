@@ -22,13 +22,13 @@ import CheckoutPage from "@/pages/cart/CheckoutPage";
 import SuccessPage from "@/pages/cart/SuccessPage";
 import ProductDetailPage from "@/pages/product/ProductDetailPage";
 import ShopPage from "@/pages/shop/ShopPage";
+import ShopsPage from "@/pages/shop/ShopsPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
 import SellerCenterPage from "@/pages/seller/SellerCenterPage";
 import SellerRegistrationPage from "@/pages/seller/SellerRegistration";
 import SearchResultsPage from "@/pages/catalog/SearchResultsPage";
 import AllProductsPage from "@/pages/product/AllProductsPage";
-import B2BPage from "@/pages/b2b/B2BPage";
 import NewProductsPage from "@/pages/deals/NewProductsPage";
 import ImportPage from "@/pages/b2b/ImportPage";
 import TopSellersPage from "@/pages/deals/TopSellersPage";
@@ -37,8 +37,7 @@ import HelpPage from "@/pages/help/HelpPage";
 import ProfilePage from "@/pages/profile/ProfilePage";
 import OrdersPage from "@/pages/order/OrdersPage";
 import OrderDetailPage from "@/pages/order/OrderDetailPage";
-import FavoritesPage from "@/pages/favorites/FavoritesPage";
-import FollowedShopsPage from "@/pages/favorites/FollowedShopsPage";
+import MessagesPage from "@/pages/messages/MessagesPage";
 
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
@@ -123,7 +122,7 @@ export const routes = [
       { path: "/seller-registration", element: <PrivateRoute><SellerRegistrationPage /></PrivateRoute> },
 
       { path: "/all-products", element: <AllProductsPage /> },
-      { path: "/b2b", element: <B2BPage /> },
+      { path: "/shops", element: <ShopsPage /> },
 
       { path: "/flash-deals", element: <FlashDealsPage /> },
       { path: "/deals", element: <DealsPage /> },
@@ -140,8 +139,7 @@ export const routes = [
       { path: "/profile", element: <PrivateRoute><ProfilePage /></PrivateRoute> },
       { path: "/profile/orders", element: <PrivateRoute><OrdersPage /></PrivateRoute> },
       { path: "/profile/orders/:id", element: <PrivateRoute><OrderDetailRoute /></PrivateRoute> },
-      { path: "/favorites", element: <PrivateRoute><FavoritesPage /></PrivateRoute> },
-      { path: "/favorites/shops", element: <PrivateRoute><FollowedShopsPage /></PrivateRoute> },
+      { path: "/messages", element: <PrivateRoute><MessagesPage /></PrivateRoute> },
 
       { path: "/cart", element: <CartPage /> },
       { path: "/checkout", element: <PrivateRoute><CheckoutPage /></PrivateRoute> },

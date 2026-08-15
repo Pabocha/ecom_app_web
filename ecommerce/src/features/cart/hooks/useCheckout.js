@@ -1,16 +1,24 @@
 import { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { paymentMethods } from '@/data/paymentMethod';
-import { shippingMethods } from '@/data/shippingMethods'; // MODIFICATION ICI
+import { shippingMethods } from '@/data/shippingMethods';
 import { cartService } from '@/features/cart/services/cartService';
 import { useMutation } from '@tanstack/react-query';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { usePaymentMethods } from '@/features/payment/hooks/usePaymentMethods';
+import { resolveCountry } from '@/features/payment/utils/helpers';
 
-export function useCheckout({ cartItems = [] } = {}) {
+export function useCheckout({ cartItems = [], country } = {}) {
   const [couponResult, setCouponResult] = useState(null);
-  const [shippingMethod, setShippingMethod] = useState('standard'); // MODIFICATION ICI
+  const [shippingMethod, setShippingMethod] = useState('standard');
   const location = useLocation();
-  const selectedPayment = location.state?.selectedPayment || 'wave';
-  const paymentMethod = paymentMethods.find(method => method.id === selectedPayment) || paymentMethods[0];
+
+  // AJOUT — Moyens de paiement dynamiques depuis le backend, filtrés par pays
+  const { user } = useAuth();
+  const resolvedCountry = country || resolveCountry(user?.country);
+  const { methods: paymentMethods } = usePaymentMethods({ country: resolvedCountry });
+
+  const selectedPayment = location.state?.selectedPayment || paymentMethods[0]?.id || 'wave';
+  const paymentMethod = paymentMethods.find(method => method.id === selectedPayment) || paymentMethods[0] || null;
 
   // MODIFICATION ICI — Supprimé shipping/serviceFee locaux (calculés par le backend via preview)
   const checkoutTotals = useMemo(() => {
@@ -60,9 +68,10 @@ export function useCheckout({ cartItems = [] } = {}) {
     items: cartItems,
     selectedPayment,
     paymentMethod,
-    shippingMethod, // MODIFICATION ICI
-    setShippingMethod, // MODIFICATION ICI
-    shippingMethods, // MODIFICATION ICI
+    paymentMethods, // AJOUT — liste dynamique
+    shippingMethod,
+    setShippingMethod,
+    shippingMethods,
     couponMutation,
     couponResult,
     ...checkoutTotals,

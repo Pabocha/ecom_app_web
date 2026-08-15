@@ -1,7 +1,6 @@
-import { paymentMethods } from '@/data/paymentMethod';
 import { CheckCircle, ShieldCheck } from 'lucide-react';
 
-export default function PaymentSelector({ selectedPayment, onSelectPayment }) {
+export default function PaymentSelector({ selectedPayment, onSelectPayment, methods = [] }) {
   return (
     <section className="bg-white rounded-lg shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
@@ -15,14 +14,20 @@ export default function PaymentSelector({ selectedPayment, onSelectPayment }) {
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        {paymentMethods.map(method => (
+        {methods.map(method => (
           <button
             key={method.id}
             onClick={() => onSelectPayment(method.id)}
             className={`relative rounded-lg border p-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-md ${selectedPayment === method.id ? `${method.tone} ring-2 ring-orange-400` : 'border-gray-100 bg-white'}`}
           >
             <div className="h-12 rounded bg-white flex items-center justify-center border border-gray-100">
-              <img src={method.logo} alt={method.name} className="max-h-8 max-w-[120px] object-contain" loading="lazy" />
+              {method.logo ? (
+                <img src={method.logo} alt={method.name} className="max-h-8 max-w-[120px] object-contain" loading="lazy" />
+              ) : (
+                <span className="font-['Barlow_Condensed'] text-[22px] font-black text-gray-300">
+                  {method.name?.charAt(0)?.toUpperCase()}
+                </span>
+              )}
             </div>
             <div className="mt-3 font-black text-[#0d1b2a] text-[13px]">{method.name}</div>
             <div className="text-[11px] text-gray-400">{method.type}</div>

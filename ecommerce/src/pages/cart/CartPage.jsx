@@ -21,7 +21,8 @@ function defaultVariantSelection(product) {
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { cartItems, changeQty, removeItem, addToCart, isPending, addingId } = useCart();
+  const { cartItems, changeQty, removeItem, addToCart, isPending, addingId, checkout } = useCart();
+  const paymentMethods = useMemo(() => checkout?.paymentMethods || [], [checkout?.paymentMethods]);
   const [selectedPayment, setSelectedPayment] = useState('wave');
   const [variantProduct, setVariantProduct] = useState(null);
   const [variantSelection, setVariantSelection] = useState({});
@@ -45,18 +46,16 @@ export default function CartPage() {
 
   const subtotal = selectedItems.reduce((s, item) => s + item.price * item.qty, 0);
   const totalQty = selectedItems.reduce((s, item) => s + item.qty, 0);
-  const shipping = subtotal >= 50000 || subtotal === 0 ? 0 : 2500;
-  const serviceFee = subtotal > 0 ? Math.round(subtotal * 0.012) : 0;
-  const total = subtotal + shipping + serviceFee;
+
+  // AJOUT — Sélection effective : si la liste dynamique change, on retombe sur la première méthode
+  const effectiveSelectedPayment = paymentMethods.some(method => method.id === selectedPayment)
+    ? selectedPayment
+    : (paymentMethods[0]?.id || selectedPayment);
 
   const handlePay = () => {
     navigate('/checkout', {
       state: {
-        selectedPayment,
-        subtotal,
-        shipping,
-        serviceFee,
-        total,
+        selectedPayment: effectiveSelectedPayment,
         selectedItemKeys: Array.from(selectedKeys),
       },
     });
@@ -158,7 +157,7 @@ export default function CartPage() {
           />
           </section>
 
-          <PaymentSelector selectedPayment={selectedPayment} onSelectPayment={setSelectedPayment} />
+          <PaymentSelector selectedPayment={effectiveSelectedPayment} onSelectPayment={setSelectedPayment} methods={paymentMethods} />
 
           <section className="bg-white rounded-lg shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
@@ -173,7 +172,7 @@ export default function CartPage() {
         </main>
 
         <aside className="space-y-4">
-          <CartSummary subtotal={subtotal} shipping={shipping} serviceFee={serviceFee} total={total} selectedPayment={selectedPayment} hasItems={items.length > 0} onPay={handlePay} />
+          <CartSummary subtotal={subtotal} selectedPayment={effectiveSelectedPayment} paymentMethods={paymentMethods} hasItems={items.length > 0} onPay={handlePay} />
         </aside>
       </div>
 

@@ -1,7 +1,7 @@
 /**
  * Constantes globales de l'application
  */
-import { User, MessageSquare, Gift, History, MapPin } from 'lucide-react';
+import { User, MessageSquare, Gift, History, MapPin, RotateCcw, Heart, Building2 } from 'lucide-react';
 
 export const APP_NAME = 'eCommerce';
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -15,7 +15,6 @@ export const ROUTES = {
   CART: '/cart',
   LOGIN: '/login',
   SIGNUP: '/signup',
-  B2B: '/b2b',
   DEALS: '/deals',
   FLASH_DEALS: '/flash-deals',
   NEW_PRODUCTS: '/new-products',
@@ -43,7 +42,10 @@ export const CART_LIMITS = {
 export const SIDE_TABS = [
   { key: 'infos', label: 'Informations', icon: User },
   { key: 'addresses', label: 'Mes adresses', icon: MapPin },
+  { key: 'favorites', label: 'Mes favoris', icon: Heart },
+  { key: 'followedShops', label: 'Vendeurs suivis', icon: Building2 },
   { key: 'reviews', label: 'Avis en attente', icon: MessageSquare },
   { key: 'coupons', label: "Bons d'achat", icon: Gift },
+  { key: 'returns', label: 'Mes retours', icon: RotateCcw },
   { key: 'recent', label: 'Vus récemment', icon: History },
 ];

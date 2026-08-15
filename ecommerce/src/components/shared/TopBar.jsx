@@ -1,23 +1,15 @@
-import { useState, useRef } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, ChevronRight, Heart, Box, Search, ShoppingCart, User } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ChevronDown, ChevronRight, Box, Search, ShoppingCart, User, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useCart } from '@/features/cart/hooks/useCart';
 import CategorySelectorModal from '@/layouts/CategorySelectorModal.jsx';
 import SearchDropdown from '@/components/search/SearchDropdown';
+import { useConversations } from '@/features/chat/hooks/useConversations';
 
-const actionIconMap = { heart: Heart, box: Box };
+const actionIconMap = { box: Box };
 
 const actionPopovers = [
-  {
-    icon: "heart",
-    label: "Favoris",
-    title: "Vos favoris",
-    text: "Gardez vos produits et fournisseurs préférés sous la main.",
-    primary: "Voir les favoris",
-    secondary: "Collections",
-    links: ["Produits sauvegardés", "Vendeurs suivis"],
-  },
   {
     icon: "box",
     label: "Commandes",
@@ -29,11 +21,11 @@ const actionPopovers = [
   },
 ];
 
-export default function TopBar({ backTo, backLabel = 'Retour', onBack }) {
+export default function TopBar() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
+  const { unreadTotal } = useConversations();
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
@@ -48,8 +40,8 @@ export default function TopBar({ backTo, backLabel = 'Retour', onBack }) {
     }
   };
 
-  const handleSelectCategory = (subcat) => {
-    navigate(`/search?q=${encodeURIComponent(subcat)}`);
+  const handleSelectCategory = (slug) => {
+    navigate(`/category/${slug}`);
   };
 
   // const handleBack = () => {
@@ -225,53 +217,39 @@ export default function TopBar({ backTo, backLabel = 'Retour', onBack }) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 p-3">
-                      {label === 'Commandes' ? (
-                        <button onClick={() => navigate('/profile/orders')} className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
-                          {primary}
-                        </button>
-                      ) : label === 'Favoris' ? (
-                        <button onClick={() => navigate('/favorites')} className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
-                          {primary}
-                        </button>
-                      ) : (
-                        <button className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
-                          {primary}
-                        </button>
-                      )}
+                      <button onClick={() => navigate('/profile/orders')} className="rounded bg-orange-500 px-3 py-2 text-[12px] font-black text-white hover:bg-orange-600">
+                        {primary}
+                      </button>
                       <button className="rounded border border-gray-200 px-3 py-2 text-[12px] font-bold text-gray-600 hover:border-orange-300 hover:text-orange-500">
                         {secondary}
                       </button>
                     </div>
 
                     <div className="grid divide-y divide-gray-100 border-t border-gray-100">
-                      {label === 'Favoris' ? (
-                        <>
-                          <button
-                            onClick={() => navigate('/favorites')}
-                            className="flex items-center justify-between px-4 py-2.5 text-left text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
-                          >
-                            {links[0]} <ChevronRight size={12} />
-                          </button>
-                          <button
-                            onClick={() => navigate('/favorites/shops')}
-                            className="flex items-center justify-between px-4 py-2.5 text-left text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
-                          >
-                            {links[1]} <ChevronRight size={12} />
-                          </button>
-                        </>
-                      ) : (
-                        links.map((link) => (
-                          <a key={link} href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
-                            {link} <ChevronRight size={12} />
-                          </a>
-                        ))
-                      )}
+                      {links.map((link) => (
+                        <a key={link} href="#" className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500">
+                          {link} <ChevronRight size={12} />
+                        </a>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
             );
           })}
+
+          <button
+            onClick={() => navigate('/messages')}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 text-white rounded hover:bg-white/10 transition-colors relative"
+          >
+            <MessageSquare size={18} className="text-orange-300" />
+            <span className="text-[11px]">Messages</span>
+            {unreadTotal > 0 && (
+              <span className="absolute top-0.5 right-1 bg-red-500 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                {unreadTotal > 9 ? '9+' : unreadTotal}
+              </span>
+            )}
+          </button>
 
           <button
             onClick={() => navigate('/cart')}

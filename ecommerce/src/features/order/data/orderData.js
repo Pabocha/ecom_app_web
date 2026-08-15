@@ -11,7 +11,42 @@ export const ORDER_STATUS = {
   partially_returned: { label: 'Partiellement retournée', color: 'bg-orange-100 text-orange-700', icon: RotateCcw },
 };
 
-export const ORDER_TABS = ['Toutes', 'En cours', 'Expédiées', 'Livrées', 'Annulées'];
+// MODIFICATION ICI — Un onglet par statut backend (8 statuts) + Toutes
+export const ORDER_TABS = [
+  { key: 'all', label: 'Toutes', status: null },
+  { key: 'pending', label: 'En attente', status: 'pending' },
+  { key: 'processing', label: 'En traitement', status: 'processing' },
+  { key: 'shipped', label: 'Expédiée', status: 'shipped' },
+  { key: 'in_transit', label: 'En transit', status: 'in_transit' },
+  { key: 'delivered', label: 'Livrée', status: 'delivered' },
+  { key: 'cancelled', label: 'Annulée', status: 'cancelled' },
+  { key: 'returned', label: 'Retournée', status: 'returned' },
+  { key: 'partially_returned', label: 'Partiellement retournée', status: 'partially_returned' },
+];
+
+export const RETURN_REASONS = [
+  { key: 'defective', label: 'Produit défectueux' },
+  { key: 'wrong_item', label: 'Mauvais article reçu' },
+  { key: 'damaged', label: 'Article endommagé' },
+  { key: 'not_as_described', label: 'Ne correspond pas à la description' },
+  { key: 'changed_mind', label: "Changement d'avis" },
+  { key: 'other', label: 'Autre' },
+];
+
+export const RETURN_REASON_LABELS = RETURN_REASONS.reduce((acc, r) => {
+  acc[r.key] = r.label;
+  return acc;
+}, {});
+
+export const RETURN_STATUS = {
+  pending: { label: 'En attente', color: 'bg-amber-100 text-amber-700' },
+  approved: { label: 'Approuvé', color: 'bg-green-100 text-green-700' },
+  rejected: { label: 'Rejeté', color: 'bg-red-100 text-red-700' },
+  shipped_back: { label: 'Renvoyé par le client', color: 'bg-blue-100 text-blue-700' },
+  received: { label: 'Reçu par le vendeur', color: 'bg-indigo-100 text-indigo-700' },
+  completed: { label: 'Terminé', color: 'bg-emerald-100 text-emerald-700' },
+  cancelled: { label: 'Annulé par le client', color: 'bg-gray-100 text-gray-600' },
+};
 
 export const mockOrders = [
   {

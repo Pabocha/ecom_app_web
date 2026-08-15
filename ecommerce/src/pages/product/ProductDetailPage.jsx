@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount, getSoldPercentage, getCountdownParts } from '@/utils/helpers.js';
+import { useNavigate } from 'react-router-dom';
+import { formatPrice, getProductPricing, getProductBadges, getPromoDiscount, getSoldPercentage, getCountdownParts, formatDate } from '@/utils/helpers.js';
 import { buildDetailFromApi, getOptionsAtLevel, getHexForOption, getLeafVariant, updateLevelSelection } from '@/features/product/utils/helpers.js';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import ProductSkeleton from '@/features/product/components/ProductSkeleton.jsx';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Star, Truck, Zap, BadgeCheck } from 'lucide-react';
+import { Building2, CheckCircle, Headphones, Heart, HelpCircle, Reply, RotateCcw, Share2, ShoppingCart, ShieldCheck, Truck, Zap, BadgeCheck } from 'lucide-react';
 import TopBar from '@/components/shared/TopBar';
+import RatingStars from '@/components/shared/RatingStars';
 import { useProductDetailShop, useRecommendations } from '@/features/product/hooks/useProduct';
 import { useFlashSaleByProduct } from '@/features/marketing/hooks/useMarketing';
+import { useProductReviews } from '@/features/reviews/hooks/useProductReviews';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useFavoriteState, useToggleFavorite, useFavoriteCards } from '@/features/favorites/hooks/useFavorites';
 import { useUIStore } from '@/stores/uiStore';
@@ -15,11 +18,8 @@ import { useUIStore } from '@/stores/uiStore';
 const TABS = ["Description", "Caractéristiques", "Prix volume", "Avis", "Questions"];
 const RATING_BG = ["bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-lime-400", "bg-green-500"];
 
-function RatingStars({ rating }) {
-  return <span className="flex items-center gap-0.5">{Array.from({ length: 5 }, (_, i) => <Star key={i} size={15} className={i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-200'} fill={i < Math.floor(rating) ? 'currentColor' : 'none'} />)}</span>;
-}
-
 export default function ProductDetailPage({ product, onClose, onAddToCart, addingId, onOpenProduct, onOpenShop }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState(TABS[0]);
   const [selImg, setSelImg] = useState(null);
   const [selIndices, setSelIndices] = useState([0]);
@@ -39,11 +39,34 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
 
   const { data: flashSales = [], isPending } = useFlashSaleByProduct(product?.id);
 
+  const { data: reviewsData = {}, isLoading: reviewsLoading } = useProductReviews(product?.id);
+  const reviews = reviewsData.reviews || [];
+
+  const reviewSummary = product?.review_summary || {};
+  const reviewTotal = reviewSummary.total_reviews || product?.numbers_reviews || 0;
+  const ratingsBreakdown = reviewSummary.ratings_breakdown || {};
+  const ratingDistPct = [5, 4, 3, 2, 1].map((star) =>
+    reviewTotal > 0 ? Math.round(((ratingsBreakdown[star] || 0) / reviewTotal) * 100) : 0
+  );
+
   // MODIFICATION ICI — Favoris branché sur le backend
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { data: favorited = false } = useFavoriteState(product?.id);
   const { mutate: toggleFavorite, isPending: favoriting } = useToggleFavorite();
   const { isFavorited, toggleFavorite: toggleFavoriteCard } = useFavoriteCards();
+
+  const isOwnShop = isAuthenticated && user?.id && product?.seller_id
+    ? Number(product.seller_id) === Number(user.id)
+    : false;
+
+  const handleContact = () => {
+    if (!isAuthenticated) {
+      useUIStore.getState().openLoginModal();
+      return;
+    }
+    if (!product?.id || !product?.seller_id) return;
+    navigate(`/messages?product=${product.id}&seller=${product.seller_id}`);
+  };
 
   const handleToggleFavorite = () => {
     if (!isAuthenticated) {
@@ -220,9 +243,15 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
               <div className="space-y-4">
                 <div className="flex items-center gap-6 pb-4 border-b border-gray-100">
                   <div className="text-center"><div className="font-['Barlow_Condensed'] text-[48px] font-black text-[#0d1b2a]">{product.average_rating?.toFixed(1) || '0.0'}</div><RatingStars rating={product.average_rating || 0} /><div className="text-[12px] text-gray-400">{(product.numbers_reviews || 0).toLocaleString()} avis</div></div>
-                  <div className="flex-1 space-y-1.5">{detail.ratingDist.map((count, i) => <div key={i} className="flex items-center gap-2 text-[12px]"><span className="w-8 text-right text-gray-500">{5 - i}★</span><div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full ${RATING_BG[i]} rounded-full transition-all`} style={{ width: `${(count / 100)}%` }} /></div><span className="w-6 text-right text-gray-400">{count}%</span></div>)}</div>
+                  <div className="flex-1 space-y-1.5">{ratingDistPct.map((pct, i) => <div key={i} className="flex items-center gap-2 text-[12px]"><span className="w-8 text-right text-gray-500">{5 - i}★</span><div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full ${RATING_BG[i]} rounded-full transition-all`} style={{ width: `${pct}%` }} /></div><span className="w-6 text-right text-gray-400">{pct}%</span></div>)}</div>
                 </div>
-                {detail.reviews.map((r, i) => <div key={i} className={`pb-4 ${i < detail.reviews.length - 1 ? 'border-b border-gray-50' : ''}`}><div className="flex items-center gap-2 mb-1"><RatingStars rating={r.rating} /><span className="text-[13px] font-bold text-[#0d1b2a]">{r.author}</span>{r.verified && <span className="text-[10px] bg-blue-50 text-blue-600 font-black px-1.5 py-0.5 rounded">Vérifié</span>}<span className="ml-auto text-[11px] text-gray-400">{r.date}</span></div><p className="text-[13px] text-gray-600 leading-relaxed">{r.text}</p><div className="mt-2 flex items-center gap-3 text-[11px] text-gray-400"><button className="hover:text-orange-500 font-bold">👍 Utile ({r.helpful})</button><button className="hover:text-orange-500 font-bold">Signaler</button></div></div>)}
+                {reviewsLoading ? (
+                  <p className="text-[13px] text-gray-400 text-center py-8">Chargement des avis...</p>
+                ) : reviews.length > 0 ? (
+                  reviews.map((r, i) => <div key={r.id} className={`pb-4 ${i < reviews.length - 1 ? 'border-b border-gray-50' : ''}`}><div className="flex items-center gap-2 mb-1"><RatingStars rating={r.rating} /><span className="text-[13px] font-bold text-[#0d1b2a]">{r.user?.first_name} {r.user?.last_name}</span>{r.is_edited && <span className="text-[10px] bg-gray-100 text-gray-500 font-black px-1.5 py-0.5 rounded">Modifié</span>}<span className="ml-auto text-[11px] text-gray-400">{r.date_added ? formatDate(r.date_added) : ''}</span></div>{r.comment && <p className="text-[13px] text-gray-600 leading-relaxed">{r.comment}</p>}<div className="mt-2 flex items-center gap-3 text-[11px] text-gray-400"><button className="hover:text-orange-500 font-bold">Signaler</button></div></div>)
+                ) : (
+                  <p className="text-[13px] text-gray-400 text-center py-8">Aucun avis pour le moment. Soyez le premier à donner votre avis.</p>
+                )}
               </div>
             )}
 
@@ -379,7 +408,12 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
               ].map(([label, value]) => <div key={label} className="rounded bg-gray-50 p-2"><div className="font-black text-[#0d1b2a] text-[12px]">{value}</div><div className="text-gray-400">{label}</div></div>)}
             </div>
             <div className="flex gap-2 mt-3">
-              <button className="flex-1 rounded border border-orange-300 py-2.5 text-[12px] font-bold text-orange-500 hover:bg-orange-50 transition-colors">Contacter</button>
+              <button
+                onClick={handleContact}
+                disabled={isOwnShop}
+                title={isOwnShop ? 'Votre propre boutique' : 'Discuter avec le vendeur'}
+                className="flex-1 rounded border border-orange-300 py-2.5 text-[12px] font-bold text-orange-500 hover:bg-orange-50 transition-colors disabled:opacity-40"
+              >Contacter</button>
               {/* MODIFICATION ICI — navigation vers la page boutique */}
               <button onClick={() => onOpenShop?.(product.shop)} className="flex-1 rounded bg-[#0d1b2a] py-2.5 text-[12px] font-bold text-white hover:bg-orange-500 transition-colors">Voir le shop</button>
               <button className="flex-1 rounded bg-orange-500 py-2.5 text-[12px] font-bold text-white hover:bg-orange-600 transition-colors">Devis</button>

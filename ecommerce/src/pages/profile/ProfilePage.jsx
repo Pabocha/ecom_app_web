@@ -8,7 +8,10 @@ import ProfilePasswordForm from '@/features/profile/components/ProfilePasswordFo
 import ProfileAddresses from '@/features/profile/components/ProfileAddresses';
 import ProfileReviews from '@/features/profile/components/ProfileReviews';
 import ProfileCoupons from '@/features/profile/components/ProfileCoupons';
+import ProfileReturns from '@/features/profile/components/ProfileReturns';
 import ProfileRecentViews from '@/features/profile/components/ProfileRecentViews';
+import ProfileFavorites from '@/features/profile/components/ProfileFavorites';
+import ProfileFollowedShops from '@/features/profile/components/ProfileFollowedShops';
 import TopBar from '@/components/shared/TopBar';
 
 export default function ProfilePage() {
@@ -67,8 +70,11 @@ export default function ProfilePage() {
               deleteMutation={addressData.deleteMutation}
             />
           )}
+          {activeTab === 'favorites' && <ProfileFavorites />}
+          {activeTab === 'followedShops' && <ProfileFollowedShops />}
           {activeTab === 'reviews' && <ProfileReviews />}
           {activeTab === 'coupons' && <ProfileCoupons />}
+          {activeTab === 'returns' && <ProfileReturns />}
           {activeTab === 'recent' && <ProfileRecentViews />}
         </div>
       </div>

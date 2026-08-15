@@ -1,9 +1,9 @@
 import { useCartData } from './useCartData';
 import { useCheckout } from './useCheckout';
 
-export function useCart() {
+export function useCart({ country } = {}) {
   const cartData = useCartData();
-  const checkout = useCheckout({ cartItems: cartData.cartItems });
+  const checkout = useCheckout({ cartItems: cartData.cartItems, country });
 
   return {
     ...cartData,

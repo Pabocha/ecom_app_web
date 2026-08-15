@@ -7,4 +7,7 @@ export const orderService = {
   getOrderDetails: (id) => api.get(`/v1/orders/${id}/`),
   payOrder: (id, data) => api.post(`/v1/orders/${id}/pay/`, data),
   updateOrderStatus: (id, data) => api.patch(`/v1/orders/${id}/update-status/`, data),
+  getReturnableItems: () => api.get(`/v1/orders/returnable-items/`),
+  getReturnRequests: () => api.get(`/v1/orders/returns/`),
+  createReturnRequest: (data) => api.post(`/v1/orders/returns/`, data),
 }

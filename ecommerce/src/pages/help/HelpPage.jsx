@@ -1,8 +1,23 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, HelpCircle } from 'lucide-react';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useSupportChat } from '@/features/chat/hooks/useSupportChat';
+import SupportChatWidget from '@/features/chat/components/SupportChatWidget';
 
 export default function HelpPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const supportChat = useSupportChat();
+  const [showChat, setShowChat] = useState(false);
+
+  const openChat = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setShowChat(true);
+  };
   const faqs = [
     {
       category: 'Achat & Panier',
@@ -56,13 +71,17 @@ export default function HelpPage() {
             { icon: '📞', label: 'Téléphone', desc: '+221 77 XXX XXXX' },
             { icon: '⏰', label: 'Horaires', desc: '7j/7, 8h-22h' },
           ].map((contact, i) => (
-            <button key={i} className="rounded-lg bg-white border border-gray-200 p-4 hover:shadow-md transition-shadow text-center shadow-sm">
+            <button key={i} onClick={contact.label === 'Chat en direct' ? openChat : undefined} className="rounded-lg bg-white border border-gray-200 p-4 hover:shadow-md transition-shadow text-center shadow-sm">
               <div className="text-[32px] mb-2">{contact.icon}</div>
               <div className="font-bold text-[14px] text-gray-800">{contact.label}</div>
               <div className="text-[12px] text-gray-500">{contact.desc}</div>
             </button>
           ))}
         </div>
+
+        {showChat && (
+          <SupportChatWidget chat={supportChat} onClose={() => setShowChat(false)} />
+        )}
 
         <div className="mb-8">
           <h3 className="font-['Barlow_Condensed'] text-[28px] font-black text-gray-800 mb-6">Questions fréquemment posées</h3>

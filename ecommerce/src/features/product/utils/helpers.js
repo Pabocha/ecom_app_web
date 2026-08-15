@@ -279,8 +279,6 @@ export function buildDetailFromApi(productDetail) {
     features,
     specs,
     volumePricing,
-    ratingDist: [0, 0, 0, 0, 0],
-    reviews: [],
     questions: [],
     supplier: {
       name: productDetail.shop_name || '',

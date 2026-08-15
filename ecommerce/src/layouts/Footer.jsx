@@ -11,7 +11,7 @@ const socialIconMap = {
 
 const footerCols = [
   { title: "Marketplace", links: ["Toutes catégories", "Offres du jour", "Nouveautés", "Meilleures ventes", "Ventes Flash"] },
-  { title: "Vendeurs", links: ["Devenir vendeur", "Espace fournisseur", "Programme B2B", "Tarifs & commissions", "Centre d'aide"] },
+  { title: "Vendeurs", links: ["Devenir vendeur", "Espace fournisseur", "Tarifs & commissions", "Centre d'aide"] },
   { title: "Services", links: ["Logistique & transport", "Inspection produits", "Financement achat", "Assurance colis", "Dédouanement"] },
   { title: "TradeHub", links: ["À propos", "Presse", "Carrières", "Blog", "Contact"] },
 ];
@@ -30,7 +30,7 @@ export default function Footer() {
               Trade<span className="text-orange-500">Hub</span>
             </span>
             <p className="text-[12px] text-gray-500 leading-relaxed mb-4">
-              La marketplace B2B & B2C de référence en Afrique de l'Ouest. Achetez, vendez, importez.
+              La marketplace de référence en Afrique de l'Ouest. Achetez, vendez, importez.
               Des millions de produits, des milliers de fournisseurs vérifiés.
             </p>
             <div className="flex gap-2">

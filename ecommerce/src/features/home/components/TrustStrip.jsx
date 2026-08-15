@@ -6,7 +6,7 @@ const items = [
   { icon: 'certificate', title: 'Fournisseurs Vérifiés', sub: 'Audit terrain & certification' },
   { icon: 'lock', title: 'Paiement Sécurisé', sub: 'Escrow & protection acheteur' },
   { icon: 'globe', title: 'Livraison Mondiale', sub: '+50 pays desservis' },
-  { icon: 'headset', title: 'Assistance Dédiée', sub: 'Conseiller personnel B2B' },
+  { icon: 'headset', title: 'Assistance Dédiée', sub: 'Conseiller personnel' },
   { icon: 'fileInvoiceDollar', title: 'Devis Gratuit', sub: 'Réponse sous 24h garantie' },
 ];
 

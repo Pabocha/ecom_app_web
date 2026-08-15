@@ -1,10 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
 import { useProductDetailShop } from '@/features/product/hooks/useProduct';
 import { useProducts } from '@/features/product/hooks/useProduct';
 import { useCart } from '@/features/cart/hooks/useCart';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
 import TopBar from '@/components/shared/TopBar';
-import { BadgeCheck, Building2, Package, ShoppingBag, Users, Star, Mail, Phone, MapPin, Clock, Truck, RotateCcw, Bell, BellRing } from 'lucide-react';
+import RatingStars from '@/components/shared/RatingStars';
+import { useProductReviewsByShop } from '@/features/reviews/hooks/useProductReviews';
+import { formatDate } from '@/utils/helpers';
+import { BadgeCheck, Package, ShoppingBag, Users, Star, Mail, Phone, MapPin, Clock, Truck, RotateCcw, Bell, BellRing } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useFavoriteCards } from '@/features/favorites/hooks/useFavorites';
 import { useFollowState, useToggleFollow } from '@/features/shop/hooks/useShopFollow';
@@ -24,6 +28,31 @@ export default function ShopPage() {
 
   const { data: productsRes } = useProducts({ shop: id });
   const products = productsRes?.data?.results || productsRes?.data || [];
+
+  const {
+    data: reviewsByShop = { reviews: [], hasNextPage: false },
+    fetchNextPage: fetchMoreProductReviews,
+    hasNextPage: moreProductReviews,
+    isFetchingNextPage: loadingMoreReviews,
+    isLoading: loadingProductReviews,
+  } = useProductReviewsByShop(id);
+
+  const productReviews = useMemo(() => reviewsByShop.reviews || [], [reviewsByShop.reviews]);
+
+  const reviewSummary = shop.review_summary || {};
+  const shopReviews = shop.reviews || [];
+  const ratingsBreakdown = reviewSummary.ratings_breakdown || {};
+
+  const groupedProductReviews = useMemo(() => {
+    const map = {};
+    productReviews.forEach((review) => {
+      const productDetail = review.product_detail || {};
+      const key = productDetail.id ?? 'unknown';
+      if (!map[key]) map[key] = { product: productDetail, items: [] };
+      map[key].items.push(review);
+    });
+    return Object.values(map);
+  }, [productReviews]);
 
   const followed = followState?.followed ?? false;
   const totalFollowers = followState?.total ?? shop.total_followers ?? 0;
@@ -151,6 +180,112 @@ export default function ShopPage() {
             </div>
           ) : (
             <p className="text-[13px] text-gray-400 text-center py-8">Aucun produit pour le moment</p>
+          )}
+        </div>
+
+        {/* Shop Reviews */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <h2 className="text-[15px] font-black text-[#0d1b2a] mb-4">Avis sur la boutique</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr] gap-6">
+            <div>
+              <div className="flex items-end gap-1 mb-1">
+                <span className="font-['Barlow_Condensed'] text-[44px] font-black text-[#0d1b2a] leading-none">{(reviewSummary.average_rating || 0).toFixed(1)}</span>
+                <span className="text-[13px] text-gray-400 mb-1">/ 5</span>
+              </div>
+              <RatingStars rating={reviewSummary.average_rating || 0} size={18} />
+              <div className="text-[12px] text-gray-400 mt-2">{(reviewSummary.total_reviews || 0).toLocaleString()} avis</div>
+              <div className="text-[12px] text-gray-400 mt-1">{totalFollowers.toLocaleString()} abonnés</div>
+
+              <div className="mt-4 space-y-1.5">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const count = ratingsBreakdown[star] || 0;
+                  const total = reviewSummary.total_reviews || 0;
+                  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                  return (
+                    <div key={star} className="flex items-center gap-2 text-[11px] text-gray-500">
+                      <span className="w-2 shrink-0 text-right">{star}</span>
+                      <Star size={11} className="text-yellow-400 fill-yellow-400 shrink-0" />
+                      <div className="flex-1 h-1.5 bg-gray-100 rounded overflow-hidden">
+                        <div className="h-full bg-orange-500 rounded" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="w-5 text-right shrink-0">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
+              {shopReviews.length > 0 ? (
+                shopReviews.map((r) => (
+                  <div key={r.id} className="pb-4 border-b border-gray-50 last:border-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <RatingStars rating={r.rating} size={13} />
+                      <span className="text-[13px] font-bold text-[#0d1b2a]">{r.user?.first_name} {r.user?.last_name}</span>
+                      {r.is_edited && (
+                        <span className="text-[10px] bg-gray-100 text-gray-500 font-black px-1.5 py-0.5 rounded">Modifié</span>
+                      )}
+                      <span className="ml-auto text-[11px] text-gray-400">{r.date_added ? formatDate(r.date_added) : ''}</span>
+                    </div>
+                    {r.comment && <p className="text-[13px] text-gray-600 leading-relaxed">{r.comment}</p>}
+                  </div>
+                ))
+              ) : (
+                <p className="text-[13px] text-gray-400 text-center py-8">Aucun avis sur cette boutique pour le moment</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Product Reviews of the shop */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <h2 className="text-[15px] font-black text-[#0d1b2a] mb-4">Avis des produits de la boutique</h2>
+          {loadingProductReviews && productReviews.length === 0 ? (
+            <p className="text-[13px] text-gray-400 text-center py-8">Chargement des avis...</p>
+          ) : groupedProductReviews.length > 0 ? (
+            <div className="space-y-5">
+              {groupedProductReviews.map((group) => (
+                <div key={group.product.id ?? 'unknown'}>
+                  <button
+                    onClick={() => group.product.id && navigate(`/product/${group.product.id}`)}
+                    className="flex items-center gap-2 mb-2"
+                  >
+                    {group.product.image ? (
+                      <img src={group.product.image} alt={group.product.name} className="w-9 h-9 rounded object-cover border border-gray-100" />
+                    ) : (
+                      <span className="w-9 h-9 rounded bg-gray-100 flex items-center justify-center"><Package size={16} className="text-gray-400" /></span>
+                    )}
+                    <span className="text-[13px] font-bold text-[#0d1b2a] hover:text-blue-600">{group.product.name || 'Produit'}</span>
+                  </button>
+                  <div className="space-y-3">
+                    {group.items.map((r) => (
+                      <div key={r.id} className="pb-3 border-b border-gray-50 last:border-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <RatingStars rating={r.rating} size={13} />
+                          <span className="text-[13px] font-bold text-[#0d1b2a]">{r.user?.first_name} {r.user?.last_name}</span>
+                          {r.is_edited && (
+                            <span className="text-[10px] bg-gray-100 text-gray-500 font-black px-1.5 py-0.5 rounded">Modifié</span>
+                          )}
+                          <span className="ml-auto text-[11px] text-gray-400">{r.date_added ? formatDate(r.date_added) : ''}</span>
+                        </div>
+                        {r.comment && <p className="text-[13px] text-gray-600 leading-relaxed">{r.comment}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {moreProductReviews && (
+                <button
+                  onClick={() => fetchMoreProductReviews()}
+                  disabled={loadingMoreReviews}
+                  className="w-full mt-2 rounded-lg border border-gray-200 py-2.5 text-[12px] font-black text-[#0d1b2a] hover:bg-gray-50 transition-colors"
+                >
+                  {loadingMoreReviews ? 'Chargement...' : 'Voir plus d\'avis'}
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="text-[13px] text-gray-400 text-center py-8">Aucun avis sur les produits de cette boutique pour le moment</p>
           )}
         </div>
       </div>

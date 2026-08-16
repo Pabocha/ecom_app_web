@@ -11,7 +11,20 @@ export default function MessageBubble({ message, isOwn }) {
   const isProduct = message.message_type === 'product';
   const isImage = message.message_type === 'image';
   const product = message.product_detail || null;
-  const price = message.active_price?.amount ?? product?.base_price?.amount ?? null;
+  const active = message.active_price || null;
+  const pd = product?.pricing_display || {};
+
+  const mainAmount = active?.amount ?? product?.base_price?.amount ?? null;
+  let oldAmount = null;
+  let tierBadge = null;
+  if (active?.type === 'promo') {
+    oldAmount = pd.base_price ?? null;
+  } else if (active?.type === 'variant') {
+    if (pd.base_price != null && Number(pd.base_price) !== Number(mainAmount)) oldAmount = pd.base_price;
+  } else if ((active?.type === 'tier' || (!active && pd.type === 'tiers')) && pd.tiers_count) {
+    tierBadge = `${pd.tiers_count} prix`;
+  }
+  const minQty = message.min_order_quantity ?? product?.min_order_quantity ?? null;
 
   return (
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
@@ -22,26 +35,31 @@ export default function MessageBubble({ message, isOwn }) {
       >
         {!isOwn && <div className="text-[10px] font-black mb-0.5 text-gray-400">{message.userName}</div>}
         {isProduct && product ? (
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+          <div className="w-56 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+            <div className="h-32 bg-gray-100 overflow-hidden">
               {product.image ? (
                 <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-300 text-[9px]">IMG</div>
+                <div className="w-full h-full flex items-center justify-center text-gray-300 text-[10px]">IMG</div>
               )}
             </div>
-            <div className="min-w-0">
-              <div className={`text-[13px] font-black leading-tight ${isOwn ? 'text-white' : 'text-[#0d1b2a]'}`}>
-                {product.name}
+            <div className="p-2.5 space-y-1">
+              <div className="text-[12px] font-black leading-snug text-[#0d1b2a] line-clamp-2">{product.name}</div>
+              {message.variant_detail?.sku && <div className="text-[10px] text-gray-400">{message.variant_detail.sku}</div>}
+              <div className="flex items-center gap-1.5">
+                {mainAmount != null && (
+                  <span className="text-orange-500 font-black text-[13px]">{formatPrice(mainAmount)}</span>
+                )}
+                {oldAmount != null && (
+                  <span className="text-gray-400 text-[11px] line-through">{formatPrice(oldAmount)}</span>
+                )}
+                {tierBadge && (
+                  <span className="ml-auto text-[9px] font-black text-cyan-700 bg-cyan-50 rounded px-1.5 py-0.5">
+                    {tierBadge}
+                  </span>
+                )}
               </div>
-              {message.variant_detail?.sku && (
-                <div className={`text-[11px] ${isOwn ? 'text-white/80' : 'text-gray-400'}`}>{message.variant_detail.sku}</div>
-              )}
-              {price != null && (
-                <div className={`text-[12px] font-black mt-0.5 ${isOwn ? 'text-white' : 'text-orange-500'}`}>
-                  {formatPrice(price)}
-                </div>
-              )}
+              {minQty != null && <div className="text-[10px] text-gray-400">Quantité min. : {minQty}</div>}
             </div>
           </div>
         ) : isImage ? (

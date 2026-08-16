@@ -17,7 +17,9 @@ export const chatService = {
       if (data.product_id) form.append('product_id', data.product_id);
       if (data.variant_id) form.append('variant_id', data.variant_id);
       if (data.message_type) form.append('message_type', data.message_type);
-      return api.post(`/v1/messaging/chats/${roomId}/messages/upload`, form);
+      return api.post(`/v1/messaging/chats/${roomId}/messages/upload`, form, {
+        headers: { 'Content-Type': undefined },
+      });
     }
     return api.post(`/v1/messaging/chats/${roomId}/messages/upload`, data);
   },

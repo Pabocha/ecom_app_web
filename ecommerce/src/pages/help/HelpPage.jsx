@@ -107,7 +107,12 @@ export default function HelpPage() {
           <div className="rounded-lg bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-300 p-8">
             <h4 className="font-bold text-[18px] text-gray-800 mb-3">Besoin d'aide supplémentaire?</h4>
             <p className="text-gray-600 mb-4">Contactez notre équipe de support client. Nous répondons généralement en moins de 2 heures.</p>
-            <button className="bg-cyan-600 hover:bg-cyan-700 px-6 py-2 rounded font-bold text-[14px] text-white">Ouvrir un ticket</button>
+            <button
+              onClick={() => navigate('/support/tickets/new')}
+              className="bg-cyan-600 hover:bg-cyan-700 px-6 py-2 rounded font-bold text-[14px] text-white"
+            >
+              Ouvrir un ticket
+            </button>
           </div>
 
           <div className="rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-300 p-8">

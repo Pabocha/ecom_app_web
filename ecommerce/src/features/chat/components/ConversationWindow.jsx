@@ -2,7 +2,7 @@ import { ArrowLeft, Package, Pin } from 'lucide-react';
 import MessageList from './MessageList';
 import ChatComposer from './ChatComposer';
 import { useChatRoom } from '../hooks/useChatRoom';
-import { formatPrice } from '@/utils/helpers';
+import { formatLastSeen, formatPrice } from '@/utils/helpers';
 import { useAuthStore } from '@/stores/authStore';
 
 function initialsOf(name) {
@@ -17,7 +17,21 @@ function initialsOf(name) {
 
 export default function ConversationWindow({ roomId, conversation, onBack }) {
   const currentUserId = useAuthStore((s) => s.user?.id);
-  const { userId, messages, roomMeta, isLoading, isConnected, isSending, sendText } = useChatRoom(roomId);
+  const {
+    userId,
+    messages,
+    roomMeta,
+    isLoading,
+    isConnected,
+    isSending,
+    isPeerOnline,
+    isPeerTyping,
+    peerLastSeen,
+    sendText,
+    sendImage,
+    notifyTyping,
+    notifyStopTyping,
+  } = useChatRoom(roomId);
 
   const counterMember = (roomMeta?.member || []).find((m) => String(m.id) !== String(currentUserId));
   const support = conversation?.is_support;
@@ -58,12 +72,22 @@ export default function ConversationWindow({ roomId, conversation, onBack }) {
           )}
           <div className="min-w-0">
             <div className="text-[14px] font-black truncate">{name}</div>
-            <div className="flex items-center gap-1.5 text-[11px]">
-              <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-gray-500'}`} />
-              <span className={isConnected ? 'text-green-300' : 'text-gray-400'}>
-                {isConnected ? 'En ligne' : 'Connexion…'}
-              </span>
-            </div>
+            {isPeerTyping ? (
+              <div className="flex items-center gap-1.5 text-[11px] text-cyan-300">
+                <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                En train d'écrire…
+              </div>
+            ) : isPeerOnline ? (
+              <div className="flex items-center gap-1.5 text-[11px] text-green-300">
+                <span className="h-2 w-2 rounded-full bg-green-400" />
+                En ligne
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                <span className="h-2 w-2 rounded-full bg-gray-500" />
+                {isConnected ? formatLastSeen(peerLastSeen) : 'Connexion…'}
+              </div>
+            )}
           </div>
         </div>
         {pinned && (
@@ -93,7 +117,14 @@ export default function ConversationWindow({ roomId, conversation, onBack }) {
         emptyText="Aucun message. Posez votre question à ce sujet."
       />
 
-      <ChatComposer onSendText={sendText} isSending={isSending} disabled={!roomId} />
+      <ChatComposer
+        onSendText={sendText}
+        onSendImage={sendImage}
+        onTyping={notifyTyping}
+        onStopTyping={notifyStopTyping}
+        isSending={isSending}
+        disabled={!roomId}
+      />
     </div>
   );
 }

@@ -2,9 +2,11 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { chatService } from '../services/chatService';
 import { useAuthStore } from '@/stores/authStore';
+import { useChatSocket } from './useChatSocket';
 
 export function useConversations() {
   const userId = useAuthStore((s) => s.user?.id);
+  const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ['chat-conversations'],
     queryFn: async () => {
@@ -13,6 +15,14 @@ export function useConversations() {
     },
     enabled: !!userId,
     refetchInterval: userId ? 30000 : false,
+  });
+
+  useChatSocket(userId, {
+    onMessage: (data) => {
+      if (data.action === 'message') {
+        queryClient.invalidateQueries({ queryKey: ['chat-conversations'] });
+      }
+    },
   });
 
   const unreadTotal = useMemo(

@@ -1,3 +1,4 @@
+import { Check, CheckCheck } from 'lucide-react';
 import { formatPrice } from '@/utils/helpers';
 
 function formatTime(ts) {
@@ -8,6 +9,7 @@ function formatTime(ts) {
 
 export default function MessageBubble({ message, isOwn }) {
   const isProduct = message.message_type === 'product';
+  const isImage = message.message_type === 'image';
   const product = message.product_detail || null;
   const price = message.active_price?.amount ?? product?.base_price?.amount ?? null;
 
@@ -42,12 +44,31 @@ export default function MessageBubble({ message, isOwn }) {
               )}
             </div>
           </div>
+        ) : isImage ? (
+          <div className="flex flex-col gap-1.5">
+            {message.image && (
+              <img src={message.image} alt="" className="max-h-56 rounded-lg object-cover" />
+            )}
+            {message.message && (
+              <div className={`text-[13px] leading-relaxed ${isOwn ? 'text-white' : 'text-[#0d1b2a]'}`}>
+                {message.message}
+              </div>
+            )}
+          </div>
         ) : (
           <div className={`text-[13px] leading-relaxed ${isOwn ? 'text-white' : 'text-[#0d1b2a]'}`}>
             {message.message || '…'}
           </div>
         )}
-        <div className={`text-[10px] mt-1 ${isOwn ? 'text-white/70' : 'text-gray-400'}`}>{formatTime(message.timestamp)}</div>
+        <div className="flex items-center justify-end gap-1 mt-1">
+          <span className={`text-[10px] ${isOwn ? 'text-white/70' : 'text-gray-400'}`}>{formatTime(message.timestamp)}</span>
+          {isOwn &&
+            (message.is_read ? (
+              <CheckCheck size={14} className="text-cyan-100" />
+            ) : (
+              <Check size={14} className="text-white/60" />
+            ))}
+        </div>
       </div>
     </div>
   );

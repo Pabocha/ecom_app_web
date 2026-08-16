@@ -9,6 +9,8 @@ function buildSocketUrl(userId) {
 
 export function useChatSocket(userId, { onMessage, onStatus } = {}) {
   const [isConnected, setIsConnected] = useState(false);
+  const [onlineUserIds, setOnlineUserIds] = useState([]);
+  const [lastSeenMap, setLastSeenMap] = useState({});
   const wsRef = useRef(null);
   const retryRef = useRef(0);
   const connectRef = useRef(null);
@@ -34,6 +36,12 @@ export function useChatSocket(userId, { onMessage, onStatus } = {}) {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+        if (data.action === 'onlineUser') {
+          setOnlineUserIds(data.userList || []);
+          if (data.last_seen && typeof data.last_seen === 'object') {
+            setLastSeenMap((prev) => ({ ...prev, ...data.last_seen }));
+          }
+        }
         onMessageRef.current?.(data);
       } catch {
         // message JSON invalide ignoré
@@ -86,5 +94,5 @@ export function useChatSocket(userId, { onMessage, onStatus } = {}) {
     return true;
   }, []);
 
-  return { isConnected, send };
+  return { isConnected, send, onlineUserIds, lastSeenMap };
 }

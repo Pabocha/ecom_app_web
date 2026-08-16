@@ -45,8 +45,14 @@ export default function SupportChatWidget({ chat, onClose }) {
             isLoading={chat.isLoading}
             isConnected={chat.isConnected}
             isSending={chat.isSending}
+            isPeerOnline={chat.isPeerOnline}
+            isPeerTyping={chat.isPeerTyping}
+            peerLastSeen={chat.peerLastSeen}
             sendText={chat.sendText}
             sendProductMessage={chat.sendProductMessage}
+            sendImage={chat.sendImage}
+            notifyTyping={chat.notifyTyping}
+            notifyStopTyping={chat.notifyStopTyping}
             returnDraft={chat.returnDraft}
             addReturnItem={chat.addReturnItem}
             setReturnReason={chat.setReturnReason}

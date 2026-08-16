@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { chatService } from '../services/chatService';
 import { useAuthStore } from '@/stores/authStore';
@@ -12,7 +12,11 @@ export function useChatRoom(roomId) {
   const [isSending, setIsSending] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [roomMeta, setRoomMeta] = useState(null);
+  const [isPeerTyping, setIsPeerTyping] = useState(false);
   const messagesRef = useRef([]);
+  const typingResetRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(typingResetRef.current), []);
 
   const appendMessage = useCallback(
     (msg) => {
@@ -25,14 +29,53 @@ export function useChatRoom(roomId) {
     [queryClient],
   );
 
-  useChatSocket(userId, {
+  const applyReadReceipts = useCallback((ids) => {
+    if (!ids?.length) return;
+    messagesRef.current = messagesRef.current.map((m) => (ids.includes(m.id) ? { ...m, is_read: true } : m));
+    setMessages(messagesRef.current);
+  }, []);
+
+  const { send, onlineUserIds, lastSeenMap } = useChatSocket(userId, {
     onMessage: (data) => {
-      if (data.action === 'message' && roomId && data.roomId === roomId) {
+      if (!roomId) return;
+      if (data.action === 'message' && data.roomId === roomId) {
         appendMessage(data);
+      } else if (data.action === 'read' && data.roomId === roomId) {
+        applyReadReceipts(data.message_ids);
+      } else if (data.action === 'typing' && data.roomId === roomId && String(data.user) !== String(userId)) {
+        setIsPeerTyping(true);
+        clearTimeout(typingResetRef.current);
+        typingResetRef.current = setTimeout(() => setIsPeerTyping(false), 4000);
+      } else if (data.action === 'stop_typing' && data.roomId === roomId) {
+        setIsPeerTyping(false);
+        clearTimeout(typingResetRef.current);
       }
     },
     onStatus: setIsConnected,
   });
+
+  const peerId = useMemo(() => {
+    const member = (roomMeta?.member || []).find((m) => String(m.id) !== String(userId));
+    return member ? member.id : null;
+  }, [roomMeta, userId]);
+
+  const isPeerOnline = peerId != null && onlineUserIds.includes(Number(peerId));
+
+  const peerLastSeen = useMemo(() => {
+    if (peerId == null) return null;
+    const member = (roomMeta?.member || []).find((m) => String(m.id) === String(peerId));
+    return lastSeenMap[peerId] ?? member?.last_seen ?? null;
+  }, [peerId, roomMeta, lastSeenMap]);
+
+  const notifyTyping = useCallback(() => {
+    if (!roomId) return;
+    send({ action: 'typing', user: userId, roomId });
+  }, [roomId, send, userId]);
+
+  const notifyStopTyping = useCallback(() => {
+    if (!roomId) return;
+    send({ action: 'stop_typing', user: userId, roomId });
+  }, [roomId, send, userId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +155,25 @@ export function useChatRoom(roomId) {
     [roomId, appendMessage],
   );
 
+  const sendImage = useCallback(
+    async (file, caption) => {
+      if (!roomId || !file || isSending) return;
+      setIsSending(true);
+      try {
+        const res = await chatService.sendMessage(roomId, {
+          image: file,
+          ...(caption ? { message: caption } : {}),
+        });
+        appendMessage(res?.data);
+      } catch {
+        // silencieux
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [roomId, appendMessage, isSending],
+  );
+
   return {
     userId,
     messages,
@@ -119,7 +181,13 @@ export function useChatRoom(roomId) {
     isLoading,
     isConnected,
     isSending,
+    isPeerOnline,
+    isPeerTyping,
+    peerLastSeen,
     sendText,
     sendProductMessage,
+    sendImage,
+    notifyTyping,
+    notifyStopTyping,
   };
 }

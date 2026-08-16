@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { chatService } from '../services/chatService';
 import { useAuthStore } from '@/stores/authStore';
 import { useChatSocket } from './useChatSocket';
@@ -14,10 +14,14 @@ export function useSupportChat() {
   const [isStarting, setIsStarting] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [isPeerTyping, setIsPeerTyping] = useState(false);
   const [error, setError] = useState(null);
   const [returnDraft, setReturnDraft] = useState(EMPTY_DRAFT);
   const roomIdRef = useRef(null);
   const messagesRef = useRef([]);
+  const typingResetRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(typingResetRef.current), []);
 
   const appendMessage = useCallback((msg) => {
     if (!msg || !msg.id) return;
@@ -26,14 +30,54 @@ export function useSupportChat() {
     setMessages(messagesRef.current);
   }, []);
 
-  useChatSocket(userId, {
+  const applyReadReceipts = useCallback((ids) => {
+    if (!ids?.length) return;
+    messagesRef.current = messagesRef.current.map((m) => (ids.includes(m.id) ? { ...m, is_read: true } : m));
+    setMessages(messagesRef.current);
+  }, []);
+
+  const { send, onlineUserIds, lastSeenMap } = useChatSocket(userId, {
     onMessage: (data) => {
       if (data.action === 'message' && data.roomId === roomIdRef.current) {
         appendMessage(data);
+      } else if (data.action === 'read' && data.roomId === roomIdRef.current) {
+        applyReadReceipts(data.message_ids);
+      } else if (
+        data.action === 'typing' &&
+        data.roomId === roomIdRef.current &&
+        String(data.user) !== String(userId)
+      ) {
+        setIsPeerTyping(true);
+        clearTimeout(typingResetRef.current);
+        typingResetRef.current = setTimeout(() => setIsPeerTyping(false), 4000);
+      } else if (data.action === 'stop_typing' && data.roomId === roomIdRef.current) {
+        setIsPeerTyping(false);
+        clearTimeout(typingResetRef.current);
       }
     },
     onStatus: setIsConnected,
   });
+
+  const agentId = useMemo(() => (agent ? Number(agent.id) : null), [agent]);
+
+  const isPeerOnline = agentId != null && onlineUserIds.includes(agentId);
+
+  const peerLastSeen = useMemo(() => {
+    if (agentId == null) return null;
+    return lastSeenMap[agentId] ?? agent?.last_seen ?? null;
+  }, [agentId, agent, lastSeenMap]);
+
+  const notifyTyping = useCallback(() => {
+    const roomId = roomIdRef.current;
+    if (!roomId) return;
+    send({ action: 'typing', user: userId, roomId });
+  }, [send, userId]);
+
+  const notifyStopTyping = useCallback(() => {
+    const roomId = roomIdRef.current;
+    if (!roomId) return;
+    send({ action: 'stop_typing', user: userId, roomId });
+  }, [send, userId]);
 
   const loadMessages = useCallback(async (roomId) => {
     setIsLoading(true);
@@ -110,6 +154,26 @@ export function useSupportChat() {
     [appendMessage],
   );
 
+  const sendImage = useCallback(
+    async (file, caption) => {
+      const roomId = roomIdRef.current;
+      if (!roomId || !file || isSending) return;
+      setIsSending(true);
+      try {
+        const res = await chatService.sendMessage(roomId, {
+          image: file,
+          ...(caption ? { message: caption } : {}),
+        });
+        appendMessage(res?.data);
+      } catch {
+        // silencieux
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [appendMessage, isSending],
+  );
+
   const addReturnItem = useCallback((item) => {
     setReturnDraft((draft) => {
       const existingOrderId = draft.items[0]?.order_id;
@@ -139,10 +203,16 @@ export function useSupportChat() {
     isStarting,
     isConnected,
     isSending,
+    isPeerOnline,
+    isPeerTyping,
+    peerLastSeen,
     error,
     start,
     sendText,
     sendProductMessage,
+    sendImage,
+    notifyTyping,
+    notifyStopTyping,
     returnDraft,
     addReturnItem,
     setReturnReason,

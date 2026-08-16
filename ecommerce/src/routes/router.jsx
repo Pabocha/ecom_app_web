@@ -38,6 +38,8 @@ import ProfilePage from "@/pages/profile/ProfilePage";
 import OrdersPage from "@/pages/order/OrdersPage";
 import OrderDetailPage from "@/pages/order/OrderDetailPage";
 import MessagesPage from "@/pages/messages/MessagesPage";
+import TicketCreatePage from "@/pages/support/TicketCreatePage";
+import TicketsPage from "@/pages/support/TicketsPage";
 
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
@@ -140,6 +142,9 @@ export const routes = [
       { path: "/profile/orders", element: <PrivateRoute><OrdersPage /></PrivateRoute> },
       { path: "/profile/orders/:id", element: <PrivateRoute><OrderDetailRoute /></PrivateRoute> },
       { path: "/messages", element: <PrivateRoute><MessagesPage /></PrivateRoute> },
+
+      { path: "/support/tickets", element: <PrivateRoute><TicketsPage /></PrivateRoute> },
+      { path: "/support/tickets/new", element: <PrivateRoute><TicketCreatePage /></PrivateRoute> },
 
       { path: "/cart", element: <CartPage /> },
       { path: "/checkout", element: <PrivateRoute><CheckoutPage /></PrivateRoute> },

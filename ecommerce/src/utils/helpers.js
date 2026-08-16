@@ -122,6 +122,24 @@ export const truncateText = (text, maxLength) => {
   return text.slice(0, maxLength) + '...';
 };
 
+export const formatLastSeen = (lastSeen) => {
+  if (!lastSeen) return 'Hors ligne';
+  const date = new Date(lastSeen);
+  if (Number.isNaN(date.getTime())) return 'Hors ligne';
+  const now = new Date();
+  const diffMin = Math.floor((now - date) / 60000);
+  if (diffMin < 1) return "Dernière vue à l'instant";
+  if (diffMin < 60) return `Dernière vue il y a ${diffMin} min`;
+  const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+  if (date >= startOfToday) return `Dernière vue aujourd'hui à ${time}`;
+  if (date >= startOfYesterday) return `Dernière vue hier à ${time}`;
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `Dernière vue le ${day}/${month}/${date.getFullYear()} à ${time}`;
+};
+
 export const debounce = (fn, delay) => {
   let timeoutId;
   return function (...args) {

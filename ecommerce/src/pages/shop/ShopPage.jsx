@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useProductDetailShop } from '@/features/product/hooks/useProduct';
 import { useProducts } from '@/features/product/hooks/useProduct';
 import { useCart } from '@/features/cart/hooks/useCart';
 import ProductCard from '@/features/product/components/ProductCard.jsx';
+import { shopService } from '@/features/shop/services/shopService';
 import TopBar from '@/components/shared/TopBar';
 import RatingStars from '@/components/shared/RatingStars';
 import { useProductReviewsByShop } from '@/features/reviews/hooks/useProductReviews';
@@ -63,6 +64,11 @@ export default function ShopPage() {
     }
     toggleFollow(id);
   };
+
+  useEffect(() => {
+    if (!id) return;
+    shopService.trackVisit(id).catch(() => {});
+  }, [id]);
 
   const stats = [
     { icon: Package, label: 'Produits', value: shop.total_products || 0 },

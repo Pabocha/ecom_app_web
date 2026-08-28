@@ -19,7 +19,7 @@ export function useConversations() {
 
   useChatSocket(userId, {
     onMessage: (data) => {
-      if (data.action === 'message') {
+      if (data.action === 'message' || data.action === 'quote') {
         queryClient.invalidateQueries({ queryKey: ['chat-conversations'] });
       }
     },

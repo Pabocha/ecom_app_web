@@ -24,7 +24,7 @@ export function useOrders() {
   }, [activeTab, allOrders]);
 
   const countByStatus = useMemo(() => {
-    const counts = { pending: 0, processing: 0, shipped: 0, in_transit: 0, delivered: 0, cancelled: 0, returned: 0, partially_returned: 0 };
+    const counts = { pending: 0, processing: 0, deposited: 0, shipped: 0, in_transit: 0, delivered: 0, cancelled: 0, returned: 0, partially_returned: 0 };
     allOrders.forEach((o) => { if (counts[o.status] !== undefined) counts[o.status]++; });
     return counts;
   }, [allOrders]);

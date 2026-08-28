@@ -35,6 +35,28 @@ export function useChatRoom(roomId) {
     setMessages(messagesRef.current);
   }, []);
 
+  // MODIFICATION ICI — Recharge les messages + le room_meta (utilisé après un événement devis)
+  const loadRoom = useCallback(async () => {
+    if (!roomId) {
+      messagesRef.current = [];
+      setMessages([]);
+      setRoomMeta(null);
+      return;
+    }
+    try {
+      const res = await chatService.getMessages(roomId);
+      const data = res?.data;
+      const list = [...(data?.results || [])].reverse();
+      messagesRef.current = list;
+      setMessages(list);
+      setRoomMeta(data?.room_meta || null);
+    } catch {
+      messagesRef.current = [];
+      setMessages([]);
+      setRoomMeta(null);
+    }
+  }, [roomId]);
+
   const { send, onlineUserIds, lastSeenMap } = useChatSocket(userId, {
     onMessage: (data) => {
       if (!roomId) return;
@@ -49,6 +71,9 @@ export function useChatRoom(roomId) {
       } else if (data.action === 'stop_typing' && data.roomId === roomId) {
         setIsPeerTyping(false);
         clearTimeout(typingResetRef.current);
+      } else if (data.action === 'quote' && data.roomId === roomId) {
+        loadRoom();
+        queryClient.invalidateQueries({ queryKey: ['room-quote', roomId] });
       }
     },
     onStatus: setIsConnected,
@@ -189,5 +214,6 @@ export function useChatRoom(roomId) {
     sendImage,
     notifyTyping,
     notifyStopTyping,
+    reloadRoom: loadRoom,
   };
 }

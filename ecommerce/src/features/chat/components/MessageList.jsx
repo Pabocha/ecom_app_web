@@ -6,6 +6,9 @@ export default function MessageList({
   currentUserId,
   isLoading,
   emptyText = 'Aucun message. Posez votre question à notre équipe support.',
+  quoteContext,
+  onAcceptOffer,
+  acceptingQuoteId,
 }) {
   const bottomRef = useRef(null);
 
@@ -23,7 +26,14 @@ export default function MessageList({
         </p>
       ) : (
         messages.map((m) => (
-          <MessageBubble key={m.id} message={m} isOwn={String(m.user) === String(currentUserId)} />
+          <MessageBubble
+            key={m.id}
+            message={m}
+            isOwn={String(m.user) === String(currentUserId)}
+            quoteContext={quoteContext}
+            onAcceptOffer={onAcceptOffer}
+            acceptingQuoteId={acceptingQuoteId}
+          />
         ))
       )}
       <div ref={bottomRef} />

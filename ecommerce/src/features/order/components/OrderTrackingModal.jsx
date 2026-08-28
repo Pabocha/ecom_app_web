@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Package, Truck, MapPin, CheckCircle, XCircle, Send } from 'lucide-react';
+import { X, Package, Truck, MapPin, CheckCircle, XCircle, Send, Warehouse } from 'lucide-react';
 import { ORDER_STATUS } from '@/features/order/data/orderData';
 import { formatPrice, formatDate } from '@/utils/helpers';
 
 const STATUS_TIMELINE = [
   { key: 'pending', label: 'Commande confirmée', icon: CheckCircle },
   { key: 'processing', label: 'Préparation en cours', icon: Package },
+  { key: 'deposited', label: 'Déposée en entrepôt', icon: Warehouse },
   { key: 'shipped', label: 'Expédiée', icon: Send },
   { key: 'in_transit', label: 'En transit', icon: Truck },
   { key: 'delivered', label: 'Livrée', icon: MapPin },

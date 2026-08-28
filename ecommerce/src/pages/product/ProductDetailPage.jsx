@@ -68,6 +68,15 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
     navigate(`/messages?product=${product.id}&seller=${product.seller_id}`);
   };
 
+  const handleQuote = () => {
+    if (!isAuthenticated) {
+      useUIStore.getState().openLoginModal();
+      return;
+    }
+    if (!product?.id || !product?.seller_id) return;
+    navigate(`/messages?product=${product.id}&seller=${product.seller_id}`);
+  };
+
   const handleToggleFavorite = () => {
     if (!isAuthenticated) {
       useUIStore.getState().openLoginModal();
@@ -416,7 +425,7 @@ export default function ProductDetailPage({ product, onClose, onAddToCart, addin
               >Contacter</button>
               {/* MODIFICATION ICI — navigation vers la page boutique */}
               <button onClick={() => onOpenShop?.(product.shop)} className="flex-1 rounded bg-[#0d1b2a] py-2.5 text-[12px] font-bold text-white hover:bg-orange-500 transition-colors">Voir le shop</button>
-              <button className="flex-1 rounded bg-orange-500 py-2.5 text-[12px] font-bold text-white hover:bg-orange-600 transition-colors">Devis</button>
+              <button onClick={handleQuote} disabled={isOwnShop} title={isOwnShop ? 'Votre propre boutique' : 'Négocier le prix via un devis'} className="flex-1 rounded bg-orange-500 py-2.5 text-[12px] font-bold text-white hover:bg-orange-600 transition-colors disabled:opacity-40">Devis</button>
             </div>
           </div>
 

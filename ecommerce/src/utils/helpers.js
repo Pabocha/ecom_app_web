@@ -318,3 +318,48 @@ export function filterAndSortDeals(deals, { activeCat, sort } = {}) {
       return (a.timeLeft?.total_seconds ?? 0) - (b.timeLeft?.total_seconds ?? 0);
     });
 }
+
+// ============================
+// Helpers devis (quotes)
+// ============================
+
+// Libellé FR d'un statut de devis
+export function formatQuoteStatus(status) {
+  const labels = {
+    draft: 'Brouillon',
+    sent: 'Envoyé',
+    countered: 'Contre-proposition',
+    accepted: 'Accepté',
+    rejected: 'Refusé',
+    expired: 'Expiré',
+    converted: 'Converti en commande',
+  };
+  return labels[status] || status || '—';
+}
+
+// Prix unitaire d'une ligne de devis (défensif : accepte {amount} ou nombre)
+export function quoteLineUnitPrice(line) {
+  const raw = line?.negotiated_price;
+  const amount = typeof raw === 'object' && raw !== null ? raw.amount : raw;
+  const price = Number(amount);
+  return Number.isFinite(price) ? price : 0;
+}
+
+// Total d'une ligne de devis (prix unitaire × quantité)
+export function quoteLineTotal(line) {
+  return quoteLineUnitPrice(line) * Number(line?.quantity || 0);
+}
+
+// Total du devis (somme des lignes)
+export function quoteTotal(quote) {
+  if (!quote?.lines) return 0;
+  return quote.lines.reduce((sum, line) => sum + quoteLineTotal(line), 0);
+}
+
+// Prix actif d'un produit (promo > base) pour pré-remplir une proposition
+export function activeProductPrice(product) {
+  const pricing = product?.pricing_display;
+  if (pricing?.type === 'promo') return Number(pricing.promo_price);
+  if (pricing?.type === 'base') return Number(pricing.price);
+  return Number(product?.base_price?.amount);
+}

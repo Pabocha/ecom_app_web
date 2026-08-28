@@ -157,7 +157,7 @@ export default function SellerRegistrationPage() {
     });
 
     try {
-       registerVendor({
+       await registerVendor({
         formData,
         config: { headers: { 'Content-Type': 'multipart/form-data' } },
       });

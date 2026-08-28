@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { ArrowLeft, Package, Pin } from 'lucide-react';
 import MessageList from './MessageList';
 import ChatComposer from './ChatComposer';
+import QuoteBanner from '@/features/quote/components/QuoteBanner';
 import { useChatRoom } from '../hooks/useChatRoom';
+import { useQuoteMutations, useRoomQuote } from '@/features/quote/hooks/useQuote';
 import { formatLastSeen, formatPrice } from '@/utils/helpers';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -17,6 +20,7 @@ function initialsOf(name) {
 
 export default function ConversationWindow({ roomId, conversation, onBack }) {
   const currentUserId = useAuthStore((s) => s.user?.id);
+  const [acceptingQuoteId, setAcceptingQuoteId] = useState(null);
   const {
     userId,
     messages,
@@ -31,7 +35,10 @@ export default function ConversationWindow({ roomId, conversation, onBack }) {
     sendImage,
     notifyTyping,
     notifyStopTyping,
+    reloadRoom,
   } = useChatRoom(roomId);
+
+  const { acceptMutation } = useQuoteMutations(roomId);
 
   const counterMember = (roomMeta?.member || []).find((m) => String(m.id) !== String(currentUserId));
   const support = conversation?.is_support;
@@ -46,6 +53,26 @@ export default function ConversationWindow({ roomId, conversation, onBack }) {
   const photo = !support && conversation?.user?.photo ? conversation.user.photo : null;
 
   const pinned = roomMeta?.pinned_product_detail || null;
+
+  const { quote: roomQuote } = useRoomQuote({ roomMeta });
+
+  const quoteContext = {
+    canAccept: roomMeta?.current_user_quote_role === 'buyer' && ['sent', 'countered'].includes(roomQuote?.status),
+  };
+
+  const handleAcceptOffer = (quoteId) => {
+    if (!quoteId || acceptingQuoteId) return;
+    setAcceptingQuoteId(quoteId);
+    acceptMutation.mutate(quoteId, {
+      onSuccess: () => {
+        reloadRoom();
+        setAcceptingQuoteId(null);
+      },
+      onError: () => {
+        setAcceptingQuoteId(null);
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -110,11 +137,22 @@ export default function ConversationWindow({ roomId, conversation, onBack }) {
         )}
       </div>
 
+      <QuoteBanner
+        roomId={roomId}
+        roomMeta={roomMeta}
+        isLoading={isLoading}
+        onQuoteChanged={reloadRoom}
+        sendText={sendText}
+      />
+
       <MessageList
         messages={messages}
         currentUserId={userId}
         isLoading={isLoading}
         emptyText="Aucun message. Posez votre question à ce sujet."
+        quoteContext={quoteContext}
+        onAcceptOffer={handleAcceptOffer}
+        acceptingQuoteId={acceptingQuoteId}
       />
 
       <ChatComposer

@@ -1,8 +1,9 @@
-import { Clock, CheckCircle, XCircle, Package, Truck, RotateCcw, Send } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Package, Truck, RotateCcw, Send, Warehouse } from 'lucide-react';
 
 export const ORDER_STATUS = {
   pending: { label: 'En attente', color: 'bg-amber-100 text-amber-700', icon: Clock },
   processing: { label: 'En traitement', color: 'bg-blue-100 text-blue-700', icon: Package },
+  deposited: { label: 'Déposée en entrepôt', color: 'bg-purple-100 text-purple-700', icon: Warehouse },
   shipped: { label: 'Expédiée', color: 'bg-indigo-100 text-indigo-700', icon: Send },
   in_transit: { label: 'En transit', color: 'bg-purple-100 text-purple-700', icon: Truck },
   delivered: { label: 'Livrée', color: 'bg-green-100 text-green-700', icon: CheckCircle },
@@ -11,11 +12,12 @@ export const ORDER_STATUS = {
   partially_returned: { label: 'Partiellement retournée', color: 'bg-orange-100 text-orange-700', icon: RotateCcw },
 };
 
-// MODIFICATION ICI — Un onglet par statut backend (8 statuts) + Toutes
+// MODIFICATION ICI — Un onglet par statut backend (9 statuts) + Toutes
 export const ORDER_TABS = [
   { key: 'all', label: 'Toutes', status: null },
   { key: 'pending', label: 'En attente', status: 'pending' },
   { key: 'processing', label: 'En traitement', status: 'processing' },
+  { key: 'deposited', label: 'Déposée en entrepôt', status: 'deposited' },
   { key: 'shipped', label: 'Expédiée', status: 'shipped' },
   { key: 'in_transit', label: 'En transit', status: 'in_transit' },
   { key: 'delivered', label: 'Livrée', status: 'delivered' },

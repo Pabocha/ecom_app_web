@@ -1,5 +1,8 @@
 import { Check, CheckCheck } from 'lucide-react';
 import { formatPrice } from '@/utils/helpers';
+import QuoteOfferCard from '@/features/quote/components/QuoteOfferCard';
+import QuoteAcceptedCard from '@/features/quote/components/QuoteAcceptedCard';
+import PaymentLinkCard from '@/features/quote/components/PaymentLinkCard';
 
 function formatTime(ts) {
   if (!ts) return '';
@@ -7,7 +10,56 @@ function formatTime(ts) {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-export default function MessageBubble({ message, isOwn }) {
+function parseOfferMessage(text) {
+  const match = text?.match(/^\[QUOTE_OFFER\]\s*(.+)$/);
+  if (!match) return null;
+  const pairs = match[1].split(';');
+  const data = {};
+  for (const pair of pairs) {
+    const [key, ...rest] = pair.split('=');
+    if (key) data[key.trim()] = rest.join('=').trim();
+  }
+  return {
+    quoteId: data.quote_id ? Number(data.quote_id) : null,
+    status: data.status || '',
+    quantity: data.quantity || '',
+    unitPrice: Number(data.unit_price) || 0,
+    currency: data.currency || 'XOF',
+    total: Number(data.total) || 0,
+    remarks: data.remarks || '',
+  };
+}
+
+function parseAcceptedMessage(text) {
+  const match = text?.match(/^\[QUOTE_ACCEPTED\]\s*(.+)$/);
+  if (!match) return null;
+  const pairs = match[1].split(';');
+  const data = {};
+  for (const pair of pairs) {
+    const [key, ...rest] = pair.split('=');
+    if (key) data[key.trim()] = rest.join('=').trim();
+  }
+  return {
+    quoteId: data.quote_id ? Number(data.quote_id) : null,
+    status: data.status || 'accepted',
+  };
+}
+
+function parsePaymentMessage(text) {
+  const tokenMatch = text?.match(/^\[PAYMENT\]\s*token=(.+)$/);
+  if (tokenMatch) return { token: tokenMatch[1].trim() };
+  const urlMatch = text?.match(/\/(?:api\/)?v1?\/orders\/quotes\/pay\/([^/\s]+)/);
+  if (urlMatch) return { token: urlMatch[1].trim() };
+  return null;
+}
+
+export default function MessageBubble({ message, isOwn, quoteContext, onAcceptOffer, acceptingQuoteId }) {
+  const text = message.message || '';
+  const offerData = parseOfferMessage(text);
+  const acceptedData = parseAcceptedMessage(text);
+  const paymentData = parsePaymentMessage(text);
+  const isStructured = offerData || acceptedData || paymentData;
+
   const isProduct = message.message_type === 'product';
   const isImage = message.message_type === 'image';
   const product = message.product_detail || null;
@@ -25,6 +77,40 @@ export default function MessageBubble({ message, isOwn }) {
     tierBadge = `${pd.tiers_count} prix`;
   }
   const minQty = message.min_order_quantity ?? product?.min_order_quantity ?? null;
+
+  if (isStructured) {
+    return (
+      <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+        <div className="max-w-[80%]">
+          {!isOwn && <div className="text-[10px] font-black mb-1 text-gray-400 px-1">{message.userName}</div>}
+          {offerData && (
+            <QuoteOfferCard
+              data={offerData}
+              isSentByMe={isOwn}
+              canAccept={quoteContext?.canAccept && !isOwn}
+              onAccept={() => onAcceptOffer?.(offerData.quoteId)}
+              isAccepting={acceptingQuoteId === offerData.quoteId}
+            />
+          )}
+          {acceptedData && (
+            <QuoteAcceptedCard data={acceptedData} />
+          )}
+          {paymentData && (
+            <PaymentLinkCard data={paymentData} isSentByMe={isOwn} />
+          )}
+          <div className="flex items-center justify-end gap-1 mt-1 px-1">
+            <span className={`text-[10px] ${isOwn ? 'text-gray-400' : 'text-gray-400'}`}>{formatTime(message.timestamp)}</span>
+            {isOwn &&
+              (message.is_read ? (
+                <CheckCheck size={14} className="text-cyan-500" />
+              ) : (
+                <Check size={14} className="text-gray-300" />
+              ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>

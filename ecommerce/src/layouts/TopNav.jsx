@@ -157,6 +157,13 @@ export default function TopNav({ cartCount, user, onLogout }) {
                         <ChevronRight size={12} />
                       </Link>
                       <Link
+                        to="/devis"
+                        className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
+                      >
+                        Mes devis
+                        <ChevronRight size={12} />
+                      </Link>
+                      <Link
                         to="/seller-center"
                         className="flex items-center justify-between px-4 py-2.5 text-[12px] font-semibold text-gray-500 hover:bg-orange-50 hover:text-orange-500"
                       >

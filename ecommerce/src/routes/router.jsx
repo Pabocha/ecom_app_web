@@ -38,6 +38,8 @@ import ProfilePage from "@/pages/profile/ProfilePage";
 import OrdersPage from "@/pages/order/OrdersPage";
 import OrderDetailPage from "@/pages/order/OrderDetailPage";
 import MessagesPage from "@/pages/messages/MessagesPage";
+import MyQuotesPage from "@/pages/quote/MyQuotesPage";
+import DevisPayPage from "@/pages/quote/DevisPayPage";
 import TicketCreatePage from "@/pages/support/TicketCreatePage";
 import TicketsPage from "@/pages/support/TicketsPage";
 
@@ -141,6 +143,8 @@ export const routes = [
       { path: "/profile", element: <PrivateRoute><ProfilePage /></PrivateRoute> },
       { path: "/profile/orders", element: <PrivateRoute><OrdersPage /></PrivateRoute> },
       { path: "/profile/orders/:id", element: <PrivateRoute><OrderDetailRoute /></PrivateRoute> },
+      { path: "/devis", element: <PrivateRoute><MyQuotesPage /></PrivateRoute> },
+      { path: "/paiement/devis/:token", element: <PrivateRoute><DevisPayPage /></PrivateRoute> },
       { path: "/messages", element: <PrivateRoute><MessagesPage /></PrivateRoute> },
 
       { path: "/support/tickets", element: <PrivateRoute><TicketsPage /></PrivateRoute> },

@@ -109,6 +109,11 @@ export default function ConversationList({ conversations, selectedRoomId, onSele
                 <div className="text-[10px] text-cyan-600 truncate">{c.shop_name}</div>
               )}
             </div>
+            {c.active_quote_id && !c.is_support && (
+              <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-cyan-100 text-cyan-700 text-[9px] font-black">
+                Devis
+              </span>
+            )}
             {c.unread_count > 0 && (
               <span className="shrink-0 min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-orange-500 text-white text-[11px] font-black">
                 {c.unread_count}
